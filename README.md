@@ -19,6 +19,8 @@ Instrucciones detalladas para:
 
 Clonar el repositorio.
 1. 
+![image](https://github.com/user-attachments/assets/54d6739d-bf7e-41b3-a729-4297e036501e)
+
 
 Instalar dependencias (npm install o equivalente).  
 
