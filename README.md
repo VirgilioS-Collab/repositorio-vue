@@ -18,9 +18,9 @@ Lista de las 3 funcionalidades principales planificadas.
 Instrucciones detalladas para:  
 
 Clonar el repositorio.
-1. 
+1. Elegir el proyecto que sera clonado, dentro de el en el boton verde que dice "<> Code", le daremos click en la opcion "https" y se copiara el link que nos da.
 ![image](https://github.com/user-attachments/assets/54d6739d-bf7e-41b3-a729-4297e036501e)
-
+2.
 
 Instalar dependencias (npm install o equivalente).  
 
