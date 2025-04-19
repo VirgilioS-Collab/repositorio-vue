@@ -40,6 +40,11 @@ Clonar el repositorio.
 
 
 
-Instalar dependencias (npm install o equivalente).  
+Instalar dependencias (npm install o equivalente).
+1. Instalación de Node.js 
+1.1. Descarga del instalador 
+Como primer requisito para trabajar con Vue y Vite, es necesario disponer de Node.js instalado en el sistema. Node.js es un entorno de ejecución para JavaScript que incluye npm (Node Package Manager), herramientas esenciales para la gestión de dependencias del proyecto. Accederemos al sitio oficial de Node.js (Node.js — Run JavaScript Everywhere) y descargueremos el instalador. 
+
+
 
 Ejecutar el proyecto en modo desarrollo (ng serve, npm run dev, etc.).
