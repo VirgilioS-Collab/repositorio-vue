@@ -2,10 +2,10 @@
 Repositorio en Github disponible para la creacion y manejo de projecto de desarrollo web en framework Vue
 
 Nombre del proyecto
-Plataforma de Inscripción y Promoción de Actividades Académicas
+1. Plataforma de Inscripción y Promoción de Actividades Académicas
 
 Descripción funcional del sistema.
-Este proyecto propone una Plataforma de Inscripción y Promoción de Actividades Académicas, diseñada para mejorar la organización y difusión de eventos académicos dentro de una universidad. Actualmente, los estudiantes     pueden perder oportunidades valiosas debido a la falta de un sistema centralizado, lo que resulta en baja participación y desorden en la gestión de actividades.
+1. Este proyecto propone una Plataforma de Inscripción y Promoción de Actividades Académicas, diseñada para mejorar la organización y difusión de eventos académicos dentro de una universidad. Actualmente, los estudiantes     pueden perder oportunidades valiosas debido a la falta de un sistema centralizado, lo que resulta en baja participación y desorden en la gestión de actividades.
 
 Imagen representativa del proyecto (mockup o logotipo provisorio).  
 
