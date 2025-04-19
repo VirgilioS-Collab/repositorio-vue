@@ -1,2 +1,25 @@
 # repositorio-vue
 Repositorio en Github disponible para la creacion y manejo de projecto de desarrollo web en framework Vue
+
+Nombre del proyecto
+Plataforma de Inscripción y Promoción de Actividades Académicas
+
+Descripción funcional del sistema.
+Este proyecto propone una Plataforma de Inscripción y Promoción de Actividades Académicas, diseñada para mejorar la organización y difusión de eventos académicos dentro de una universidad. Actualmente, los estudiantes     pueden perder oportunidades valiosas debido a la falta de un sistema centralizado, lo que resulta en baja participación y desorden en la gestión de actividades.
+
+Imagen representativa del proyecto (mockup o logotipo provisorio).  
+
+
+Lista de las 3 funcionalidades principales planificadas.  
+--Catálogo de actividades y giras académicas disponibles, con detalles como fecha, ubicación, requisitos y cupos disponibles. 
+--Sistema de inscripción en línea para que los estudiantes reserven su participación. 
+--Panel de administración para que los clubes y organizadores gestionen eventos, inscripciones y envíen notificaciones. 
+
+Instrucciones detalladas para:  
+
+Clonar el repositorio.
+1. 
+
+Instalar dependencias (npm install o equivalente).  
+
+Ejecutar el proyecto en modo desarrollo (ng serve, npm run dev, etc.).
