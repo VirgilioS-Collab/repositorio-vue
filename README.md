@@ -26,6 +26,7 @@ Clonar el repositorio.
 3. Esta opcion abrira la terminal de GitBash. Dentro de la consola se debera escribir el comando "git init" para inicializar el repositorio y se vera que la direccion de la carpeta ahora incluye la palabra "master" en azul.
 
 ![image](https://github.com/user-attachments/assets/95388234-f971-44c1-8ac7-77c734106cbf)
+
 4. Por ultimo se debe escribir el comando "git clone" y se le añadira el URL que se copio en el primer paso y al darle enter se iniciara la clonacion del proyecto.
 
 ![image](https://github.com/user-attachments/assets/0a27b409-33bf-49db-a7d3-9ded6f2a110f)
