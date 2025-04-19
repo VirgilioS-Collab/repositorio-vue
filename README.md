@@ -30,9 +30,11 @@ Clonar el repositorio.
 4. Por ultimo se debe escribir el comando "git clone" y se le añadira el URL que se copio en el primer paso y al darle enter se iniciara la clonacion del proyecto.
 
 ![image](https://github.com/user-attachments/assets/0a27b409-33bf-49db-a7d3-9ded6f2a110f)
+
 6. Al ir a la carpeta creada para clonar el proyecto, podra ver que el proceso de clonacion fue terminado.
 
 ![image](https://github.com/user-attachments/assets/027a2912-6138-4e5f-99a1-ccf72ef1b25c)
+
 ![image](https://github.com/user-attachments/assets/e4be109a-1b9e-46b6-be68-a11925c26485)
 
 
