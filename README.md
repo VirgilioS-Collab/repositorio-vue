@@ -1,50 +1,104 @@
-# repositorio-vue
-Repositorio en Github disponible para la creacion y manejo de projecto de desarrollo web en framework Vue
+# gestor_academico
 
-Nombre del proyecto
-1. Plataforma de Inscripción y Promoción de Actividades Académicas
+![Logo provisional](src/assets/logo.svg)
 
-Descripción funcional del sistema.
-1. Este proyecto propone una Plataforma de Inscripción y Promoción de Actividades Académicas, diseñada para mejorar la organización y difusión de eventos académicos dentro de una universidad. Actualmente, los estudiantes     pueden perder oportunidades valiosas debido a la falta de un sistema centralizado, lo que resulta en baja participación y desorden en la gestión de actividades.
+## 1. Descripción funcional
 
-Imagen representativa del proyecto (mockup o logotipo provisorio).  
+**gestor_academico** es una aplicación web multicapa compuesta por:
+
+- **Frontend**: Vue 3 + TypeScript + Vite  
+- **Backend**: Flask (Python)
+
+Permite a estudiantes y organizadores:
+
+1. Registrar, editar y cancelar actividades académicas (título, descripción, fecha/hora, ubicación, enlace de inscripción).  
+2. Gestionar grupos estudiantiles con inscripción y desinscripción de usuarios.  
+3. Buscar y filtrar eventos mediante parámetros combinables y recibir notificaciones de cambios.
+
+---
+
+## 2. Funcionalidades principales planificadas
+
+1. **CRUD de Actividades**  
+   - Formularios con validación en tiempo real.  
+   - Almacenamiento y modificación vía API REST.
+
+2. **Gestión de Grupos**  
+   - Catálogo de grupos por área de interés.  
+   - Inscripción de usuarios con confirmación automática.
+
+3. **Búsqueda y Notificaciones**  
+   - Filtros por tipo, fecha y palabras clave.  
+   - Recordatorios previos y alertas de cambios de horario o ubicación.
+
+---
+
+## 3. Requisitos de entorno
+
+- **Node.js** ≥ 16  
+- **pnpm**   
+- **Python** ≥ 3.8  
+- **git**
+
+---
+
+## 4. Instalación manual
+
+### 4.1 Clonar el repositorio
+```bash
+git clone https://github.com/tu-usuario/gestor_academico.git
+cd gestor_academico
+```
+
+### 4.2 Configurar backend (Flask)
+```bash
+cd backend
+
+# Crear y activar entorno virtual
+python3 -m venv .venv
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# Linux/macOS:
+source .venv/bin/activate
+
+# Instalar dependencias
+pip install --upgrade pip
+pip install flask
+pip freeze > requirements.txt
+
+# Probar servidor de desarrollo
+python app.py  
+# → http://localhost:5000/api/hello
+```
+
+### 4.3 Configurar frontend (Vue 3 + TS)
+```bash
+cd frontend
+
+# Instalar dependencias
+pnpm install      # o npm install
+
+# Ejecutar en modo desarrollo
+pnpm run dev      # o npm run dev
+
+# Abrir en el navegador:
+http://localhost:5173
+```
 
 
-Lista de las 3 funcionalidades principales planificadas.  
---Catálogo de actividades y giras académicas disponibles, con detalles como fecha, ubicación, requisitos y cupos disponibles. 
---Sistema de inscripción en línea para que los estudiantes reserven su participación. 
---Panel de administración para que los clubes y organizadores gestionen eventos, inscripciones y envíen notificaciones. 
+---
 
-Instrucciones detalladas para:  
+## 5. Validación inicial
 
-Clonar el repositorio.
-1. Elegir el proyecto que sera clonado,en el main branch, dentro de el en el boton verde que dice "<> Code", le daremos click en la opcion "HTTPS" y se copiara el link que nos da.
-![image](https://github.com/user-attachments/assets/54d6739d-bf7e-41b3-a729-4297e036501e)
-2.Una vez hecho esto hay que ir a la carpeta en windows donde sera clonado el proyecto, dentro de ella dar click derecho y seleccionar la opcion "GitBash Here".
+La vista principal (`frontend/src/views/Home.vue`) incluye un componente `Navbar` y un mensaje placeholder que permite verificar que el proyecto arranca correctamente:
 
-![image](https://github.com/user-attachments/assets/509c1de3-e7bc-4e43-bd26-c7684916aeef)
-3. Esta opcion abrira la terminal de GitBash. Dentro de la consola se debera escribir el comando "git init" para inicializar el repositorio y se vera que la direccion de la carpeta ahora incluye la palabra "master" en azul.
+```vue
+<template>
+  <Navbar />
+  <main class="main-content">
+    <h1>Agenda Academia</h1>
+    <p>Inicio cargado correctamente.</p>
+  </main>
+</template>
+```
 
-![image](https://github.com/user-attachments/assets/95388234-f971-44c1-8ac7-77c734106cbf)
-
-4. Por ultimo se debe escribir el comando "git clone" y se le añadira el URL que se copio en el primer paso y al darle enter se iniciara la clonacion del proyecto.
-
-![image](https://github.com/user-attachments/assets/0a27b409-33bf-49db-a7d3-9ded6f2a110f)
-
-6. Al ir a la carpeta creada para clonar el proyecto, podra ver que el proceso de clonacion fue terminado.
-
-![image](https://github.com/user-attachments/assets/027a2912-6138-4e5f-99a1-ccf72ef1b25c)
-
-![image](https://github.com/user-attachments/assets/e4be109a-1b9e-46b6-be68-a11925c26485)
-
-
-
-
-Instalar dependencias (npm install o equivalente).
-1. Instalación de Node.js 
-1.1. Descarga del instalador 
-Como primer requisito para trabajar con Vue y Vite, es necesario disponer de Node.js instalado en el sistema. Node.js es un entorno de ejecución para JavaScript que incluye npm (Node Package Manager), herramientas esenciales para la gestión de dependencias del proyecto. Accederemos al sitio oficial de Node.js (Node.js — Run JavaScript Everywhere) y descargueremos el instalador. 
-
-
-
-Ejecutar el proyecto en modo desarrollo (ng serve, npm run dev, etc.).
