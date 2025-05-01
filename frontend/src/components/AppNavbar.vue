@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { BookIcon, UserIcon, EditIcon, LockIcon, LogOutIcon } from 'lucide-vue-next'
-
+import StrokeLogo from '@/assets/stroke_logo.svg'
 defineProps({
   user: {
     type: Object,
@@ -19,7 +19,8 @@ defineEmits(['toggleProfileDropdown', 'openModal', 'logout'])
   <nav class="bg-[#00205B] text-white p-4 fixed top-0 left-0 right-0 z-50 shadow-md">
     <div class="max-w-screen-lg mx-auto flex justify-between items-center px-4">
       <div class="flex items-center space-x-2">
-        <BookIcon :size="24" color="#E4B95B" />
+        <!--<BookIcon :size="24" color="#E4B95B" />-->
+        <img :src="StrokeLogo" alt="Logo" class="w-14 h-14" />
         <span class="text-lg sm:text-xl font-bold">Agenda Academia</span>
       </div>
 
