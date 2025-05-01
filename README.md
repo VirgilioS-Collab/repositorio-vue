@@ -1,10 +1,10 @@
-# gestor_academico
+# Alianza UTP
 
-![Logo provisional](src/assets/logo.svg)
+![Logo provisional](./frontend/src/assets/logo.svg)
 
 ## 1. Descripción funcional
 
-**gestor_academico** es una aplicación web multicapa compuesta por:
+**Alianza UTP** es una aplicación web multicapa compuesta por:
 
 - **Frontend**: Vue 3 + TypeScript + Vite  
 - **Backend**: Flask (Python)
