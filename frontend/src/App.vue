@@ -65,6 +65,7 @@ import QuickActions from '@/components/QuickActions.vue'
 import GroupsSection from '@/components/GroupsSection.vue'
 import ActivitiesSection from '@/components/ActivitiesSection.vue'
 
+
 // --- Estado principal ---
 interface Group {
   id: number
