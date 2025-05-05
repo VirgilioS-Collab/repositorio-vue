@@ -1,6 +1,6 @@
 <!--
   ------------------------------------------------------------------
-  Componente **controlado** de entrada de texto reutilizable.
+  Componente BaseInput de entrada de texto reutilizable.
   • Emite `update:modelValue` para ser usado con v-model
   • Soporta etiqueta (`label`), placeholder y tipo de input
   • Lista para validación y manejo de errores desde el padre

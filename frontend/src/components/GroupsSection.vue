@@ -7,7 +7,7 @@
   ------------------------------------------------------------------ -->
 
 <script setup lang="ts">
-import { IconKey }   from '@/utils/icons'
+import type { IconKey } from '@/utils/icons'
 import LucideIcon    from '@/components/ui/LucideIcon.vue'
 
 /* ---------- Props ---------- */
