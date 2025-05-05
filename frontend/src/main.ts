@@ -1,8 +1,7 @@
-import { createApp } from 'vue';
-import App from './App.vue';
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import { router } from '@/router'
+import App from '@/App.vue'
+import '@/style.css'
 
-// Crear la aplicación Vue
-// app = createApp(App);
-
-// Montar la aplicación
-createApp(App).mount('#app')
+createApp(App).use(createPinia()).use(router).mount('#app')
