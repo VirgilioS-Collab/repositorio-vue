@@ -9,11 +9,10 @@ export const ICONS = {
     location : 'map-pin',
     user     : 'user',
     book     : 'book',
-    pencil   : 'pencil',     
+    pencil   : 'pencil',
     lock     : 'lock',
-    logout   : 'log-out',
     x        : 'x',
-
+    logout   : 'log-out',
     logOut   : 'log-out',
 
     /* Grupos */
