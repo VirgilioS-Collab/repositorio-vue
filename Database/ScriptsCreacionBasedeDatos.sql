@@ -1,35 +1,165 @@
--- SCRIPT DE CREACIÓN DE LA BASE DE DATOS Y TABLAS PARA EL SISTEMA DE GESTIÓN DE ACTIVIDADES ESTUDIANTILES
--- BASE DE DATOS: UTP_ACTIVIDADES_ESTUDIANTILES
--- AUTOR: [VIRGILIO E. SALDANA MARTINEZ]
--- FECHA: 2025-04-29
+-- Tabla userTypes
+CREATE TABLE userTypes (
+    type_id INT PRIMARY KEY,
+    ut_type_name VARCHAR(100),
+    ut_description TEXT
+);
 
+-- Tabla userStatus
+CREATE TABLE userStatus (
+    user_status_id INT PRIMARY KEY,
+    us_status_name VARCHAR(100),
+    us_description TEXT
+);
 
-CREATE DATABASE UTP_ACTIVIDADES_ESTUDIANTILES;
-USE UTP_ACTIVIDADES_ESTUDIANTILES
-GO
+-- Tabla Users
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY,
+    u_name VARCHAR(100),
+    u_last_name VARCHAR(100),
+    u_username VARCHAR(100),
+    u_email VARCHAR(100),
+    u_phone VARCHAR(20),
+    u_about_me TEXT,
+    u_password VARCHAR(100),
+    u_last_password_update DATE,
+    u_profile_photo_url VARCHAR(255),
+    u_user_type_id INT,
+    u_user_status_id INT,
+    u_creation_date DATE,
+    u_last_login_date DATE,
+    FOREIGN KEY (u_user_type_id) REFERENCES userTypes(type_id),
+    FOREIGN KEY (u_user_status_id) REFERENCES userStatus(user_status_id)
+);
 
+-- Tabla groupCategories
+CREATE TABLE groupCategories (
+    group_category_id INT PRIMARY KEY,
+    gc_category_name VARCHAR(100),
+    gc_description TEXT
+);
 
+-- Tabla groupStatus
+CREATE TABLE groupStatus (
+    group_status_id INT PRIMARY KEY,
+    gs_status_name VARCHAR(100),
+    gs_description TEXT
+);
 
-DROP IF EXISTS TABLE ESTUDIANTE_USUARIO;COMMIT;
-DROP IF EXISTS TABLE GRUPO_ESTUDIANTIL;COMMIT;
-DROP IF EXISTS TABLE ACTIVIDAD_ESTUDIANTIL;COMMIT;
-DROP IF EXISTS TABLE REGISTRO_PARTICIPACION;COMMIT;
+-- Tabla Groups
+CREATE TABLE Groups (
+    group_id INT PRIMARY KEY,
+    g_group_name VARCHAR(100),
+    g_group_description TEXT,
+    g_group_status_id INT,
+    g_group_owner_id INT,
+    g_group_category_id INT,
+    FOREIGN KEY (g_group_status_id) REFERENCES groupStatus(group_status_id),
+    FOREIGN KEY (g_group_owner_id) REFERENCES Users(user_id),
+    FOREIGN KEY (g_group_category_id) REFERENCES groupCategories(group_category_id)
+);
 
--- TABLA: ESTUDIANTE_USUARIO -- DESCRIPCION: Almacena la información de los estudiantes que participan en actividades estudiantiles.
---cambiar tipo int de id a serial
-CREATE TABLE ESTUDIANTE_USUARIO(ESTUDIANTE_ID  PRIMARY KEY, NOMBRE_ESTUDIANTE VARCHAR(50) NOT NULL, CORREO_UTP_ESTUDIANTE VARCHAR(50) NOT NULL, TELEFONO_ESTUDIANTE VARCHAR(15) NOT NULL, FECHA_NACIMIENTO_ESTUDIANTE DATE NOT NULL, FACULTAD_ESTUDIANTE VARCHAR(50) NOT NULL, CARRERA_ESTUDIANTE VARCHAR(50) NOT NULL, CONSTRAINT UQ_ESTUDIANTE_CORREO UNIQUE (CORREO_UTP_ESTUDIANTE), CONSTRAINT UQ_ESTUDIANTE_TELEFONO UNIQUE (TELEFONO_ESTUDIANTE));COMMIT;
+-- Tabla groupMemberStatus
+CREATE TABLE groupMemberStatus (
+    group_member_status_id INT PRIMARY KEY,
+    gms_status_name VARCHAR(100),
+    gms_description TEXT
+);
 
--- TABLA: GRUPO_ESTUDIANTIL -- DESCRIPCION: Almacena la información de los grupos estudiantiles que organizan actividades.
-CREATE TABLE GRUPO_ESTUDIANTIL(GRUPO_ID INT PRIMARY KEY, NOMBRE_GRUPO VARCHAR(50) NOT NULL, DESCRIPCION_GRUPO VARCHAR(255) NOT NULL, ESTADO_GRUPO VARCHAR(20) NOT NULL CHECK (ESTADO_GRUPO IN ('ACTIVO', 'INACTIVO')), CONSTRAINT UQ_GRUPO_NOMBRE UNIQUE (NOMBRE_GRUPO));COMMIT;
+-- Tabla memberRoles
+CREATE TABLE memberRoles (
+    role_id INT PRIMARY KEY,
+    mr_role_name VARCHAR(100),
+    mr_description TEXT
+);
 
--- TABLA: ACTIVIDAD_ESTUDIANTIL -- DESCRIPCION: Almacena la información de las actividades estudiantiles organizadas por los grupos.
---cambiar tipo int de id a serial
---anadir fecha inicio y fecha fin 
--- analizar tipo de dato de horas TIPO_ACTIVIDAD
---crear catalogo a base de 
-CREATE TABLE ACTIVIDAD_ESTUDIANTIL(ACTIVIDAD_ID INT PRIMARY KEY, NOMBRE_ACTIVIDAD VARCHAR(50) NOT NULL, DESCRIPCION_ACTIVIDAD VARCHAR(255) NOT NULL, FECHA_ACTIVIDAD DATE NOT NULL, HORA_INICIO_ACTIVIDAD TIME NOT NULL, HORA_FIN_ACTIVIDAD TIME NOT NULL, LUGAR_ACTIVIDAD VARCHAR(100) NOT NULL, CANTIDAD_INSCRITOS INT DEFAULT 0 CHECK (CANTIDAD_INSCRITOS >= 0), TIPO_ACTIVIDAD VARCHAR(50) NOT NULL CHECK (TIPO_ACTIVIDAD IN ('SOCIAL', 'ACADEMICA', 'CULTURAL')), ESTADO_ACTIVIDAD VARCHAR(20) NOT NULL CHECK (ESTADO_ACTIVIDAD IN ('ABIERTA', 'CERRADA')), GRUPO_ID INT NOT NULL, FOREIGN KEY (GRUPO_ID) REFERENCES GRUPO_ESTUDIANTIL(GRUPO_ID));COMMIT;
+-- Tabla groupMembers
+CREATE TABLE groupMembers (
+    user_id INT,
+    group_id INT,
+    gm_signup_date DATE,
+    gm_role_id INT,
+    gm_status_id INT,
+    gm_approved_by INT,
+    gm_updated_at DATE,
+    PRIMARY KEY (user_id, group_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (group_id) REFERENCES Groups(group_id),
+    FOREIGN KEY (gm_role_id) REFERENCES memberRoles(role_id),
+    FOREIGN KEY (gm_status_id) REFERENCES groupMemberStatus(group_member_status_id),
+    FOREIGN KEY (gm_approved_by) REFERENCES Users(user_id)
+);
 
--- TABLA: REGISTRO_PARTICIPACION -- DESCRIPCION: Almacena el registro de participación de los estudiantes en las actividades organizadas por los grupos.
---cambiar tipo int de id a serial
---CONSTRAINT UQ_REGISTRO_UNICO UNIQUE (ESTUDIANTE_ID, ACTIVIDAD_ID)) manejar en procedimiento
-CREATE TABLE REGISTRO_PARTICIPACION(REGISTRO_ID INT PRIMARY KEY, ESTUDIANTE_ID INT NOT NULL, ACTIVIDAD_ID INT NOT NULL, ESTADO_CONFIRMACION VARCHAR(20) NOT NULL CHECK (ESTADO_CONFIRMACION IN ('CONFIRMADO', 'NO_CONFIRMADO')), FOREIGN KEY (ESTUDIANTE_ID) REFERENCES ESTUDIANTE_USUARIO(ESTUDIANTE_ID), FOREIGN KEY (ACTIVIDAD_ID) REFERENCES ACTIVIDAD_ESTUDIANTIL(ACTIVIDAD_ID), CONSTRAINT UQ_REGISTRO_UNICO UNIQUE (ESTUDIANTE_ID, ACTIVIDAD_ID));COMMIT;
+-- Tabla groupsContacts
+CREATE TABLE groupsContacts (
+    contact_info_id INT PRIMARY KEY,
+    group_id INT,
+    gc_contact_name VARCHAR(100),
+    gc_contact_type VARCHAR(50),
+    gc_contact_value VARCHAR(100),
+    gc_is_primary BOOLEAN,
+    FOREIGN KEY (group_id) REFERENCES Groups(group_id)
+);
+
+-- Tabla groupJoinRequests
+CREATE TABLE groupJoinRequests (
+    request_id INT PRIMARY KEY,
+    gjr_group_id INT,
+    gjr_user_id INT,
+    gjr_request_status_id INT,
+    gjr_created_at DATE,
+    gjr_updated_at DATE,
+    FOREIGN KEY (gjr_group_id) REFERENCES Groups(group_id),
+    FOREIGN KEY (gjr_user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (gjr_request_status_id) REFERENCES groupMemberStatus(group_member_status_id)
+);
+
+-- Tabla activityTypes
+CREATE TABLE activityTypes (
+    activity_type_id INT PRIMARY KEY,
+    at_activity_type_name VARCHAR(100),
+    at_description TEXT
+);
+
+-- Tabla activityStatus
+CREATE TABLE activityStatus (
+    activity_status_id INT PRIMARY KEY,
+    as_activity_status_name VARCHAR(100)
+);
+
+-- Tabla groupActivities
+CREATE TABLE groupActivities (
+    activity_id INT PRIMARY KEY,
+    ga_activity_name VARCHAR(100),
+    ga_activity_description TEXT,
+    ga_max_participants INT,
+    ga_activity_type INT,
+    ga_activity_status INT,
+    ga_group_id INT,
+    ga_creator_id INT,
+    FOREIGN KEY (ga_activity_type) REFERENCES activityTypes(activity_type_id),
+    FOREIGN KEY (ga_activity_status) REFERENCES activityStatus(activity_status_id),
+    FOREIGN KEY (ga_group_id) REFERENCES Groups(group_id),
+    FOREIGN KEY (ga_creator_id) REFERENCES Users(user_id)
+);
+
+-- Tabla activitiesSchedule
+CREATE TABLE activitiesSchedule (
+    schedule_id INT PRIMARY KEY,
+    as_activity_id INT,
+    as_activity_start_date DATE,
+    as_activity_end_date DATE,
+    as_activity_location VARCHAR(255),
+    FOREIGN KEY (as_activity_id) REFERENCES groupActivities(activity_id)
+);
+
+-- Tabla activityParticipants
+CREATE TABLE activityParticipants (
+    participant_id INT PRIMARY KEY,
+    ap_user_id INT,
+    ap_activity_id INT,
+    ap_registration_date DATE,
+    ap_attendance_date DATE,
+    FOREIGN KEY (ap_user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (ap_activity_id) REFERENCES groupActivities(activity_id)
+);
