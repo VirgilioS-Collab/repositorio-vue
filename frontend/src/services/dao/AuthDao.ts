@@ -1,10 +1,15 @@
 import http from '@/services/http'
-import type { LoginDTO, LoginResponseDTO } from '@/services/dao/models/Auth'
+import type { LoginDTO, LoginResponseDTO, userEnrollDTO, userEnrollResponseDTO } from '@/services/dao/models/Auth'
 import type { UserDTO } from '@/services/dao/models/User'
 
 class AuthDao {
     async login(payload: LoginDTO): Promise<LoginResponseDTO> {
         const { data } = await http.post<LoginResponseDTO>('/auth/login', payload)
+        return data
+    }
+
+    async UserEnroll(payload: userEnrollDTO): Promise<userEnrollResponseDTO> {
+        const { data } = await http.post<userEnrollResponseDTO>('/auth/userEnroll', payload)
         return data
     }
 

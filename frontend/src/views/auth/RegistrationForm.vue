@@ -6,7 +6,7 @@ const emit = defineEmits<{ (e:'close'):void }>()
 const auth = useAuthStore()
 
 const form = ref({
-  firstName:'', lastName:'', email:'', phone:'',
+  firstName:'', lastName:'', username:'', email:'', phone:'',
   docType:'Cédula', docNumber:'', birthDate:'',
   gender:'Masculino', password:'', confirmPassword:''
 })
@@ -19,7 +19,7 @@ const pwdOk = computed(() =>
 
 async function submit () {
   if (!emailOk.value || !pwdOk.value) return
-  await auth.register(form.value)
+  await auth.userEnroll(form.value)
   emit('close')
 }
 </script>
@@ -42,17 +42,19 @@ async function submit () {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input v-model="form.firstName" required placeholder="Nombre"  class="input-focus-effect" />
           <input v-model="form.lastName"  required placeholder="Apellido" class="input-focus-effect" />
+          <input v-model="form.username" required placeholder="Nombre de usuario" class="input-focus-effect" />
 
-          <!-- Correo UTP -->
           <input v-model="form.email" required placeholder="nombre@utp.ac.pa"
-                 class="input-focus-effect md:col-span-2"
-                 :class="{ 'border-red-500': form.email && !emailOk }" />
+                class="input-focus-effect"
+                :class="{ 'border-red-500': form.email && !emailOk }" />
+
           <p v-if="form.email && !emailOk" class="md:col-span-2 text-xs text-red-500">
             El correo debe ser institucional (@utp.ac.pa)
           </p>
 
-          <input v-model="form.phone" required placeholder="+507 6000-0000"
-                 pattern="^\\+?507\\d{8}$" class="input-focus-effect" />
+
+          <input v-model="form.phone" required placeholder="+50760000000"
+                 pattern="^\+?507\d{4}-?\d{4}$" class="input-focus-effect" />
 
           <select v-model="form.docType" class="input-focus-effect">
             <option>Cédula</option><option>Pasaporte</option><option>Carné de Residente</option>

@@ -32,7 +32,7 @@ export const useActivityStore = defineStore('activity', {
         },
         /** RF3.4 */
         async fetchById(id: number) {
-            // Si tu endpoint lo soporta
+
             this.selected = this.items.find(a => a.activity_id === id) || null
         },
         /** RF3.4 Inscribir/Cancelar */
