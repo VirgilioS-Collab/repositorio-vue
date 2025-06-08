@@ -1,7 +1,7 @@
 // src/stores/useAuthStore.ts
 import { defineStore } from 'pinia'
 import AuthDao from '@/services/dao/AuthDao'
-import type { LoginDTO, LoginResponseDTO } from '@/services/dao/models/Auth'
+import type { LoginDTO, LoginResponseDTO, userEnrollDTO, userEnrollResponseDTO } from '@/services/dao/models/Auth'
 import type { UserDTO } from '@/services/dao/models/User'
 
 export const useAuthStore = defineStore('auth', {
@@ -56,6 +56,17 @@ export const useAuthStore = defineStore('auth', {
                 const { token } = await AuthDao.refresh()
                 this.token = token
             } catch { /* no interrumpir UI */ }
-        }
+        },
+
+        async userEnroll(payload: userEnrollDTO) {
+            this.loading = true; this.error = null
+            try{
+                 const res: userEnrollResponseDTO = await AuthDao.UserEnroll(payload)
+            } catch (err: any) {
+                this.error = err.message
+            } finally {
+                this.loading = false
+            }
+    }
     }
 })

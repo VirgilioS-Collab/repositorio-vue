@@ -12,7 +12,7 @@ const formOk = computed(() => !!email.value && !!password.value && !auth.loading
 
 async function submit () {
   if (!formOk.value) return
-  await auth.login(email.value, password.value)
+  await auth.login({email: email.value, password: password.value})
   if (auth.isLogged) emit('logged')
 }
 </script>
@@ -26,13 +26,13 @@ async function submit () {
       <form @submit.prevent="submit" class="space-y-4">
         <!-- Email -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Correo</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Correo o usuario</label>
           <div class="relative">
             <i class="fas fa-envelope text-gray-400 absolute inset-y-0 left-0 pl-3 flex items-center" />
             <input
                 v-model="email"
                 type="email"
-                placeholder="correo@utpa.ac.pa"
+                placeholder="correo@utp.ac.pa o usuario"
                 class="input-focus-effect pl-10 w-full py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FFC72C]"
             />
           </div>

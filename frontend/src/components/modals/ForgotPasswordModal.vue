@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { http } from '@/services/http'
+//import { http } from '@/services/http'
 
 const emit = defineEmits<{ (e:'close'):void }>()
 const email = ref('')
