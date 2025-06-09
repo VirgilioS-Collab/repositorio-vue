@@ -6,20 +6,14 @@ import bcrypt
 import psycopg2
 from psycopg2 import OperationalError
 from dotenv import load_dotenv
-<<<<<<< HEAD
 from flask_cors import CORS
 
 
-=======
->>>>>>> d828bd7cd5ece321903f96da81520c9b7bc8b313
 
 class BackendApp():
     def __init__(self):
         self.app = Flask(__name__)
-<<<<<<< HEAD
         CORS(self.app, origins=["http://localhost:5173"], supports_credentials=True)  # <-- Agrega esta línea
-=======
->>>>>>> d828bd7cd5ece321903f96da81520c9b7bc8b313
         self.setup_routes()
         #Cargar las variables del env
         load_dotenv()
