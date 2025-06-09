@@ -43,6 +43,7 @@ class BackendApp():
         self.app.add_url_rule('/login', 'user_login', self.user_login, methods=['POST'])
         self.app.add_url_rule('/signup', 'create_user', self.create_user, methods=['POST'])
         self.app.add_url_rule('/group/members', 'display_group_members', self.get_group_members, methods=['GET'])
+        self.app.add_url_rule('/productos', 'get_products', self.get_products, methods=['GET'])  # <-- Agrega esta línea
 
     def user_login(self):
         data = request.get_json()
@@ -147,7 +148,24 @@ class BackendApp():
         finally:
             if cursor:
                 cursor.close()
-    
+
+    def get_products(self):
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute("SELECT id, nombre, precio FROM productos")  # Ajusta el nombre de la tabla y columnas
+                result = cursor.fetchall()
+                productos = []
+                for row in result:
+                    productos.append({
+                        'id': row[0],
+                        'nombre': row[1],
+                    'precio': row[2]
+                })
+            return jsonify(productos), 200
+        except Exception as e:
+            print(f"Error obteniendo productos: {str(e)}")
+            return jsonify({'success': False, 'message': 'Error al obtener productos', 'error': str(e)}), 500
+
     def get_group_members(self):
         data = request.get_json()
         group_id = data['group_id']
