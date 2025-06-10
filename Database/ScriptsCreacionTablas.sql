@@ -163,3 +163,26 @@ CREATE TABLE activityParticipants (
     FOREIGN KEY (ap_user_id) REFERENCES Users(user_id),
     FOREIGN KEY (ap_activity_id) REFERENCES groupActivities(activity_id)
 );
+
+-- Tabla de tipos de documento
+CREATE TABLE documentTypes (
+    document_type_id INT PRIMARY KEY,
+    dt_type_name VARCHAR(50),        -- Ej: "Cédula", "Pasaporte"
+    dt_description TEXT
+);
+
+-- Tabla de tipos de género
+CREATE TABLE genderTypes (
+    gender_id INT PRIMARY KEY,
+    g_gender_name VARCHAR(50),       -- Ej: "Masculino", "Femenino", "No binario"
+    g_description TEXT
+);
+
+--------------ALTERS------------------
+ALTER TABLE Users
+ADD COLUMN u_birth_date DATE,
+ADD COLUMN u_document_number VARCHAR(50),
+ADD COLUMN u_document_type_id INT,
+ADD COLUMN u_gender_id INT,
+ADD FOREIGN KEY (u_document_type_id) REFERENCES documentTypes(document_type_id),
+ADD FOREIGN KEY (u_gender_id) REFERENCES genderTypes(gender_id);
