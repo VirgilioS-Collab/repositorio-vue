@@ -44,6 +44,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/HomeView.vue'),
         meta: { requiresAuth: true }
     },
+    // Perfil del Club
+    {
+        path: '/groups/:id',
+        name: 'group-profile',
+        component: () => import('@/views/club/GroupProfile.vue'),
+        meta: { requiresAuth: true }
+    },
     // Panel de Club (usa AdminView.vue como layout)
     {
         path: '/club/:id',
@@ -67,7 +74,7 @@ export const router = createRouter({
 router.beforeEach((to, _from, next) => {
     const auth = useAuthStore()
     // tu store expone isAuthenticated
-    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    if (to.meta.requiresAuth && !auth.isLogged) {
         next({ name: 'Login' })
     } else {
         next()

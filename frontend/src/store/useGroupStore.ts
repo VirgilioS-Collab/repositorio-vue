@@ -7,6 +7,7 @@ export const useGroupStore = defineStore('group', {
     state: () => ({
         list: [] as GroupDTO[],
         myList: [] as GroupDTO[],
+        details: null as GroupDTO | null,
         loading: false,
         error: null as string|null
     }),
@@ -15,6 +16,16 @@ export const useGroupStore = defineStore('group', {
             this.loading = true; this.error = null
             try {
                 this.list = await GroupDao.fetchAll()
+            } catch (err: any) {
+                this.error = err.message
+            } finally {
+                this.loading = false
+            }
+        },
+        async fetchById(id: number) {
+            this.loading = true; this.error = null
+            try {
+                this.details = await GroupDao.fetchById(id);
             } catch (err: any) {
                 this.error = err.message
             } finally {

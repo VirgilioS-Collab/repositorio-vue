@@ -14,8 +14,8 @@ import { PieChart, BarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 
 // Pinia stores
-import { useMemberStore } from '@/stores/useMemberStore'
-import { useActivityStore } from '@/stores/useActivityStore'
+import { useMemberStore } from '@/store/useMemberStore'
+import { useActivityStore } from '@/store/useActivityStore'
 
 // 1) Pull clubId from route
 const route = useRoute()
@@ -101,10 +101,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- slot para el título en AdminView.vue -->
   <template #title>Dashboard</template>
 
-  <!-- KPI cards -->
   <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <div class="bg-white p-6 rounded-lg shadow-sm border">
       <p class="text-sm text-gray-500">Miembros activos</p>
@@ -124,12 +122,10 @@ onMounted(async () => {
     </div>
   </section>
 
-  <!-- Pie chart -->
   <section class="bg-white p-6 rounded-lg shadow-sm border mb-8 h-64">
     <div ref="pieChartRef" class="w-full h-full"></div>
   </section>
 
-  <!-- Bar chart -->
   <section class="bg-white p-6 rounded-lg shadow-sm border mb-8 h-64">
     <div ref="barChartRef" class="w-full h-full"></div>
   </section>
