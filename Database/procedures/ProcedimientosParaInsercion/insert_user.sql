@@ -21,14 +21,7 @@ DECLARE
     v_user_status_id INT;
     v_doc_type_id INT;
     v_gender_id INT;
-    v_message TEXT;
 BEGIN
-    -- Default values for dates
-    p_u_creation_date := NOW();
-    p_u_last_login_date := NULL;
-    p_u_last_password_update := NULL;
-    p_u_profile_photo_url := NULL;
-
     -- Buscar ID del tipo de usuario
     SELECT id INTO v_user_type_id
     FROM usertypes
@@ -36,8 +29,8 @@ BEGIN
     LIMIT 1;
 
     IF v_user_type_id IS NULL THEN
-        v_message := 'Tipo de usuario "Usuario" no encontrado';
-        RETURN v_message;
+        RAISE NOTICE 'Tipo de usuario "Usuario" no encontrado';
+        RETURN;
     END IF;
 
     -- Buscar ID del estado de usuario
@@ -47,8 +40,8 @@ BEGIN
     LIMIT 1;
 
     IF v_user_status_id IS NULL THEN
-        v_message := 'Estado de usuario "Activo" no encontrado';
-        RETURN v_message;
+        RAISE NOTICE 'Estado de usuario "Activo" no encontrado';
+        RETURN;
     END IF;
 
     -- Buscar ID del tipo de documento
@@ -58,8 +51,8 @@ BEGIN
     LIMIT 1;
 
     IF v_doc_type_id IS NULL THEN
-        v_message := 'Tipo de documento "' || p_u_document_type_name || '" no encontrado';
-        RETURN v_message;
+        RAISE NOTICE 'Tipo de documento "%" no encontrado', p_u_document_type_name;
+        RETURN;
     END IF;
 
     -- Buscar ID del género
@@ -69,8 +62,8 @@ BEGIN
     LIMIT 1;
 
     IF v_gender_id IS NULL THEN
-        v_message := 'Género "' || p_u_gender_name || '" no encontrado';
-        RETURN v_message;
+        RAISE NOTICE 'Género "%" no encontrado', p_u_gender_name;
+        RETURN;
     END IF;
 
     -- Insertar usuario
@@ -82,16 +75,11 @@ BEGIN
     )
     VALUES (
         p_u_name, p_u_last_name, p_u_username, p_u_email, p_u_phone,
-        p_u_about_me, p_u_password, p_u_last_password_update, p_u_profile_photo_url,
-        v_user_type_id, v_user_status_id, p_u_creation_date, p_u_last_login_date,
+        p_u_about_me, p_u_password, NULL, NULL,
+        v_user_type_id, v_user_status_id, NOW(), NULL,
         p_u_birth_date, p_u_document_number, v_doc_type_id, v_gender_id
     );
 
-    v_message := 'Usuario creado exitosamente';
-    RETURN v_message;
-EXCEPTION
-    WHEN OTHERS THEN
-        v_message := 'Error en procedimiento insert_user: ' || SQLERRM;
-        RETURN v_message;
+    RAISE NOTICE 'Usuario creado exitosamente';
 END;
 $$;
