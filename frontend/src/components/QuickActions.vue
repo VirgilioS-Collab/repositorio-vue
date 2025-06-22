@@ -1,59 +1,83 @@
-<!--
-  Componente “QuickActions”
-  ------------------------------------------------------------------
-  • Muestra los tres accesos rápidos de la pantalla principal:
-      1. Crear actividad
-      2. Unirme a grupo
-      3. Buscar eventos
-  • Refactorizado para usar el componente <LucideIcon /> en lugar de SVG
-    embebidos, siguiendo el patrón unificado de iconografía.
-  ------------------------------------------------------------------ -->
-
 <script setup lang="ts">
-import LucideIcon from '@/components/ui/LucideIcon.vue'
-import { ICONS }  from '@/utils/icons'
+/**
+ * @file src/components/QuickActions.vue
+ * @description Muestra un cabezal de bienvenida y acciones rápidas contextuales.
+ * - REDISEÑADO: Ahora es una "Tarjeta de Bienvenida" para anclar visualmente las acciones.
+ * - AÑADIDO: Lógica de permisos. El botón "Crear actividad" solo es visible
+ * para usuarios con roles de administrador o líder.
+ */
+import { computed } from 'vue';
+import { useUserStore } from '@/store/useUserStore';
+import LucideIcon from '@/components/ui/LucideIcon.vue';
+
+const userStore = useUserStore();
+
+// Obtenemos el nombre del usuario para el saludo.
+const userName = computed(() => userStore.user?.name || '');
+
+/**
+ * @docstring
+ * Propiedad computada que determina si el usuario actual tiene permisos
+ * para crear contenido (actividades, grupos, etc.).
+ * @returns {boolean}
+ */
+const userCanCreateContent = computed(() => {
+  const userType = userStore.user?.user_type;
+  // Ajusta los roles según tu backend (ej. 'admin', 'leader', 'moderator')
+  return userType === 'admin' || userType === 'leader';
+});
 </script>
 
 <template>
-  <div
-      class="bg-[#00205B] rounded-2xl shadow-[0_4px_6px_-1px_rgba(0,32,91,0.1),0_2px_4px_-1px_rgba(0,32,91,0.06)] p-4 sm:p-6 mb-8"
-  >
-    <div
-        class="action-buttons flex overflow-x-auto whitespace-nowrap sm:flex-wrap sm:justify-center gap-3 sm:gap-4"
-    >
-      <!-- Crear actividad -->
-      <button
-          class="flex items-center gap-2 px-4 py-2 bg-[#E4B95B] text-gray-900 rounded-lg hover:bg-yellow-500 transition flex-shrink-0"
-      >
-        <LucideIcon :name="ICONS.plus"  size="20" />
-        <span>Crear actividad</span>
-      </button>
+  <div class="mb-10 p-6 bg-card border border-gray-200 rounded-xl shadow-sm">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <div>
+        <h2 class="text-2xl font-bold text-darkText">¡Bienvenida, {{ userName }}!</h2>
+        <p class="text-gray-500">¿Qué te gustaría hacer hoy?</p>
+      </div>
 
-      <!-- Unirme a grupo -->
-      <button
-          class="flex items-center gap-2 px-4 py-2 bg-[#E4B95B] text-gray-900 rounded-lg hover:bg-yellow-500 transition flex-shrink-0"
-      >
-        <LucideIcon :name="ICONS.users" size="20" />
-        <span>Unirme a grupo</span>
-      </button>
+      <div class="flex items-center justify-center gap-2 sm:gap-3 shrink-0">
+        
+        <button
+          v-if="userCanCreateContent"
+          @click="userStore.openModal('createActivity')"
+          class="quick-action-btn bg-accent text-primary border-transparent"
+          aria-label="Crear nueva actividad"
+        >
+          <LucideIcon name="plus-circle" :size="20" />
+          <span class="hidden sm:inline">Crear actividad</span>
+        </button>
 
-      <!-- Buscar eventos -->
-      <button
-          class="flex items-center gap-2 px-4 py-2 bg-[#E4B95B] text-gray-900 rounded-lg hover:bg-yellow-500 transition flex-shrink-0"
-      >
-        <LucideIcon :name="ICONS.search" size="20" />
-        <span>Buscar eventos</span>
-      </button>
+        <button 
+          @click="userStore.openModal('joinGroup')"
+          class="quick-action-btn bg-white text-darkText border-gray-300"
+          aria-label="Unirme a un grupo existente"
+        >
+          <LucideIcon name="users" :size="20" />
+          <span class="hidden sm:inline">Unirme a grupo</span>
+        </button>
+
+        <RouterLink
+          :to="{ name: 'ActivityList' }"
+          class="quick-action-btn bg-white text-darkText border-gray-300"
+          aria-label="Buscar eventos y actividades"
+        >
+          <LucideIcon name="search" :size="20" />
+          <span class="hidden sm:inline">Buscar eventos</span>
+        </RouterLink>
+
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.action-buttons {
-  -webkit-overflow-scrolling: touch;
-}
-/* Oculta la barra de desplazamiento horizontal en navegadores WebKit */
-.action-buttons::-webkit-scrollbar {
-  display: none;
+/*
+  He mantenido la clase base pero ahora la aplicaremos a botones
+  con estilos ligeramente diferentes para crear una jerarquía visual.
+*/
+.quick-action-btn {
+  @apply w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold border-2 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200;
 }
 </style>
