@@ -98,15 +98,75 @@ def user_refresh_token():
         "token": new_access_token
     }), 200
 
+def user_forgot_password():
+    data = request.get_json()
+    email = data.get('email')
 
+    if not email:
+        return jsonify({'message':'el email es requerido.', 'success': False})
+    
+    if not auth_service.verify_email_db(email=email):
+        return jsonify({'message': 'el correo no existe.', 'success': False})
+    
+    code = auth_service.gen_random_fp_code()
 
+    inserted = auth_service.email_code_insert_db(email, code, expires_in=10)
 
+    if not inserted:
+        return jsonify({'message': 'No se pudo generar el código, intente más tarde.', 'success': False}), 500
+    
+    if not auth_service.send_email_code(email, "¿Olvidaste tu contraseña? Aquí está tu código de acceso", code):
+        return jsonify({'message': 'No se pudo enviar el código, intente más tarde.', 'success': False}), 500
+    
+    reset_token = jwts.create_token(user_data={'email': email})
 
+    return jsonify({'message': 'codigo enviado exitosamente.', 'token': reset_token,'success': True}), 200
 
+@jwts.token_required
+def verify_pass_reset_code():
+    """
+    Verifica que el codigo introducido sea correcto a nivel de base de datos
+    """
+    data = request.get_json()
 
+    code = data.get('verificationCode')
 
+    if not code:
+        return jsonify({"message": 'el codigo es requerido.', 'success':False})
+    
+    email = request.current_user.get('email')
 
+    if not email:
+         return jsonify({'message': 'Token inválido: sin correo.', 'success': False}), 401
+    
+    is_valid = auth_service.verify_code_db(email=email, code=code)
 
+    if not is_valid:
+        return jsonify({"message": 'Código inválido o expirado.', 'success': False})
+
+    return jsonify({"message": "Código verificado correctamente.", "success": True}), 200
+
+@jwts.token_required
+def reset_password_via_code():
+    """
+    Reinicia la contraseña desde la pantalla de "Olvide mi contraseña"
+    """
+    user_data = request.get_json()
+
+    password = user_data.get('newPassword')
+    email = request.current_user.get('email')
+
+    if not password:
+        return jsonify({"message": 'La contraseña o el correo son requeridos.', 'success':False})
+
+    hashed_password = auth_service.hash_password(password=password)
+
+    update_result = auth_service.reset_password(email=email, new_password=hashed_password)
+
+    if not update_result:
+        return jsonify({"message": 'error al actualizar contraseña.', 'success':False})
+    
+    return update_result
 
 
 
