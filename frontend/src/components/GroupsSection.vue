@@ -1,115 +1,60 @@
-<!--
-  Componente “GroupsSection”
-  ------------------------------------------------------------------
-  • Lista los grupos del usuario y, opcionalmente, el resto al pulsar “Ver más”.
-  • Usa <LucideIcon /> para todos los SVG.
-  • Todas las cadenas de icono provienen del catálogo central utils/icons.ts
-  ------------------------------------------------------------------ -->
-
 <script setup lang="ts">
-import type { IconKey } from '@/utils/icons'
-import LucideIcon    from '@/components/ui/LucideIcon.vue'
+/**
+ * @file src/components/GroupsSection.vue
+ * @description Muestra una vista previa de los grupos del usuario.
+ * - MODIFICADO: Las tarjetas de grupo ahora son RouterLink funcionales
+ * para navegar a la página de detalles del grupo.
+ * - (Otros MODIFICADOS/AÑADIDOS previos sin cambios)
+ */
+import { RouterLink } from 'vue-router';
+import type { GroupDTO } from '@/services/dao/models/Group';
+import LucideIcon from '@/components/ui/LucideIcon.vue';
+import { useUserStore } from '@/store/useUserStore'; // Importa el store para toggleGroupsView
 
-/* ---------- Props ---------- */
 defineProps<{
-  groups: Array<{
-    id:          number
-    name:        string
-    description: string
-    members:     number
-    icon:        IconKey
-    isMember:    boolean
-  }>
-  showAllGroups: boolean
-}>()
+  groups: GroupDTO[] | undefined;
+  showAllGroups: boolean;
+}>();
 
-/* ---------- Emits ---------- */
-defineEmits<{ (e:'toggle-groups-view'): void }>()
+// Emitir evento para toggleGroupsView, si sigue siendo una prop.
+// Si toggleGroupsView es una acción del store, la importarías directamente.
+const userStore = useUserStore(); // Asumiendo que la acción está en userStore
 </script>
 
 <template>
-  <section class="mb-10">
-    <!-- Cabecera -->
+  <section class="mb-8">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
-        <LucideIcon name="users" size="24" class="text-[#E4B95B] mr-2" />
+      <h2 class="text-xl sm:text-2xl font-bold text-darkText flex items-center gap-3">
+        <LucideIcon name="users" class="text-accent" />
         Mis Grupos
       </h2>
-
       <button
-          @click="$emit('toggle-groups-view')"
-          class="text-sm bg-[#00205B] text-white px-3 py-1 rounded-md hover:bg-blue-700 transition"
+        @click="userStore.toggleGroupsView()"
+        class="text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
+        aria-label="Alternar vista de todos los grupos"
       >
-        {{ showAllGroups ? 'Ver menos' : 'Ver más' }}
+        {{ showAllGroups ? 'Ver menos' : 'Ver todos' }} &rarr;
       </button>
     </div>
 
-    <!-- Tarjetas -->
-    <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      <div
-          v-for="group in groups"
-          :key="group.id"
-          class="bg-white rounded-lg shadow-md hover:shadow-lg overflow-hidden transition"
+    <div v-if="groups && groups.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <RouterLink
+        v-for="group in groups"
+        :key="group.group_id"
+        :to="{ name: 'GroupDetail', params: { id: group.group_id } }"
+        class="block bg-card border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+        aria-label="Ver detalles del grupo"
       >
-        <div class="p-4 sm:p-5">
-          <!-- Icono circular -->
-          <div class="flex items-center mb-3">
-            <div class="w-10 h-10 rounded-full bg-[#00205B] flex items-center justify-center mr-3">
-              <LucideIcon
-                  :name="group.icon"
-                  size="20"
-                  class="text-[#E4B95B]"
-              />
-            </div>
+        <h3 class="font-bold text-primary truncate">{{ group.group_name }}</h3>
+        <p class="text-sm text-gray-500 mt-1 truncate">{{ group.group_description || 'Sin descripción' }}</p>
+      </RouterLink>
+    </div>
 
-            <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-gray-800 text-sm sm:text-base truncate">
-                {{ group.name }}
-              </h3>
-              <span
-                  v-if="group.isMember"
-                  class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full"
-              >
-                Miembro
-              </span>
-            </div>
-          </div>
-
-          <!-- Descripción -->
-          <p class="text-xs sm:text-sm text-gray-600 mb-3">
-            {{ group.description }}
-          </p>
-
-          <!-- Footer / acciones -->
-          <div class="flex justify-between items-center text-xs sm:text-sm">
-            <span class="text-gray-500">{{ group.members }} miembros</span>
-
-            <!-- Contexto: listado completo vs. solo “mis grupos” -->
-            <template v-if="showAllGroups">
-              <button
-                  v-if="!group.isMember"
-                  class="bg-[#00205B] text-white px-2 sm:px-3 py-1 rounded-md hover:bg-blue-700 transition"
-              >
-                Unirse
-              </button>
-              <span v-else class="text-green-600 font-medium">
-                Ya eres miembro
-              </span>
-            </template>
-
-            <button
-                v-else
-                class="bg-[#00205B] text-white px-2 sm:px-3 py-1 rounded-md hover:bg-blue-700 transition"
-            >
-              Ver grupo
-            </button>
-          </div>
-        </div>
-      </div>
+    <div v-else class="text-center py-8 px-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+      <p class="text-gray-500 mb-2">Aún no eres miembro de ningún grupo.</p>
+      <RouterLink :to="{ name: 'GroupList' }" class="mt-2 inline-block text-primary font-semibold hover:underline">
+        Explorar grupos &rarr;
+      </RouterLink>
     </div>
   </section>
 </template>
-
-<style scoped>
-/* Todo el estilo se gestiona con Tailwind */
-</style>

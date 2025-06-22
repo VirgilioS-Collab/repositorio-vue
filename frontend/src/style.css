@@ -1,14 +1,46 @@
+/**
+ * @file src/style.css
+ * @description Archivo CSS principal.
+ * - MODIFICADO: Se añaden las clases personalizadas para componentes
+ * como AppNavbar para centralizar los estilos y resolver errores de
+ * compilación de Vite.
+ */
+
+/* Importaciones base de Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Clases de componentes personalizadas
+  -----------------------------------------
+  Estas clases utilizan @apply para agrupar utilidades de Tailwind,
+  manteniendo el HTML de los componentes más limpio.
+*/
 
-@layer components {
-    .input-focus-effect {
-        @apply block w-full
-        border border-gray-300 rounded-lg
-        shadow-sm py-2 px-3
-        focus:outline-none focus:ring-2
-        focus:ring-[#FFC72C] focus:border-[#FFC72C];
-    }
+/* Clases para AppNavbar (Desktop) */
+.nav-link {
+  @apply text-gray-300 hover:bg-primary-dark hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors;
+}
+.nav-link-active {
+  @apply bg-primary-dark text-white;
+}
+.user-menu-item {
+  @apply block px-4 py-2 text-sm text-darkText hover:bg-gray-100 transition-colors;
+}
+
+/* Clases para AppNavbar (Móvil) */
+.mobile-nav-link {
+   @apply text-gray-300 hover:bg-primary-dark hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors;
+}
+.mobile-nav-link-active {
+  @apply bg-primary-dark text-white;
+}
+.user-menu-item-mobile {
+  @apply block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-primary-dark hover:text-white transition-colors;
+}
+
+/* Otros estilos personalizados que ya tenías */
+.input-focus-effect {
+  @apply block w-full border border-gray-300 rounded-md shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50 transition-shadow;
 }

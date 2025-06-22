@@ -1,32 +1,45 @@
-// src/stores/useAuthStore.ts
+/**
+ * @file src/stores/useAuthStore.ts
+ * @description Store de Pinia para gestionar el estado de autenticación.
+ * Maneja el token, perfil de usuario, y todo el flujo de autenticación,
+ * incluyendo registro y recuperación de contraseña.
+ */
+
+// --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { defineStore } from 'pinia'
 import AuthDao from '@/services/dao/AuthDao'
-import type { LoginDTO, LoginResponseDTO, userEnrollDTO, userEnrollResponseDTO } from '@/services/dao/models/Auth'
+import type { LoginDTO, LoginResponseDTO, userEnrollDTO } from '@/services/dao/models/Auth'
 import type { UserDTO } from '@/services/dao/models/User'
 
+// --- SECCIÓN DE STORE ---
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        token: null as string| null,
+        token: localStorage.getItem('jwt') || null as string | null,
         user: null as UserDTO | null,
         loading: false,
         error: null as string | null
     }),
+
     getters: {
-        isLogged: (state) => !!state.token
+        isAuthenticated: (state) => !!state.token
     },
+
     actions: {
+        /**
+         * @docstring
+         * Realiza el proceso de inicio de sesión.
+         */
         async login(payload: LoginDTO) {
-            this.loading = true; this.error = null
+            this.loading = true
+            this.error = null
             try {
                 const res: LoginResponseDTO = await AuthDao.login(payload)
-                this.token = res.token    // JWT
-                if (res.user) { // Verificar si res.user está definido
-                    this.user = res.user as UserDTO // Asegurar la asignación de tipo
+                if (res.login_success && res.token) {
+                    this.token = res.token
+                    localStorage.setItem('jwt', res.token)
+                    this.user = res.user as UserDTO
                 } else {
-                    // Opcional: Manejar el caso donde res.user es undefined.
-                    // Podrías, por ejemplo, llamar a fetchProfile o establecer un estado de error.
-                    console.warn("Información del usuario no recibida en la respuesta de login.");
-                    // this.user = null; // o alguna lógica de fallback
+                    throw new Error(res.message || 'Credenciales inválidas.')
                 }
             } catch (err: any) {
                 this.error = err.message
@@ -34,39 +47,72 @@ export const useAuthStore = defineStore('auth', {
                 this.loading = false
             }
         },
-        async fetchProfile() {
-            if (!this.token) return
-            this.loading = true; this.error = null
+
+        /**
+         * @docstring
+         * Registra un nuevo usuario en el sistema.
+         * @returns {Promise<boolean>} - True si el registro fue exitoso.
+         */
+        async userEnroll(payload: userEnrollDTO): Promise<boolean> {
+            this.loading = true
+            this.error = null
             try {
-                const profile = await AuthDao.me()
-                this.user = profile
+                await AuthDao.UserEnroll(payload)
+                return true
             } catch (err: any) {
                 this.error = err.message
+                return false
             } finally {
                 this.loading = false
             }
         },
-        async logout() {
-            await AuthDao.logout()
-            this.token = null
-            this.user  = null
-        },
-        async refreshToken() {
+        
+        /**
+         * @docstring
+         * Acción para solicitar el restablecimiento de contraseña.
+         * @returns {Promise<boolean>} - True si la solicitud fue exitosa.
+         */
+        async requestPasswordReset(email: string): Promise<boolean> {
+            this.loading = true
+            this.error = null
             try {
-                const { token } = await AuthDao.refresh()
-                this.token = token
-            } catch { /* no interrumpir UI */ }
+                await AuthDao.requestPasswordReset(email)
+                return true
+            } catch (err: any) {
+                this.error = err.message
+                return false
+            } finally {
+                this.loading = false
+            }
         },
 
-        async userEnroll(payload: userEnrollDTO) {
-            this.loading = true; this.error = null
-            try{
-                 const res: userEnrollResponseDTO = await AuthDao.UserEnroll(payload)
+        /**
+         * @docstring
+         * Acción para confirmar la nueva contraseña.
+         * @returns {Promise<boolean>} - True si el cambio fue exitoso.
+         */
+        async resetPassword(token: string, newPassword: string): Promise<boolean> {
+            this.loading = true
+            this.error = null
+            try {
+                await AuthDao.resetPassword(token, newPassword)
+                return true
             } catch (err: any) {
                 this.error = err.message
+                return false
             } finally {
                 this.loading = false
             }
-    }
+        },
+
+        /**
+         * @docstring
+         * Cierra la sesión del usuario.
+         */
+        logout() {
+            this.token = null
+            this.user = null
+            localStorage.removeItem('jwt')
+        }
     }
 })

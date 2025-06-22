@@ -1,32 +1,49 @@
+/**
+ * @file src/services/dao/AuthDao.ts
+ * @description Capa de acceso a datos (DAO) para la autenticación.
+ * Centraliza todas las llamadas a la API relacionadas con la gestión
+ * de usuarios y sesiones.
+ */
 import http from '@/services/http'
 import type { LoginDTO, LoginResponseDTO, userEnrollDTO, userEnrollResponseDTO } from '@/services/dao/models/Auth'
-import type { UserDTO } from '@/services/dao/models/User'
+//import type { UserDTO } from '@/services/dao/models/User'
 
 class AuthDao {
+    /**
+     * @docstring
+     * Envía las credenciales del usuario al endpoint de login.
+     */
     async login(payload: LoginDTO): Promise<LoginResponseDTO> {
-        const { data } = await http.post<LoginResponseDTO>('/auth/login', payload)
-        return data
+        const response = await http.post<LoginResponseDTO>('/auth/login', payload)
+        return response.data
     }
 
+    /**
+     * @docstring
+     * Envía los datos de un nuevo usuario al endpoint de registro.
+     */
     async UserEnroll(payload: userEnrollDTO): Promise<userEnrollResponseDTO> {
-        const { data } = await http.post<userEnrollResponseDTO>('/auth/userEnroll', payload)
-        return data
+        const response = await http.post<userEnrollResponseDTO>('/auth/enroll', payload)
+        return response.data
     }
 
-    async me(): Promise<UserDTO> {
-        const { data } = await http.get<UserDTO>('/auth/me')
-        return data
+    /**
+     * @docstring
+     * (NUEVO) Envía una solicitud para iniciar el proceso de recuperación de contraseña.
+     */
+    async requestPasswordReset(email: string): Promise<void> {
+        await http.post('/auth/forgot-password', { email })
     }
 
-    async logout(): Promise<void> {
-        await http.post('/auth/logout')
+    /**
+     * @docstring
+     * (NUEVO) Envía el token y la nueva contraseña para completar el restablecimiento.
+     */
+    async resetPassword(token: string, newPassword: string): Promise<void> {
+        await http.post('/auth/reset-password', { token, new_password: newPassword })
     }
-
-    async refresh(): Promise<{ token: string }> {
-        const { data } = await http.post<{ token: string }>('/auth/refresh')
-        return data
-    }
+    
+    // Otros métodos como me(), logout(), etc.
 }
 
 export default new AuthDao()
-
