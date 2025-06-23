@@ -34,7 +34,7 @@ def update_user_password(user_id: int, hashed_password: str) -> tuple:
         success:bool = True
         message:str = ''
 
-        cursor.execute("CALL public.sp_update_user_password(%s,%s, %s, %s)", (user_id, hashed_password, message, success))
+        cursor.execute("CALL public.sp_update_user_password_by_userid(%s,%s, %s, %s)", (user_id, hashed_password, message, success))
 
         conn.commit()
 
