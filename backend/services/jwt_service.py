@@ -11,15 +11,17 @@ class JWTService:
     DEFAULT_EXPIRE_SECONDS = 300
     JWT_ISSUER = os.getenv("JWT_ISSUER")
 
+
     @classmethod
-    def create_token(cls, user_data : dict, expires_in=None):
+    def create_token(cls, user_data : dict, expires_in=None, type="access"):
         """Creacion del JWT con los datos del usuario que inicio sesion"""
         expires_seconds = expires_in if expires_in is not None else cls.DEFAULT_EXPIRE_SECONDS
 
         payload = {
             **user_data,
             "exp": datetime.now(timezone.utc) + timedelta(seconds=expires_seconds),
-            "iss": cls.JWT_ISSUER
+            "iss": cls.JWT_ISSUER,
+            "type": type
         }
 
         return jwt.encode(payload, cls.SECRET_KEY, algorithm=cls.ALGORITHM)
@@ -37,38 +39,33 @@ class JWTService:
             return None
 
     @staticmethod
-    def token_required(f):
+    def token_required(expected_type):
         """
-        Decorador para proteger rutas que requieren autenticación via JWT
+        Decorador para proteger rutas que requieren autenticación vía JWT.
+        Permite especificar el tipo de token esperado (access, refresh, reset_pass).
         """
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            token = request.headers.get('Authorization')
-            if not token:
-                return jsonify({"error": "Token is missing"}), 401
+        def decorator(f):
+            @wraps(f)
+            def decorator_function(*args, **kwargs):
+                token = request.headers.get('Authorization')
+                if not token or not token.startswith('Bearer '):
+                    return jsonify({"error": "Falta el token o esta mal formado"}), 401
+                try:
+                    token = token[7:].strip()  # Elimina "Bearer "
+                    data = JWTService.verify_token(token)
 
-            try:
-                if token.startswith('Bearer '):
-                    token = token[7:].strip()
-                
-                data = JWTService.verify_token(token)
-                if not data:
-                    return jsonify({"error": "Token is invalid or expired"}), 401
-                
-                request.current_user = data
-            except Exception as e:
-                return jsonify({"error": str(e)}), 401
+                    if not data:
+                        return jsonify({"error": "Token es invalido o expirado"}), 401
+                    
+                    if data.get("type") != expected_type:
+                        return jsonify({
+                            "error": f"Tipo de Toke invalido. Esperado '{expected_type}', se obtuvo'{data.get('type')}'"
+                        }), 401
+                    
+                    request.current_user = data
 
-            return f(*args, **kwargs)
-        return decorated_function
-    
-    @classmethod
-    def create_refresh_token(cls, user_data, expires_in=604800):
-        expires_seconds = expires_in if expires_in is not None else cls.DEFAULT_EXPIRE_SECONDS
-        payload = {
-            **user_data,
-            "exp": datetime.now(timezone.utc) + timedelta(seconds=expires_seconds),
-            "iss": cls.JWT_ISSUER,
-            "type": "refresh"
-        }
-        return jwt.encode(payload, cls.SECRET_KEY, algorithm=cls.ALGORITHM)
+                except Exception as e:
+                    return jsonify({"error": f"Token processing error: {str(e)}"}), 401
+                return f(*args, **kwargs)
+            return decorator_function
+        return decorator

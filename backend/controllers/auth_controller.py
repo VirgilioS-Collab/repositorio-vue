@@ -19,7 +19,7 @@ def login_user() -> tuple:
     if not user_data:
         return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
     
-    if auth_service.validate_password(input_password=password, hashed_password=user_data[8]):
+    if auth_service.validate_password(input_password=password, hashed_password=user_data[3]):
     
         user_payload =  {
             'user_id': user_data[0],
@@ -27,24 +27,17 @@ def login_user() -> tuple:
             'email': user_data[2]
         }
 
-        token = jwts.create_token(user_data=user_payload)
-        if user_data[9] is None:
-            refresh_token = jwts.create_refresh_token(user_data=user_payload)
+        token = jwts.create_token(user_data=user_payload, type='access')
 
-            token_result = auth_service.create_user_refresh_token_db(user_data={'user_id': user_data[0], 
+        refresh_token = jwts.create_token(user_data=user_payload, expires_in=604800, type='refresh')
+
+        token_result = auth_service.create_user_refresh_token_db(user_data={'user_id': user_data[0], 
                                                                             'refresh_token': refresh_token})
-            if token_result[1] is False:
-                return jsonify({'message': token_result[0], 'success': False})
-        else:
-            refresh_token = user_data[9]
+        if token_result[1] is False:
+            return jsonify({'message': token_result[0], 'success': False})
 
         response = {
-            'name': user_data[3],
-            'last_name': user_data[4],
-            'profile_photo_url': user_data[5],
-            'user_type': user_data[6],
-            'user_status': user_data[7],
-            'success': True,
+            'login_success': True,
             'token': token,
             'refresh_token': refresh_token,
             'message': 'Login exitoso'}
@@ -52,26 +45,40 @@ def login_user() -> tuple:
         return jsonify(response), 200
     else:
         return jsonify({"success": False, "message": "Contraseña incorrecta"}), 401
+    
 
-def create_user() -> tuple:
-    """
-    Creacion de usuario
-    """
-    data = request.get_json()
+@jwts.token_required("access")
+def get_user_information():
+    """Obtener la informacion principal de usuario"""
+    if request.method == 'GET':
+        user_id = request.current_user.get("user_id")
 
-    user_data = auth_service.create_user_db(data)
+        user_info = auth_service.get_user_info_db(user_id=user_id)
 
-    if isinstance(user_data, (list, tuple)) and len(user_data) > 0:
-        return jsonify({  
-            "message": user_data[0],    
-            "success": True
-        }), 201
-    else:
-        return jsonify({
-            "success": False,
-            "message": user_data[0] if isinstance(user_data, (list, tuple)) and len(user_data) > 0 else "Error desconocido al crear usuario"
-        }), 400
+        groups = auth_service.get_user_related_groups(user_id=user_id)
 
+        activities = auth_service.get_user_related_activities(user_id=user_id)
+
+        user_dto = {
+            "username": user_info.get("username"),
+            "email": user_info.get("email"),
+            "name": user_info.get("name"),
+            "last_name": user_info.get("last_name"),
+            "phone": user_info.get("phone"),             
+            "about_me": user_info.get("about_me"),       
+            "profile_photo_url": user_info.get("profile_photo_url"),
+            "user_type": user_info.get("user_type"),
+            "user_status": user_info.get("user_status"),
+            "career": user_info.get("career"),            
+            "groups": groups if groups else [],          
+            "activities": activities if activities else []                            
+        }
+    
+    elif request.method == 'PUT':
+        return jsonify({'message':'debug'})
+    return jsonify(user_dto)
+
+@jwts.token_required("refresh")
 def user_refresh_token():
     """
     Función para crear un nuevo access token en base a un refresh token
@@ -92,13 +99,60 @@ def user_refresh_token():
         "user_id": payload["user_id"],
         "username": payload["username"],
         "email": payload["email"]
-    })
+    }, type='access')
 
     return jsonify({
         "token": new_access_token
     }), 200
 
+jwts.token_required("refresh")
+def logout() ->tuple:
+    """
+    Función para hacer logout
+    """
+    user_id = request.current_user.get("user_id")
+
+    if not user_id:
+        return jsonify({"message": "Token no valido: sin user_id", "success": False}), 401
+    
+    result = auth_service.revoke_user_sessions()
+
+    if not result:
+        return jsonify({"message": "Error al cerrar sesión", "success": False}), 500
+    
+    return jsonify({"message": "Logout exitoso", "success": True}), 200
+
+def create_user() -> tuple:
+    """
+    Creacion de usuario
+    """
+    data = request.get_json()
+
+    message, success = auth_service.create_user_db(data)
+
+    if success:
+        full_name = f'{data.get('firstName')} {data.get('lastName')}'.strip()
+        email = data.get('email', '')
+        if auth_service.send_welcome_email(recipient=email, subject="¡Bienvenido a Alianza UTP!", user_name=full_name):
+            return jsonify({
+                "message": message,
+                "success": True
+            }), 201
+        
+        else:
+            return jsonify({
+                "message": 'usuario creado exitosamente. Fallo en la mensajeria.',
+                "success": True
+            }), 201
+
+    else:
+        return jsonify({
+            "success": False,
+            "message": message
+        }), 400
+
 def user_forgot_password():
+    """Envio de código de autenticación al correo electronico"""
     data = request.get_json()
     email = data.get('email')
 
@@ -118,11 +172,11 @@ def user_forgot_password():
     if not auth_service.send_email_code(email, "¿Olvidaste tu contraseña? Aquí está tu código de acceso", code):
         return jsonify({'message': 'No se pudo enviar el código, intente más tarde.', 'success': False}), 500
     
-    reset_token = jwts.create_token(user_data={'email': email})
+    reset_token = jwts.create_token(user_data={'email': email}, expires_in=600, type='reset_pass')
 
     return jsonify({'message': 'codigo enviado exitosamente.', 'token': reset_token,'success': True}), 200
 
-@jwts.token_required
+@jwts.token_required("reset_pass")
 def verify_pass_reset_code():
     """
     Verifica que el codigo introducido sea correcto a nivel de base de datos
@@ -146,7 +200,7 @@ def verify_pass_reset_code():
 
     return jsonify({"message": "Código verificado correctamente.", "success": True}), 200
 
-@jwts.token_required
+@jwts.token_required("reset_pass")
 def reset_password_via_code():
     """
     Reinicia la contraseña desde la pantalla de "Olvide mi contraseña"
