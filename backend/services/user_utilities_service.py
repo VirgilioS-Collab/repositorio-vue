@@ -62,6 +62,9 @@ def deactivate_user_tokens(user_id: int) -> tuple:
         cursor.execute("CALL public.sp_deactivate_user_tokens(%s, %s, %s)", (user_id, message, success))
 
         conn.commit()
+
+        message, success = cursor.fetchone()
+
         return (message, success)
 
     except Exception as e:

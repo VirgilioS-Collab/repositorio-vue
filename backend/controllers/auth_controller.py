@@ -90,7 +90,7 @@ def user_refresh_token():
     if not refresh_token:
         return jsonify({'error': 'No se encuentra el refresh token'}), 401
     
-    payload = jwts.verifiy_token(refresh_token)
+    payload = jwts.verify_token(refresh_token)
 
     if not payload or payload.get("type") != "refresh":
         return jsonify({"error": "Invalid refresh token"}), 401
