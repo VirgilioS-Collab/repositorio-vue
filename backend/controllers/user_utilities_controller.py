@@ -2,7 +2,7 @@ from flask import request, jsonify
 from services import user_utilities_service as uus
 from services.jwt_service import JWTService as jwts
 
-@jwts.token_required
+@jwts.token_required("refresh")
 def change_password():
     """
     Cambia la contraseña del usuario autenticado usando el token JWT.

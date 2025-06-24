@@ -97,7 +97,7 @@ def create_user_refresh_token_db(user_data:dict):
             message,
             success
         ))     
-        message = cursor.fetchone()[0]
+        message, success = cursor.fetchone()
 
         conn.commit()
 
