@@ -25,8 +25,6 @@ def update_user_password(user_id: int, hashed_password: str) -> tuple:
     """
     Actualizar la contraseña del usuario.
     """
-    conn = None
-    cursor = None
     try:
         conn = get_connection()
         cursor = conn.cursor()

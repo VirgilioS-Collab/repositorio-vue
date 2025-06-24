@@ -1,6 +1,6 @@
 from utils.db import get_connection
 from utils.security import hash_password, validate_password, gen_random_fp_code
-from utils.mail import send_email_code
+from utils.mail import send_email_code, send_welcome_email
 
 def login_user_db(username:str = None, email:str = None) -> tuple:
     """Autentica un usuario en la base de datos usando nombre de usuario o email."""
@@ -8,7 +8,7 @@ def login_user_db(username:str = None, email:str = None) -> tuple:
         conn = get_connection()
         cursor = conn.cursor()
 
-        cursor.callproc("public.user_login", (username, email))
+        cursor.callproc("public.fn_user_login", (username, email))
         result = cursor.fetchone()
 
         cursor.close()
@@ -23,6 +23,28 @@ def login_user_db(username:str = None, email:str = None) -> tuple:
         cursor.close()
         conn.close()
 
+def revoke_user_sessions(user_id:int) -> tuple:
+    """Revoca el refresh token del usuario a nivel de 
+    Base de datos."""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.callproc("public.fn_revoke_user_session", (user_id, ))
+
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        return result
+    
+    except Exception as e:
+        conn.rollback()
+        return (str(e), False)
+    finally:
+        cursor.close()
+        conn.close()
 
 def create_user_db(enroll_data: dict) -> tuple:
     """Registro del usuario a nivel de Base de Datos."""
@@ -32,13 +54,7 @@ def create_user_db(enroll_data: dict) -> tuple:
 
         hashed_password = hash_password(enroll_data.get('password'))
 
-        message = ''
-        
-        cursor.execute("""
-            CALL public.insert_user(
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-            )
-        """, (
+        cursor.callproc('public.fn_insert_user', (
             enroll_data.get("firstName"),
             enroll_data.get("lastName"),
             enroll_data.get("username"),
@@ -48,15 +64,12 @@ def create_user_db(enroll_data: dict) -> tuple:
             enroll_data.get("birthDate"),
             enroll_data.get("docNumber"),
             enroll_data.get("docType"),
-            enroll_data.get("gender"),
-            message
-        ))
+            enroll_data.get("gender")))
 
-        message = cursor.fetchone()[0]
-
+        message, success = cursor.fetchone()
         conn.commit()
 
-        return (message, True) 
+        return (message, success)
 
     except Exception as e:
         conn.rollback()
@@ -133,7 +146,6 @@ def email_code_insert_db(email: str, code: int, expires_in=10) -> bool:
         return success
 
     except Exception as e:
-        print(f"Error en email_code_insert_db: {e}")
         conn.rollback()
         return False
 
@@ -155,7 +167,6 @@ def verify_code_db(email: str, code: int) -> bool:
         return success
 
     except Exception as e:
-        print(f"Error en verify_code_db: {e}")
         conn.rollback()
         return False
 
@@ -163,7 +174,10 @@ def verify_code_db(email: str, code: int) -> bool:
         cursor.close()
         conn.close()
 
-def reset_password(email, new_password)->bool:
+def reset_password(email, new_password)->tuple:
+    """
+    Metodo para reiniciar contraseña con correo.
+    """
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -176,10 +190,89 @@ def reset_password(email, new_password)->bool:
             return{'message': result[0], "success": result[1]}
 
     except Exception as e:
-        print(f"Error en reset_password: {e}")
         conn.rollback()
         return {"message": f"Error: {str(e)}", "success": False}
 
     finally:
         cursor.close()
         conn.close()
+
+def get_user_info_db(user_id: int) -> dict | None:
+    """Obtiene la información del usuario por user_id."""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.callproc("public.fn_get_user_information", (user_id, ))
+
+        row = cursor.fetchone()
+        if row is None:
+            return None
+
+        columns = [desc[0] for desc in cursor.description]
+
+        user_info = dict(zip(columns, row))
+
+        return user_info
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return None
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+    
+def get_user_related_groups(user_id:int) -> list:
+    """Obtiene los grupos relacionados al usuario por user_id"""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.callproc("public.fn_get_user_related_groups", (user_id, ))
+
+        result = cursor.fetchall()
+
+        columns = [desc[0] for desc in cursor.description]
+        groups = [dict(zip(columns, row)) for row in result]
+
+        return groups
+    
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return (str(e), False)
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def get_user_related_activities(user_id:int) -> list:
+    """Obtiene las actividades relacionadas al usuario por user_id"""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.callproc("public.fn_get_user_related_activities", (user_id, ))
+
+        result = cursor.fetchall()
+
+        columns = [desc[0] for desc in cursor.description]
+        activities = [dict(zip(columns, row)) for row in result]
+
+        return activities
+    
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return (str(e), False)
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
