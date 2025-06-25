@@ -1,8 +1,8 @@
 /**
  * @file src/stores/useAuthStore.ts
  * @description Store de Pinia para gestionar el estado de autenticación.
- * Maneja el token, perfil de usuario, y todo el flujo de autenticación,
- * incluyendo registro y recuperación de contraseña.
+ * - AÑADIDO: Nueva acción `initializeFromToken` para rehidratar el estado
+ * desde localStorage al recargar la página.
  */
 
 // --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
@@ -10,6 +10,7 @@ import { defineStore } from 'pinia'
 import AuthDao from '@/services/dao/AuthDao'
 import type { LoginDTO, LoginResponseDTO, userEnrollDTO } from '@/services/dao/models/Auth'
 import type { UserDTO } from '@/services/dao/models/User'
+import { jwtDecode } from 'jwt-decode';
 
 // --- SECCIÓN DE STORE ---
 export const useAuthStore = defineStore('auth', {
@@ -27,6 +28,27 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         /**
          * @docstring
+         * (NUEVO) Inicializa el estado del store desde un token JWT guardado.
+         * Esto previene que el usuario sea deslogueado al recargar la página.
+         */
+        initializeFromToken() {
+            const token = localStorage.getItem('jwt');
+            if (token) {
+                this.token = token;
+                // Opcional: decodificar el token para obtener datos básicos del usuario
+                // sin necesidad de una llamada a la API inmediata.
+                try {
+                    const decoded: UserDTO = jwtDecode(token);
+                    this.user = decoded;
+                } catch (error) {
+                    console.error("Failed to decode JWT:", error);
+                    this.logout(); // Si el token es inválido, limpiar.
+                }
+            }
+        },
+
+        /**
+         * @docstring
          * Realiza el proceso de inicio de sesión.
          */
         async login(payload: LoginDTO) {
@@ -37,6 +59,7 @@ export const useAuthStore = defineStore('auth', {
                 if (res.login_success && res.token) {
                     this.token = res.token
                     localStorage.setItem('jwt', res.token)
+                    // El DTO de respuesta ya debería contener el objeto de usuario.
                     this.user = res.user as UserDTO
                 } else {
                     throw new Error(res.message || 'Credenciales inválidas.')

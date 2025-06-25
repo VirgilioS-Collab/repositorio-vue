@@ -1,9 +1,8 @@
 /**
  * @file src/services/dao/models/User.ts
  * @description Define los tipos y interfaces (DTOs) para el modelo de Usuario.
- * - MODIFICADO: Se añade la propiedad opcional 'career' a las interfaces
- * UserDTO y UserUpdateDTO para alinear el modelo de datos con los
- * requerimientos de la interfaz de usuario.
+ * - MODIFICADO: Se añade la propiedad opcional 'career'.
+ * - MODIFICADO: Se añaden role_id y status_id para alinear con el token/backend.
  */
 import type { GroupDTO } from './Group';
 import type { ActivityDTO } from './Activity';
@@ -21,8 +20,11 @@ export interface UserDTO {
     user_status: string;
     groups?: GroupDTO[];
     activities?: ActivityDTO[];
-    // AÑADIDO: Hacemos 'career' una propiedad oficial del usuario.
-    career?: string; 
+    career?: string;
+    
+    // --- CAMPOS AÑADIDOS PARA CORREGIR ERRORES ---
+    role_id?: number;
+    status_id?: number;
 }
 
 export interface UserUpdateDTO {
@@ -32,6 +34,5 @@ export interface UserUpdateDTO {
     phone?: string;
     about_me?: string;
     profile_photo_url?: string;
-    // AÑADIDO: También permitimos que 'career' sea actualizable.
     career?: string;
 }

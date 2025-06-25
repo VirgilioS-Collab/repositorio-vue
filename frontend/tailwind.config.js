@@ -38,9 +38,11 @@ export default {
   
   /**
    * @docstring
-   * La sección 'plugins' es donde se pueden añadir extensiones de Tailwind,
-   * como las de tipografía o formularios. Actualmente no se necesitan plugins
-   * adicionales para la configuración actual.
+   * La sección 'plugins' es donde se pueden añadir extensiones de Tailwind.
+   * - AÑADIDO: Se añade el plugin 'line-clamp' para truncar texto a un
+   * número de líneas específico.
    */
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/line-clamp'),
+  ],
 }

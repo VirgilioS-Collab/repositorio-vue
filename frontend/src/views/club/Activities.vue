@@ -1,33 +1,181 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import FullCalendar from '@fullcalendar/vue3'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import { useActivityStore } from '@/store/useActivityStore'
-import LucideIcon from '@/components/ui/LucideIcon.vue'
+/**
+ * @file: src/views/club/Activities.vue
+ * @description: Vista para la gestión de actividades (eventos) de un club.
+ * - CORREGIDO: Solucionado problema de superposición de elementos eliminando la
+ * altura fija del contenedor del calendario y usando la opción `aspectRatio`
+ * de FullCalendar para un layout fluido y correcto.
+ */
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useActivityStore } from '@/store/useActivityStore';
+import { storeToRefs } from 'pinia';
+import FullCalendar from '@fullcalendar/vue3';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import LucideIcon from '@/components/ui/LucideIcon.vue';
 
-const activityStore = useActivityStore()
-const search        = ref('')
-const page          = ref(1)
-const perPage       = 5
+// --- State and Stores ---
+const route = useRoute();
+const activityStore = useActivityStore();
+const { items: activities, loading } = storeToRefs(activityStore);
+const clubId = Number(route.params.id);
 
-onMounted(() => activityStore.fetchAll())
+// --- Component State ---
+const filters = ref({
+  keyword: '',
+  type: 'all',
+  status: 'all',
+  date_from: '',
+  date_to: '',
+});
+const showActivityModal = ref(false);
+const editingActivity = ref<any>(null);
 
-const calendarEvents = computed(() =>
-    activityStore.items.map(a => ({ title:a.title, start:a.datetime, /* color */ }))
-)
+// --- Computed Properties ---
+const filteredActivities = computed(() => {
+  return activities.value.filter(act => {
+    const keywordMatch = filters.value.keyword.trim() === '' || act.activity_name.toLowerCase().includes(filters.value.keyword.toLowerCase());
+    const typeMatch = filters.value.type === 'all' || act.activity_type_name === filters.value.type;
+    const statusMatch = filters.value.status === 'all' || act.activity_status_name === filters.value.status;
+    return keywordMatch && typeMatch && statusMatch;
+  });
+});
 
-const filtered = computed(() =>
-    activityStore.items.filter(a =>
-        a.title.toLowerCase().includes(search.value.toLowerCase())
-    )
-)
+const calendarEvents = computed(() => {
+    return filteredActivities.value.map(act => ({
+        id: String(act.activity_id),
+        title: act.activity_name,
+        start: act.activity_datetime,
+        backgroundColor: act.activity_status_id === 1 ? '#00205B' : '#E4B95B',
+        borderColor: act.activity_status_id === 1 ? '#00205B' : '#E4B95B',
+    }));
+});
+
+// --- Opciones del Calendario ---
+const calendarOptions = computed(() => ({
+    plugins: [dayGridPlugin, interactionPlugin],
+    initialView: 'dayGridMonth',
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
+    events: calendarEvents.value,
+    locale: 'es',
+    buttonText: { today: 'Hoy', month: 'Mes' },
+    // CORRECCIÓN: Se usa aspectRatio para un layout adaptable y sin superposiciones.
+    aspectRatio: 1.75,
+    height: 'auto'
+}));
+
+
+// --- Methods ---
+function openCreateModal() {
+  editingActivity.value = { activity_type_name: 'Reunión', activity_status_name: 'Programada' };
+  showActivityModal.value = true;
+}
+
+function openEditModal(activity: any) {
+  editingActivity.value = { ...activity };
+  showActivityModal.value = true;
+}
+
+function saveActivity() {
+  console.log("Guardando actividad:", editingActivity.value);
+  showActivityModal.value = false;
+  editingActivity.value = null;
+}
+
+// --- Lifecycle Hooks ---
+onMounted(() => {
+  activityStore.fetchAll(clubId);
+});
 </script>
 
 <template>
-  <FullCalendar :plugins="[dayGridPlugin,interactionPlugin]" :events="calendarEvents"/>
-  <input v-model="search" placeholder="Buscar…"/>
-  <table>
-    <tr v-for="a in filtered" :key="a.id">…</tr>
-  </table>
+  <div class="space-y-8">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-darkText">Gestión de Actividades</h2>
+        <button @click="openCreateModal" class="btn-primary flex items-center gap-2">
+            <LucideIcon name="plus" :size="18"/>
+            Crear Actividad
+        </button>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl shadow-sm border">
+        <FullCalendar :options="calendarOptions" />
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <input v-model="filters.keyword" type="text" placeholder="Buscar por palabra clave..." class="input-focus-effect md:col-span-2"/>
+            <select v-model="filters.type" class="input-focus-effect">
+                <option value="all">Todos los tipos</option>
+                <option>Reunión</option>
+                <option>Taller</option>
+                <option>Entrenamiento</option>
+                <option>Venta de Comida</option>
+                <option>Torneo</option>
+            </select>
+            <select v-model="filters.status" class="input-focus-effect">
+                <option value="all">Todos los estados</option>
+                <option>Programada</option>
+                <option>Realizada</option>
+                <option>Cancelada</option>
+            </select>
+            <button class="btn-secondary">Filtrar</button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="th-cell">Nombre</th>
+                        <th class="th-cell">Tipo</th>
+                        <th class="th-cell">Fecha</th>
+                        <th class="th-cell">Cupo</th>
+                        <th class="th-cell">Estado</th>
+                        <th class="th-cell">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-if="loading"><td colspan="6" class="td-cell text-center">Cargando...</td></tr>
+                    <tr v-else-if="filteredActivities.length === 0"><td colspan="6" class="td-cell text-center">No se encontraron actividades.</td></tr>
+                    <tr v-else v-for="act in filteredActivities" :key="act.activity_id" class="hover:bg-soft">
+                        <td class="td-cell font-medium">{{ act.activity_name }}</td>
+                        <td class="td-cell">{{ act.activity_type_name }}</td>
+                        <td class="td-cell">{{ new Date(act.activity_datetime).toLocaleString('es-PA') }}</td>
+                        <td class="td-cell">{{ act.participants_count }}/{{ act.max_participants || '∞' }}</td>
+                        <td class="td-cell"><span class="status-pill" :class="act.activity_status_name === 'Programada' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">{{ act.activity_status_name }}</span></td>
+                        <td class="td-cell space-x-2">
+                            <button @click="openEditModal(act)" class="text-primary hover:text-primary-dark"><LucideIcon name="edit" :size="16"/></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div v-if="showActivityModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">{{ editingActivity.activity_id ? 'Editar' : 'Crear' }} Actividad</h3>
+                <div class="space-y-4">
+                    <input type="text" placeholder="Nombre de la actividad" v-model="editingActivity.activity_name" class="input-focus-effect w-full"/>
+                    <textarea placeholder="Descripción" v-model="editingActivity.activity_description" class="input-focus-effect w-full" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 flex justify-end gap-3">
+                <button @click="showActivityModal = false" class="btn-secondary">Cancelar</button>
+                <button @click="saveActivity" class="btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.btn-primary { @apply px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors disabled:opacity-70; }
+.btn-secondary { @apply px-4 py-2 bg-gray-200 text-darkText rounded-lg font-semibold hover:bg-gray-300 transition; }
+.input-focus-effect { @apply block w-full border border-gray-300 rounded-md shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50 transition-shadow; }
+.th-cell { @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider; }
+.td-cell { @apply px-6 py-4 whitespace-nowrap text-sm text-gray-600; }
+.status-pill { @apply px-2 inline-flex text-xs leading-5 font-semibold rounded-full; }
+</style>
