@@ -1,9 +1,8 @@
 /**
  * @file src/store/useGroupStore.ts
  * @description Store de Pinia para gestionar el estado de los grupos.
- * - CORRECCIÓN DEFINITIVA: Se restaura la versión completa del store, incluyendo
- * `fetchAllGroups` y los getters/acciones de filtrado para que la página de
- * listado de grupos (`/groups`) vuelva a funcionar.
+ * - VERSIÓN FINAL: Contiene toda la lógica necesaria para la vista de lista
+ * (fetchAllGroups, getters de filtro) y la vista de detalle (fetchDetails).
  */
 import { defineStore } from 'pinia';
 import GroupDao from '@/services/dao/GroupDao';
@@ -12,18 +11,20 @@ import { useUserStore } from './useUserStore';
 
 export const useGroupStore = defineStore('group', {
   state: () => ({
+    // Estado para ambas vistas
     groups: [] as GroupDTO[],
     details: null as GroupDTO | null,
     loading: false,
     error: null as string | null,
     joiningGroupId: null as number | null,
-    // Estado para búsqueda y filtros
+    // Estado específico para la vista de lista y sus filtros
     searchQuery: '',
     categoryFilter: 'all',
     statusFilter: 'all'
   }),
 
   getters: {
+    // Getter para la vista de lista
     filteredGroups(state): GroupDTO[] {
       return state.groups.filter(group => {
         const searchMatch = state.searchQuery.trim() === '' ||
@@ -39,6 +40,7 @@ export const useGroupStore = defineStore('group', {
         return searchMatch && categoryMatch && statusMatch;
       });
     },
+    // Getter para la vista de detalle
     membershipStatus(state): 'member' | 'pending' | 'not_member' {
         const userStore = useUserStore();
         if (!state.details || !userStore.user) return 'not_member';
@@ -96,7 +98,7 @@ export const useGroupStore = defineStore('group', {
             this.joiningGroupId = null;
         }
     },
-    // Acciones para los filtros
+    // Acciones para los filtros de la vista de lista
     setSearchQuery(query: string) {
         this.searchQuery = query;
     },
