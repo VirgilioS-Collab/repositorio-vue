@@ -1,4 +1,5 @@
 from flask import request, jsonify
+import uuid
 from services import auth_service
 from services.jwt_service import JWTService as jwts
 
@@ -26,27 +27,29 @@ def login_user() -> tuple:
             'username': user_data[1],
             'email': user_data[2]
         }
+        token = jwts.create_token(user_data=user_payload, 
+                                  type='access')
+        #Generar un identificador unico del JWT para manejar estados
+        new_jti = str(uuid.uuid4())
+        refresh_token = jwts.create_token(user_data=user_payload, 
+                                          expires_in=604800, #7 dias
+                                          type='refresh',
+                                          jti=new_jti)
 
-        token = jwts.create_token(user_data=user_payload, type='access')
-
-        refresh_token = jwts.create_token(user_data=user_payload, expires_in=604800, type='refresh')
-
-        token_result = auth_service.create_user_refresh_token_db(user_data={'user_id': user_data[0], 
-                                                                            'refresh_token': refresh_token})
+        token_result = auth_service.create_user_refresh_token_db(user_data={'user_id': user_data[0],
+                                                                            'jti': new_jti})
+        
         if token_result[1] is False:
             return jsonify({'message': token_result[0], 'success': False})
 
-        response = {
+        return jsonify({
             'login_success': True,
             'token': token,
             'refresh_token': refresh_token,
-            'message': 'Login exitoso'}
-        
-        return jsonify(response), 200
+            'message': 'Login exitoso'}), 200
     else:
         return jsonify({"success": False, "message": "Contraseña incorrecta"}), 401
     
-
 @jwts.token_required("access")
 def get_user_information():
     """Obtener la informacion principal de usuario"""
@@ -81,44 +84,42 @@ def get_user_information():
 @jwts.token_required("refresh")
 def user_refresh_token():
     """
-    Función para crear un nuevo access token en base a un refresh token
+    Crea un nuevo access token usando un refresh token válido.
     """
-    data = request.get_json()
+    payload = request.current_user
 
-    refresh_token = data.get("refresh_token")
+    auth_jti_result = auth_service.verify_auth_refresh({'user_id': payload['user_id'], 'jti': payload['jti']})
 
-    if not refresh_token:
-        return jsonify({'error': 'No se encuentra el refresh token'}), 401
+    if auth_jti_result[1]:
+        new_access_token = jwts.create_token({
+            "user_id": payload["user_id"],
+            "username": payload["username"],
+            "email": payload["email"]
+        }, type='access')
+
+        return jsonify({
+            "token": new_access_token
+        }), 200
     
-    payload = jwts.verify_token(refresh_token)
-
-    if not payload or payload.get("type") != "refresh":
-        return jsonify({"error": "Invalid refresh token"}), 401
-
-    new_access_token = jwts.create_token({
-        "user_id": payload["user_id"],
-        "username": payload["username"],
-        "email": payload["email"]
-    }, type='access')
-
     return jsonify({
-        "token": new_access_token
-    }), 200
+            "message": auth_jti_result[0],
+            'success': False}), 401
+        
 
-jwts.token_required("refresh")
+@jwts.token_required("refresh")
 def logout() ->tuple:
     """
     Función para hacer logout
     """
-    user_id = request.current_user.get("user_id")
+    user_id = request.current_user.get('user_id')
 
     if not user_id:
         return jsonify({"message": "Token no valido: sin user_id", "success": False}), 401
     
-    result = auth_service.revoke_user_sessions()
+    result = auth_service.revoke_user_sessions(user_id)
 
-    if not result:
-        return jsonify({"message": "Error al cerrar sesión", "success": False}), 500
+    if not result[1]:
+        return jsonify({"message": f'Error al cerrar sesion: {result[0]}', "success": False}), 500
     
     return jsonify({"message": "Logout exitoso", "success": True}), 200
 
@@ -221,8 +222,3 @@ def reset_password_via_code():
         return jsonify({"message": 'error al actualizar contraseña.', 'success':False})
     
     return update_result
-
-
-
-
-
