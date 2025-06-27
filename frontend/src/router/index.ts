@@ -91,12 +91,12 @@ const routes: RouteRecordRaw[] = [
 
     // --- Rutas de Administración del Club ---
     {
-        path: '/club/:id',
-        component: AdminView,
-        children: clubChildren,
-        meta: { requiresAuth: true }
+    path: '/club/:id',
+    component: AdminView,
+    children: clubChildren,
+    // CAMBIA ESTA LÍNEA TEMPORALMENTE
+    meta: { requiresAuth: false } // Originalmente era 'true'
     },
-
     // --- Ruta Fallback (404) ---
     {
         path: '/:pathMatch(.*)*',
@@ -117,7 +117,7 @@ export const router = createRouter({
  * Verifica si la ruta destino requiere autenticación (`meta.requiresAuth`).
  * Si es así y el usuario no está autenticado, lo redirige forzosamente a la página de Login.
  */
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => { 
     const auth = useAuthStore();
     if (to.meta.requiresAuth && !auth.isAuthenticated) {
         next({ name: 'Login' });

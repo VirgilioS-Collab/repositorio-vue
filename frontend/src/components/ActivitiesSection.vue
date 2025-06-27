@@ -47,10 +47,10 @@ defineProps<{
         </div>
         
         <div class="mt-3 flex items-center justify-between">
-          <span class="text-sm text-gray-500 flex items-center gap-1.5">
-            <LucideIcon name="calendar" :size="14" class="text-accent" />
-            {{ new Date(activity.start_time).toLocaleDateString('es-PA', { year: 'numeric', month: 'long', day: 'numeric' }) }}
-          </span>
+            <span class="text-xs text-gray-500 flex items-center gap-1.5">
+              <LucideIcon name="calendar" :size="14" />
+              {{ new Date(activity.activity_datetime).toLocaleDateString('es-PA') }}
+            </span>
           <RouterLink 
             :to="{ name: 'ActivityDetail', params: { id: activity.activity_id } }" 
             class="px-3 py-1 text-xs font-bold text-white bg-primary rounded-full hover:bg-primary-dark transition-colors"
