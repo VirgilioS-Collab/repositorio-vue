@@ -11,27 +11,25 @@ def change_password():
     current_password = data.get('current_password')
     new_password = data.get('new_password')
 
-    # Validación de datos de entrada
-    if not current_password or not new_password:
-        return jsonify({"success": False, "message": "Datos incompletos"}), 400
+    payload = request.current_user
+    user_id = payload['user_id']
+    #Verifica la autenticidad del token
+    result = uus.verify_auth_refresh({'user_id': payload['user_id'], 'jti': payload['jti']})
 
-    user_id = request.current_user.get("user_id")
-
+    if not result[1]:
+        return jsonify({"message": "Token invalido", "success": False}), 404
     # Obtener contraseña actual desde la BD
-    hashed_password, found = uus.get_user_encrypted_password(user_id=user_id)
-
-    if not found:
-        return jsonify({"success": False, "message": "El usuario no fue encontrado"}), 404
+    hashed_password, _ = uus.get_user_encrypted_password(user_id=user_id)
 
     if not uus.validate_password(current_password, hashed_password):
-        return jsonify({"success": False, "message": "La contraseña no coincide"}), 401
+        return jsonify({"message": "La contraseña no coincide", "success": False}), 401
 
     # Actualizar contraseña
     new_hashed = uus.hash_password(new_password)
     message, success = uus.update_user_password(user_id=user_id, hashed_password=new_hashed)
 
     if not success:
-        return jsonify({"success": False, "message": message}), 500
+        return jsonify({"message": message, "success": success}), 500
 
     # Invalidar tokens antiguos
     cleanup_msg, _ = uus.deactivate_user_tokens(user_id=user_id)

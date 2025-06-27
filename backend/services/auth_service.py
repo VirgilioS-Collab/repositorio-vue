@@ -33,6 +33,29 @@ def revoke_user_sessions(user_id:int) -> tuple:
         cursor.callproc("public.fn_revoke_user_session", (user_id, ))
 
         result = cursor.fetchone()
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return result
+    
+    except Exception as e:
+        conn.rollback()
+        return (str(e), False)
+    finally:
+        cursor.close()
+        conn.close()
+
+def verify_auth_refresh(auth_jti:dict) -> bool:
+    """Verificar la autenticidad del token"""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.callproc("public.verify_auth_refresh", (auth_jti['user_id'], auth_jti['jti']))
+
+        result = cursor.fetchone()
 
         cursor.close()
         conn.close()
@@ -93,7 +116,7 @@ def create_user_refresh_token_db(user_data:dict):
             CALL public.sp_create_user_refresh_token(%s, %s, %s, %s)
         """, (
             user_data.get('user_id'),
-            user_data.get('refresh_token'),
+            user_data.get('jti'),
             message,
             success
         ))     
@@ -101,7 +124,7 @@ def create_user_refresh_token_db(user_data:dict):
 
         conn.commit()
 
-        return (message, success) 
+        return (message, success)
     
     except Exception as e:
         conn.rollback()

@@ -140,7 +140,7 @@ def send_email_code(recipient: str, subject: str, code: str) -> bool:
           </body>
         </html>
         """
-        msg = Message(subject=subject,
+        msg = Message(subject=f'{em.MAGNIFY} {subject}',
                       recipients=[recipient],
                       html=html_body)
         mail.send(msg)

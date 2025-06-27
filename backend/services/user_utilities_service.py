@@ -1,5 +1,6 @@
 from utils.db import get_connection
 from utils.security import hash_password, validate_password
+from .auth_service import verify_auth_refresh
 
 def get_user_encrypted_password(user_id:int) -> str:
     """Obtener la contraseña para comparar si es correcta antes de actualizar"""

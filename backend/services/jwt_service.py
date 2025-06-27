@@ -13,7 +13,7 @@ class JWTService:
 
 
     @classmethod
-    def create_token(cls, user_data : dict, expires_in=None, type="access"):
+    def create_token(cls, user_data : dict, expires_in=None, type="access", jti:str = None):
         """Creacion del JWT con los datos del usuario que inicio sesion"""
         expires_seconds = expires_in if expires_in is not None else cls.DEFAULT_EXPIRE_SECONDS
 
@@ -23,6 +23,9 @@ class JWTService:
             "iss": cls.JWT_ISSUER,
             "type": type
         }
+
+        if type == 'refresh':
+            payload['jti'] = jti
 
         return jwt.encode(payload, cls.SECRET_KEY, algorithm=cls.ALGORITHM)
     
