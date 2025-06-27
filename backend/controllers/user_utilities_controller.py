@@ -11,13 +11,8 @@ def change_password():
     current_password = data.get('current_password')
     new_password = data.get('new_password')
 
-    user_id = request.current_user.get("user_id")
     payload = request.current_user
-
-    # Validación de datos de entrada
-    if not current_password or not new_password:
-        return jsonify({"message": "Datos incompletos", "success": False}), 400
-    
+    user_id = payload['user_id']
     #Verifica la autenticidad del token
     result = uus.verify_auth_refresh({'user_id': payload['user_id'], 'jti': payload['jti']})
 
