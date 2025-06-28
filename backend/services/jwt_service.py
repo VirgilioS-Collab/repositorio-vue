@@ -50,11 +50,16 @@ class JWTService:
         def decorator(f):
             @wraps(f)
             def decorator_function(*args, **kwargs):
-                token = request.headers.get('Authorization')
-                if not token or not token.startswith('Bearer '):
-                    return jsonify({"error": "Falta el token o esta mal formado"}), 401
+                token = None
+                auth_header = request.headers.get('Authorization')
+
+                if auth_header and auth_header.startswith('Bearer '):
+                    token = auth_header.split(' ')[1]
+                else:
+                    token = request.cookies.get('refresh_token')
+                if not token:
+                    return jsonify({"error": "Falta el token o está mal formado"}), 401 
                 try:
-                    token = token[7:].strip()  # Elimina "Bearer "
                     data = JWTService.verify_token(token)
 
                     if not data:

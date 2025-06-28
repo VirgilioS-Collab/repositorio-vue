@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h1 style="font-size: 26px; color: #1f2937;">
+    {{ WELCOME }} ¡Bienvenido a Alianza UTP, {{ user_name }}!
+  </h1>
+
+  <p style="font-size: 16px; color: #4b5563; line-height: 1.6; margin-bottom: 30px;">
+    Estamos encantados de tenerte con nosotros. A partir de ahora, formas parte de una comunidad que apuesta por el crecimiento, el aprendizaje y la colaboración.
+  </p>
+
+  <div style="background-color: #e0f2fe; padding: 20px; border-radius: 10px; color: #0369a1; margin-bottom: 30px;">
+    <p style="margin: 0; font-size: 16px;">
+      {{ MAGNIFY }} Puedes explorar tu perfil, unirte a grupos, gestionar actividades y mucho más desde nuestra plataforma.
+    </p>
+  </div>
+
+  <a href="https://alianzautp.online" style="
+      display: inline-block;
+      background-color: #1e3a8a;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      box-shadow: 0 4px 14px rgba(30, 58, 138, 0.4);
+    ">
+    Ir a la plataforma
+  </a>
+{% endblock %}

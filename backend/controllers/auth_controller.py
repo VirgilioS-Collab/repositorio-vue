@@ -1,7 +1,14 @@
-from flask import request, jsonify
+from flask import request, jsonify, make_response
 import uuid
 from services import auth_service
 from services.jwt_service import JWTService as jwts
+from emails.email_types import verification_code_email as vce
+from emails.email_types import welcome
+
+#Constantes
+REFRESH_TOKEN_EXPIRES = 604800 #7 dias
+ACCESS_TOKEN_EXPIRES = 300 #5 minutos
+RESET_PASS_TOKEN_EXPIRES = 600 #10 minutos
 
 def login_user() -> tuple:
     """
@@ -27,12 +34,14 @@ def login_user() -> tuple:
             'username': user_data[1],
             'email': user_data[2]
         }
-        token = jwts.create_token(user_data=user_payload, 
-                                  type='access')
+        access_token = jwts.create_token(user_data=user_payload,
+                                        expires_in=ACCESS_TOKEN_EXPIRES,
+                                        type='access')
         #Generar un identificador unico del JWT para manejar estados
         new_jti = str(uuid.uuid4())
+
         refresh_token = jwts.create_token(user_data=user_payload, 
-                                          expires_in=604800, #7 dias
+                                          expires_in=REFRESH_TOKEN_EXPIRES, #7 dias
                                           type='refresh',
                                           jti=new_jti)
 
@@ -41,12 +50,24 @@ def login_user() -> tuple:
         
         if token_result[1] is False:
             return jsonify({'message': token_result[0], 'success': False})
+        
 
-        return jsonify({
+        response = make_response(jsonify({
             'login_success': True,
-            'token': token,
-            'refresh_token': refresh_token,
-            'message': 'Login exitoso'}), 200
+            'message': 'Login exitoso',
+        "token": access_token}))
+        #Establecer la cookie para el refresh token
+        response.set_cookie(
+            'refresh_token',
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite='Strict',
+            max_age= REFRESH_TOKEN_EXPIRES,
+            path='/' #se maneja asi porque el user/changepassword debe acceder a la cookie
+        )
+        return response
+
     else:
         return jsonify({"success": False, "message": "Contraseña incorrecta"}), 401
     
@@ -94,8 +115,9 @@ def user_refresh_token():
         new_access_token = jwts.create_token({
             "user_id": payload["user_id"],
             "username": payload["username"],
-            "email": payload["email"]
-        }, type='access')
+            "email": payload["email"]}, 
+        expires_in=ACCESS_TOKEN_EXPIRES,
+        type='access')
 
         return jsonify({
             "token": new_access_token
@@ -134,7 +156,7 @@ def create_user() -> tuple:
     if success:
         full_name = f'{data.get('firstName')} {data.get('lastName')}'.strip()
         email = data.get('email', '')
-        if auth_service.send_welcome_email(recipient=email, subject="¡Bienvenido a Alianza UTP!", user_name=full_name):
+        if welcome.send_welcome_email(recipient=email, user_name=full_name):
             return jsonify({
                 "message": message,
                 "success": True
@@ -168,12 +190,12 @@ def user_forgot_password():
     inserted = auth_service.email_code_insert_db(email, code, expires_in=10)
 
     if not inserted:
-        return jsonify({'message': 'No se pudo generar el código, intente más tarde.', 'success': False}), 500
+        return jsonify({'message': 'No se pudo generar el código.', 'success': False}), 500
     
-    if not auth_service.send_email_code(email, "¿Olvidaste tu contraseña? Aquí está tu código de acceso", code):
-        return jsonify({'message': 'No se pudo enviar el código, intente más tarde.', 'success': False}), 500
+    if not vce.send_verification_email(email, code):
+        return jsonify({'message': 'No se pudo enviar el código.', 'success': False}), 500
     
-    reset_token = jwts.create_token(user_data={'email': email}, expires_in=600, type='reset_pass')
+    reset_token = jwts.create_token(user_data={'email': email}, expires_in=RESET_PASS_TOKEN_EXPIRES, type='reset_pass')
 
     return jsonify({'message': 'codigo enviado exitosamente.', 'token': reset_token,'success': True}), 200
 

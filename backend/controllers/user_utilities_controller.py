@@ -13,6 +13,8 @@ def change_password():
 
     payload = request.current_user
     user_id = payload['user_id']
+
+    
     #Verifica la autenticidad del token
     result = uus.verify_auth_refresh({'user_id': payload['user_id'], 'jti': payload['jti']})
 
