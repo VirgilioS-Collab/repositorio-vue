@@ -18,7 +18,7 @@ const calendarEvents = computed(() => {
   if (!props.activities) return [];
   return props.activities.map(activity => ({
     title: activity.activity_name,
-    start: activity.start_time,
+    start: activity.activity_datetime,
     allDay: true,
     // Damos un color a los eventos para que resalten
     backgroundColor: '#E4B95B', // accent
