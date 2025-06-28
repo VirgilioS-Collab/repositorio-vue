@@ -1,6 +1,5 @@
 from utils.db import get_connection
 from utils.security import hash_password, validate_password, gen_random_fp_code
-from utils.mail import send_email_code, send_welcome_email
 
 def login_user_db(username:str = None, email:str = None) -> tuple:
     """Autentica un usuario en la base de datos usando nombre de usuario o email."""
