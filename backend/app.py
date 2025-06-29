@@ -3,6 +3,9 @@ from flask import Flask
 from flask_cors import CORS
 from routes.auth_routes import auth_bp
 from routes.user_utilities_routes import users_bp
+from routes.activity_routes import activity_bp
+from routes.club_routes import club_bp
+from routes.finance_routes import finance_bp
 from emails.mail import init_mail
 from dotenv import load_dotenv
 #Cargar variables de entorno
@@ -31,6 +34,9 @@ CORS(app, resources={r"/api/*": {'origins': frontend_origin}}, supports_credenti
 #BluePrints
 app.register_blueprint(auth_bp)
 app.register_blueprint(users_bp)
+app.register_blueprint(activity_bp)
+app.register_blueprint(club_bp)
+app.register_blueprint(finance_bp)
 #app.register_blueprint(group_bp)
 
 if __name__ == "__main__":
