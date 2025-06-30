@@ -1,43 +1,33 @@
 /**
  * @file src/services/dao/models/User.ts
- * @description Define los tipos y DTOs para el modelo de Usuario.
+ * @description DTOs para la entidad de Usuario, implementando la estrategia "Full + Lean".
  */
-import type { GroupDTO } from './Group';
-import type { ActivityDTO } from './Activity';
 
 /**
- * @interface UserDTO
- * @description Contrato de datos completo para un objeto de Usuario.
- * El backend debe devolver este objeto en el endpoint /auth/me.
+ * Representación completa del perfil de usuario, tal como lo devuelve el endpoint /auth/me.
+ * Este modelo refleja fielmente el contrato existente con el backend.
  */
 export interface UserDTO {
-    user_id: number;
-    username: string;
-    email: string;
-    name: string;
-    last_name: string;
-    phone?: string;
-    about_me?: string;
+    user_id:           number;
+    username:          string;
+    email:             string;
+    name:              string;
+    last_name:         string;
+    phone?:            string;
     profile_photo_url?: string | null;
-    user_type: 'student' | 'admin' | 'leader'; // Tipos de usuario definidos
-    user_status: 'active' | 'inactive';
-    career?: string;
-
-    // --- Datos Relacionados ---
-    groups?: GroupDTO[];
-    activities?: ActivityDTO[];
+    user_type:         'student' | 'admin' | 'leader';
+    user_status:       'active' | 'inactive';
 }
 
 /**
- * @interface UserUpdateDTO
- * @description Define los campos que el usuario puede actualizar de su propio perfil.
+ * @NUEVO
+ * Representación mínima ("lean") del perfil de usuario.
+ * Se utiliza en el `useAuthStore` para mantener en memoria solo los datos
+ * esenciales para la UI, mejorando el rendimiento.
  */
-export interface UserUpdateDTO {
-    name?: string;
-    last_name?: string;
-    email?: string;
-    phone?: string;
-    about_me?: string;
-    profile_photo_url?: string;
-    career?: string;
+export interface UserLeanDTO {
+  user_id:   number;
+  name:      string;
+  user_type: 'student' | 'admin' | 'leader';
+  avatar?:   string | null; // Mapeado desde 'profile_photo_url'
 }

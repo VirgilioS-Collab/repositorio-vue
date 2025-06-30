@@ -5,19 +5,24 @@
  * Adopta el layout de "tarjeta grande" con dos columnas para mantener
  * la consistencia visual con la vista de Login.
  */
+
+// --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { useRouter } from 'vue-router'
 import RegistrationForm from '@/views/auth/RegistrationForm.vue'
 import { useAuthStore } from '@/store/useAuthStore'
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
 
+// --- SECCIÓN DE CONSTANTES ---
 const router = useRouter()
 const authStore = useAuthStore()
 
+// --- SECCIÓN DE FUNCIONES ---
 /**
  * @docstring
  * Callback que se ejecuta tras un registro exitoso.
  * Redirige al usuario a la página de Login, opcionalmente con un
  * parámetro para mostrar un mensaje de éxito.
+ * @effects Redirige al usuario a la ruta de login.
  */
 function onRegisteredSuccessfully(): void {
   router.push({ name: 'Login', query: { registered: 'true' } })

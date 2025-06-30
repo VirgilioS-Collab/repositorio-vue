@@ -2,20 +2,23 @@
 /**
  * @file src/views/auth/RegistrationForm.vue
  * @description Formulario de registro de usuario.
- * - REFACTORIZADO: Se ajusta el layout de los campos para que coincida
- * con la nueva estructura visual de dos columnas en ciertas filas,
- * utilizando flexbox para la organización.
+ * - REFACTORIZADO: Ahora llama directamente a AuthDao.register() y gestiona
+ * su propio estado de carga y error, desacoplándose del useAuthStore.
  */
+
+// --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { ref, computed } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import { useAuthStore } from '@/store/useAuthStore'
+import { RouterLink } from 'vue-router'
+import AuthDao from '@/services/dao/AuthDao' // Cambio clave: se importa el DAO
+import type { UserEnrollDTO } from '@/services/dao/models/Auth' // Se importa el DTO
 
 // --- SECCIÓN DE EMITS ---
 const emit = defineEmits<{ (e: 'registered'): void }>()
 
-// --- SECCIÓN DE CONSTANTES Y ESTADO ---
-const auth = useAuthStore()
-const router = useRouter()
+// --- SECCIÓN DE CONSTANTES ---
+// El estado de carga y error ahora es local al componente.
+const isLoading = ref(false) 
+const error = ref<string | null>(null)
 const form = ref({
   firstName: '',
   lastName: '',
@@ -34,19 +37,22 @@ const form = ref({
 /**
  * @docstring
  * Valida que el correo electrónico tenga el formato institucional.
+ * @returns {boolean} `true` si el email es válido, `false` en caso contrario.
  */
 const emailOk = computed(() => /^[A-Za-z0-9._%+-]+@utp\.ac\.pa$/i.test(form.value.email))
 
 /**
  * @docstring
  * Valida que las contraseñas coincidan y no estén vacías.
+ * @returns {boolean} `true` si las contraseñas coinciden y no están vacías, `false` en caso contrario.
  */
 const pwdOk = computed(() => form.value.password.length > 0 && form.value.password === form.value.confirmPassword)
 
 /**
  * @docstring
  * Realiza una validación simple para habilitar el botón de envío,
- * asegurando que los campos clave estén completos.
+ * asegurando que los campos clave estén completos y las validaciones pasen.
+ * @returns {boolean} `true` si el formulario es válido y está listo para enviar, `false` en caso contrario.
  */
 const isFormComplete = computed(() => {
     return form.value.firstName && form.value.lastName && form.value.username && emailOk.value && pwdOk.value
@@ -55,13 +61,48 @@ const isFormComplete = computed(() => {
 // --- SECCIÓN DE FUNCIONES ---
 /**
  * @docstring
- * Gestiona el envío del formulario al store de autenticación.
+ * Gestiona el envío del formulario de registro.
+ * Construye el objeto DTO (Data Transfer Object) con los datos del formulario
+ * y llama directamente al método `register` del `AuthDao`.
+ * Maneja el estado de carga y cualquier error que pueda ocurrir durante el proceso.
+ * @returns {Promise<void>} Una promesa que se resuelve cuando el registro se completa.
+ * @effects Establece `isLoading` a `true` durante la operación y a `false` al finalizar.
+ * Actualiza el estado `error` en caso de fallo o emite el evento 'registered' en caso de éxito.
+ * @throws {Error} Si la operación de registro falla en el DAO.
  */
 async function submit(): Promise<void> {
-  if (!isFormComplete.value || auth.loading) return
-  const wasSuccessful = await auth.userEnroll(form.value)
-  if (wasSuccessful) {
+  if (!isFormComplete.value || isLoading.value) return
+  
+  isLoading.value = true
+  error.value = null
+  
+  try {
+    // 1. Construimos el payload con el tipado estricto de UserEnrollDTO
+    const payload: UserEnrollDTO = {
+      first_name: form.value.firstName,
+      last_name:  form.value.lastName,
+      // Asegurarse de que birth_date sea una cadena ISO 8601
+      birth_date: new Date(form.value.birthDate).toISOString().split('T')[0], // Formato YYYY-MM-DD
+      gender:     form.value.gender,
+      doc_type:   form.value.docType,
+      doc_number: form.value.docNumber,
+      phone:      form.value.phone,
+      username:   form.value.username,
+      email:      form.value.email,
+      password:   form.value.password,
+    };
+    
+    // 2. Llamamos directamente al método del DAO
+    await AuthDao.register(payload)
+    
+    // 3. Notificamos al componente padre del éxito
     emit('registered')
+
+  } catch (err: any) {
+    // Si hay un error, intentamos obtener el mensaje del backend o un mensaje genérico.
+    error.value = err.response?.data?.message ?? 'No se pudo completar el registro. Inténtalo de nuevo.'
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -131,14 +172,15 @@ async function submit(): Promise<void> {
       <div class="pt-4 flex flex-col items-center gap-3">
         <button
           type="submit"
-          :disabled="!isFormComplete || auth.loading"
+          :disabled="!isFormComplete || isLoading"
           class="w-full sm:w-3/4 py-3 rounded-lg text-white font-bold bg-primary hover:opacity-90 transition"
-          :class="{ 'opacity-50 cursor-not-allowed': !isFormComplete || auth.loading }"
+          :class="{ 'opacity-50 cursor-not-allowed': !isFormComplete || isLoading }"
         >
-          <span v-if="!auth.loading">Registrarme</span>
+          <span v-if="!isLoading">Registrarme</span>
           <span v-else>Procesando…</span>
         </button>
       </div>
+       <p v-if="error" class="text-sm text-red-500 text-center mt-4">{{ error }}</p>
     </form>
   </div>
 </template>

@@ -1,93 +1,95 @@
 /**
- * @file src/stores/useAuthStore.ts
- * @description Store de Pinia para gestionar el estado de autenticación.
- * - REFACTORIZADO: Adaptado para un flujo de autenticación basado en cookies
- * HttpOnly. Se elimina la gestión manual del token JWT del estado.
- * El estado de autenticación ahora se determina por la presencia de los
- * datos del usuario.
+ * @file src/store/useAuthStore.ts
+ * @description Store de Pinia para gestionar el estado de autenticación y el perfil de usuario.
+ * No almacena tokens; depende de las cookies HttpOnly gestionadas por el navegador.
  */
-
-// --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { defineStore } from 'pinia';
-import http from '@/services/http'; 
 import AuthDao from '@/services/dao/AuthDao';
-import UserDao from '@/services/dao/UserDao';
-import type { LoginDTO, userEnrollDTO } from '@/services/dao/models/Auth';
-import type { UserDTO } from '@/services/dao/models/User';
-import { router } from '@/router';
+import type { LoginDTO, PasswordResetPayload } from '@/services/dao/models/Auth';
+import type { UserDTO, UserLeanDTO } from '@/services/dao/models/User';
 
-// --- SECCIÓN DE STORE ---
+// Canal para sincronizar el estado de logout entre pestañas abiertas.
+const authChannel = new BroadcastChannel('auth');
+
+/**
+ * Mapea el DTO completo del usuario a la versión "lean" que se usa en el estado.
+ * @param {UserDTO} fullUser - El objeto de usuario completo recibido de la API.
+ * @returns {UserLeanDTO} El objeto de usuario ligero para la UI.
+ */
+function mapUserToLean(fullUser: UserDTO): UserLeanDTO {
+    const { user_id, name, user_type, profile_photo_url } = fullUser;
+    return { user_id, name, user_type, avatar: profile_photo_url };
+}
+
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        user: null as UserDTO | null,
+        user: null as UserLeanDTO | null,
         loading: false,
-        error: null as string | null
+        error: null as string | null,
     }),
 
     getters: {
+        /**
+         * Determina si el usuario está autenticado basándose en la existencia del objeto 'user'.
+         */
         isAuthenticated: (state) => !!state.user,
     },
 
     actions: {
+        /**
+         * Carga el perfil "lean" del usuario si existe una sesión de cookie válida.
+         * Es el punto de entrada para inicializar la sesión en la aplicación.
+         */
+        async bootstrap() {
+            if (this.user) return; // Evita recargar si el usuario ya está en el estado.
+            
+            this.loading = true;
+            try {
+                const fullUser = await AuthDao.me();
+                this.user = mapUserToLean(fullUser);
+            } catch (err: any) {
+                this.user = null; // Limpia el usuario si el bootstrap falla
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        /**
+         * Maneja el proceso de inicio de sesión.
+         */
         async login(payload: LoginDTO) {
             this.loading = true;
             this.error = null;
             try {
-                // El backend establece las cookies HttpOnly automáticamente.
-                const response = await AuthDao.login(payload);
-
-                // Asumimos que la respuesta del DAO ahora indica éxito y posiblemente devuelve datos del usuario.
-                // Si la respuesta del login ya incluye el usuario, puedes asignarlo directamente:
-                // this.user = response.user;
-                // Si no, lo buscamos en una llamada separada:
-                if (response.login_success) {
-                    await this.fetchUser();
-                } else {
-                    throw new Error(response.message || 'Credenciales inválidas.');
-                }
-
+                await AuthDao.login(payload);
+                await this.bootstrap(); // Cargar el perfil inmediatamente después del login.
             } catch (err: any) {
-                this.error = err.message;
-                this.user = null; 
+                this.error = err.response?.data?.message || 'Credenciales inválidas.';
+                throw this.error; // Lanza el error para que la vista pueda manejarlo.
             } finally {
                 this.loading = false;
             }
         },
         
-        async fetchUser() {
-            try {
-                this.user = await UserDao.fetchProfile();
-            } catch (err) {
-                this.user = null;
-            }
+        /**
+         * Cierra la sesión del usuario, notificando al backend y a otras pestañas.
+         */
+        logout() {
+            // Notifica al backend para invalidar el refresh_token.
+            // Se usa .catch para que el logout del frontend no se bloquee si la llamada falla.
+            AuthDao.logout().catch(() => {});
+            
+            this.$reset(); // Resetea el estado del store a su valor inicial.
+            authChannel.postMessage('logout'); // Notifica a otras pestañas.
         },
-
-        async logout() {
-            this.loading = true;
-            try {
-                // Llama al backend para que invalide y elimine las cookies de sesión.
-                await http.post('/auth/logout'); 
-            } catch (error) {
-                console.error("Error durante el logout:", error);
-                // A pesar del error, forzamos el cierre de sesión en el frontend.
-            } finally {
-                this.user = null;
-                this.loading = false;
-                router.push({ name: 'Login' });
-            }
-        },
-        
-        async userEnroll(payload: userEnrollDTO): Promise<boolean> {
-            // Lógica de registro...
-            return true; 
-        },
-        async requestPasswordReset(email: string): Promise<boolean> {
-            // Lógica de solicitud de reseteo...
-            return true; 
-        },
-        async resetPassword(token: string, newPassword: string): Promise<boolean> {
-            // Lógica para cambiar la contraseña...
-            return true; //
-        },
-    }
+    },
 });
+
+// Listener que escucha eventos de otras pestañas para mantener la sesión sincronizada.
+authChannel.onmessage = (event) => {
+    if (event.data === 'logout' && useAuthStore().isAuthenticated) {
+        useAuthStore().logout();
+        // Opcional: forzar una recarga para asegurar que el usuario vea la página de login.
+        window.location.reload();
+    }
+};
