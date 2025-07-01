@@ -1,65 +1,56 @@
 /**
  * @file src/services/http.ts
- * @description Módulo centralizado de configuración de Axios.
- * - MODIFICADO: Se configura `withCredentials: true` para permitir que el
- * navegador envíe y reciba cookies HttpOnly de forma automática.
- * - ELIMINADO: Se remueve el interceptor de peticiones que adjuntaba
- * manualmente el token JWT. Esta tarea ahora la gestiona el navegador
- * de forma segura y transparente.
+ * @description Instancia centralizada de Axios (Singleton) con interceptor global.
+ * Maneja automáticamente la autenticación basada en cookies y el refresco de sesión.
  */
+import axios, { type AxiosRequestConfig } from 'axios';
+import { useAuthStore } from '@/store/useAuthStore';
 
-// --- LIBRERÍAS/IMPORTS ---
-import axios from 'axios';
-import { useAuthStore } from '@/store/useAuthStore'; 
+// Interfaz para extender la configuración de Axios con una bandera de reintento.
+interface RetryableRequest extends AxiosRequestConfig {
+  _retry?: boolean;
+}
 
-// --- CONFIGURACIÓN DE AXIOS ---
-/**
- * @docstring
- * Se crea una instancia de Axios con la URL base de la API y la configuración
- * para que maneje automáticamente las cookies de sesión.
- */
 const http = axios.create({
-  baseURL: 'http://localhost:3000/api',
-  withCredentials: true,
+    baseURL: import.meta.env.VITE_API_URL || '/api',
+    withCredentials: true, // Permite el envío de cookies HttpOnly en cada petición.
 });
 
 /**
- * @docstring
- * INTERCEPTOR DE RESPUESTAS (Response Interceptor)
- * Opcional, pero altamente recomendado para un flujo de refresh automático.
- * Se ejecuta DESPUÉS de recibir una respuesta. Si detecta un error 401
- * (token de acceso expirado), intentará obtener uno nuevo usando el
- * refresh_token (que el navegador envía como cookie) y reintentará la
- * petición original.
+ * Interceptor de respuestas para manejar la expiración de sesión (401).
  */
 http.interceptors.response.use(
-  (response) => response, 
-  async (error) => {
-    const originalRequest = error.config;
-    const authStore = useAuthStore();
+    // Para respuestas exitosas (2xx), no hace nada y las deja pasar.
+    (response) => response,
 
-    // Si el error es 401 y no hemos reintentado ya esta petición
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; 
+    // Para respuestas con error, ejecuta esta lógica.
+    async (error) => {
+        const originalRequest = error.config as RetryableRequest;
 
-      try {
-        // Llama al endpoint que usa la refresh_token_cookie para generar un nuevo access_token_cookie
-        await http.post('/auth/refresh');
+        // Si el error es 401 (No Autorizado) y no es un reintento, se intenta refrescar el token.
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true; // Marca la petición para evitar bucles infinitos de reintentos.
+
+            try {
+                // Se llama al endpoint de refresh. El backend usará la cookie 'refresh_token'
+                // para emitir un nuevo 'access_token' (también como cookie).
+                await http.post('/auth/refresh');
+                
+                // Si el refresh fue exitoso, se reintenta la petición original con la nueva cookie.
+                return http(originalRequest);
+
+            } catch (refreshError) {
+                // Si el refresh falla, la sesión es irrecuperable.
+                // Se llama a la acción de logout para limpiar el estado y redirigir.
+                // Se usa un import dinámico o se llama directamente para evitar dependencias circulares.
+                useAuthStore().logout();
+                return Promise.reject(refreshError);
+            }
+        }
         
-        // El navegador habrá recibido la nueva cookie de acceso, así que reintentamos la petición original.
-        return http(originalRequest);
-
-      } catch (refreshError) {
-        // Si el refresh falla (ej. refresh_token también expiró), cerramos la sesión.
-        authStore.logout();
-        return Promise.reject(refreshError);
-      }
+        // Para cualquier otro error, simplemente se propaga.
+        return Promise.reject(error);
     }
-
-    // Para cualquier otro error, simplemente lo propagamos.
-    return Promise.reject(error);
-  }
 );
-
 
 export default http;

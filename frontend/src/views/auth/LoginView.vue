@@ -9,25 +9,45 @@
 
 // --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router' // Se añadió useRoute
 import LoginForm from '@/views/auth/LoginForm.vue'
 import ForgotPasswordModal from '@/components/modals/ForgotPasswordModal.vue'
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
 import { useAuthStore } from '@/store/useAuthStore.ts'
 
-// --- Lógica del componente (sin cambios) ---
+// --- SECCIÓN DE CONSTANTES ---
 const router = useRouter()
+const route = useRoute() // Se añadió la declaración de route
 const auth = useAuthStore()
 const showForgot = ref(false)
 
+// --- SECCIÓN DE FUNCIONES ---
+/**
+ * @docstring
+ * Redirige al usuario después de un inicio de sesión exitoso.
+ * Prioriza la redirección a una ruta específica si el usuario
+ * intentó acceder a una página protegida antes de iniciar sesión.
+ * @effects Redirige al usuario a `redirectPath` o a la página de inicio.
+ */
 function onUserLoggedIn(): void {
-  if (auth.isAuthenticated) router.push('/')
+  const redirectPath = (route.query.redirect as string) || '/';
+  router.push(redirectPath);
 }
 
+/**
+ * @docstring
+ * Muestra el modal para solicitar el restablecimiento de contraseña.
+ * @effects Actualiza el estado `showForgot` a `true`.
+ */
 function onForgotPassword(): void {
   showForgot.value = true
 }
 
+/**
+ * @docstring
+ * Cierra el modal de restablecimiento de contraseña.
+ * @effects Actualiza el estado `showForgot` a `false`.
+ */
 function onCloseForgotPasswordModal(): void {
   showForgot.value = false
 }

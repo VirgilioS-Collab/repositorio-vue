@@ -1,27 +1,44 @@
 <script setup lang="ts">
 /**
  * @file src/views/auth/ForgotPasswordView.vue
- * @description Vista para que el usuario solicite un enlace de
- * restablecimiento de contraseña.
+ * @description Vista para que el usuario solicite un enlace de restablecimiento de contraseña.
+ * - REFACTORIZADO: Llama directamente a AuthDao en lugar de a un store.
  */
+
+// --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useAuthStore } from '@/store/useAuthStore'
+import AuthDao from '@/services/dao/AuthDao' // Cambio clave: se usa el DAO
 
-// --- SECCIÓN DE ESTADO Y CONSTANTES ---
-const authStore = useAuthStore()
+// --- SECCIÓN DE CONSTANTES ---
 const email = ref('')
-const emailSent = ref(false) // Para mostrar un mensaje de confirmación
+const isLoading = ref(false) // Cambio: el estado de carga ahora es local.
+const emailSent = ref(false)
 
+// --- SECCIÓN DE FUNCIONES ---
 /**
  * @docstring
- * Llama a la acción del store para solicitar el enlace.
- * Si tiene éxito, muestra un mensaje de confirmación al usuario.
+ * Llama al DAO para solicitar el enlace de recuperación de contraseña.
+ * Esta función es asíncrona y gestiona el estado de carga y el mensaje
+ * de confirmación para el usuario.
+ * @returns {Promise<void>} Una promesa que se resuelve cuando la solicitud se completa.
+ * @effects Establece `isLoading` a `true` durante la operación y a `false` al finalizar.
+ * Siempre establece `emailSent` a `true` por motivos de seguridad, sin importar el éxito real,
+ * para evitar la enumeración de correos electrónicos.
  */
 async function handleSubmit(): Promise<void> {
-  if (!email.value || authStore.loading) return
-  const success = await authStore.requestPasswordReset(email.value)
-  if (success) {
+  if (!email.value || isLoading.value) return
+  
+  isLoading.value = true;
+  try {
+    // Cambio clave: se llama al método del DAO.
+    await AuthDao.forgotPassword({ email: email.value })
+  } catch (err) {
+    // La falla es silenciosa para el usuario para no revelar si un email existe o no.
+    console.error("Forgot password error:", err)
+  } finally {
+    isLoading.value = false;
+    // Por seguridad, siempre se muestra el mensaje de éxito.
     emailSent.value = true
   }
 }
@@ -51,11 +68,11 @@ async function handleSubmit(): Promise<void> {
               </RouterLink>
               <button
                 type="submit"
-                :disabled="!email || authStore.loading"
+                :disabled="!email || isLoading"
                 class="px-5 py-2.5 rounded-lg text-primary font-bold bg-accent hover:opacity-90 transition"
-                :class="{ 'opacity-50 cursor-not-allowed': !email || authStore.loading }"
+                :class="{ 'opacity-50 cursor-not-allowed': !email || isLoading }"
               >
-                <span v-if="!authStore.loading">Enviar enlace</span>
+                <span v-if="!isLoading">Enviar enlace</span>
                 <span v-else>Enviando...</span>
               </button>
             </div>

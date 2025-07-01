@@ -1,49 +1,56 @@
 /**
  * @file src/services/dao/AuthDao.ts
- * @description Capa de acceso a datos (DAO) para la autenticación.
- * Centraliza todas las llamadas a la API relacionadas con la gestión
- * de usuarios y sesiones.
+ * @description Data Access Object para todas las operaciones de autenticación.
+ * - REFACTORIZADO: Utiliza la instancia 'http' centralizada y se alinea con los DTOs de Auth.ts.
  */
-import http from '@/services/http'
-import type { LoginDTO, LoginResponseDTO, userEnrollDTO, userEnrollResponseDTO } from '@/services/dao/models/Auth'
-//import type { UserDTO } from '@/services/dao/models/User'
+import http from '@/services/http';
+import type { LoginDTO, UserEnrollDTO, ForgotPasswordDTO, PasswordResetPayload } from '@/services/dao/models/Auth';
+import type { UserDTO } from '@/services/dao/models/User';
 
 class AuthDao {
     /**
-     * @docstring
-     * Envía las credenciales del usuario al endpoint de login.
+     * Envía las credenciales para iniciar sesión. El backend establecerá las cookies HttpOnly.
      */
-    async login(payload: LoginDTO): Promise<LoginResponseDTO> {
-        const response = await http.post<LoginResponseDTO>('/auth/login', payload)
-        return response.data
+    async login(payload: LoginDTO): Promise<void> {
+        await http.post('/auth/login', payload);
     }
 
     /**
-     * @docstring
-     * Envía los datos de un nuevo usuario al endpoint de registro.
+     * Envía los datos de un nuevo usuario para su registro.
      */
-    async UserEnroll(payload: userEnrollDTO): Promise<userEnrollResponseDTO> {
-        const response = await http.post<userEnrollResponseDTO>('/auth/enroll', payload)
-        return response.data
+    async register(payload: UserEnrollDTO): Promise<void> {
+        await http.post('/auth/register', payload);
     }
 
     /**
-     * @docstring
-     * (NUEVO) Envía una solicitud para iniciar el proceso de recuperación de contraseña.
+     * Solicita al backend un correo de recuperación de contraseña.
      */
-    async requestPasswordReset(email: string): Promise<void> {
-        await http.post('/auth/forgot-password', { email })
+    async forgotPassword(payload: ForgotPasswordDTO): Promise<void> {
+        await http.post('/auth/forgot-password', payload);
     }
 
     /**
-     * @docstring
-     * (NUEVO) Envía el token y la nueva contraseña para completar el restablecimiento.
+     * Envía la nueva contraseña junto con el token/código de verificación.
      */
-    async resetPassword(token: string, newPassword: string): Promise<void> {
-        await http.post('/auth/reset-password', { token, new_password: newPassword })
+    async resetPassword(payload: PasswordResetPayload): Promise<void> {
+        await http.post('/auth/submitPasswordReset', payload);
     }
-    
-    // Otros métodos como me(), logout(), etc.
+
+    /**
+     * Obtiene el perfil del usuario actualmente autenticado a través de su sesión (cookie).
+     */
+    async me(): Promise<UserDTO> {
+        const { data } = await http.get<UserDTO>('/auth/me');
+        return data;
+    }
+	
+    /**
+     * Notifica al backend para que invalide la sesión y borre las cookies del navegador.
+     */
+    async logout(): Promise<void> {
+        await http.post('/auth/logout');
+    }
 }
 
-export default new AuthDao()
+// Se exporta una única instancia para seguir el patrón Singleton[cite: 122].
+export default new AuthDao();

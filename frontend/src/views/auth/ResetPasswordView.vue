@@ -1,54 +1,77 @@
 <script setup lang="ts">
 /**
  * @file src/views/auth/ResetPasswordView.vue
- * @description Vista para que el usuario establezca una nueva contraseña
- * utilizando el token recibido por correo electrónico.
+ * @description Vista para establecer una nueva contraseña.
+ * - REFACTORIZADO: Llama directamente a AuthDao.
  */
+
+// --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { ref, computed } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import { useAuthStore } from '@/store/useAuthStore'
+import { useRouter, RouterLink, useRoute } from 'vue-router'
+import AuthDao from '@/services/dao/AuthDao' // Cambio clave: se usa el DAO
+import type { PasswordResetPayload } from '@/services/dao/models/Auth' // Se importa el tipo de payload
 
-// --- SECCIÓN DE PROPS ---
-/**
- * @docstring
- * Se utiliza defineProps para recibir el token directamente desde la URL
- * como un prop. Esto es posible gracias a la opción `props: true` que
- * configuramos en el archivo del enrutador.
- */
-const props = defineProps<{
-  token: string
-}>()
-
-// --- SECCIÓN DE ESTADO Y CONSTANTES ---
-const authStore = useAuthStore()
+// --- SECCIÓN DE CONSTANTES ---
 const router = useRouter()
-const newPassword = ref('')
-const confirmPassword = ref('')
+const route = useRoute() // Se necesita para obtener el token/código de la URL.
+
+const isLoading = ref(false)
+const error = ref<string | null>(null)
 const passwordReset = ref(false)
+const form = ref({
+  newPassword: '',
+  confirmPassword: ''
+});
 
 // --- SECCIÓN DE PROPIEDADES COMPUTADAS ---
 /**
  * @docstring
- * Propiedad computada para validar que ambas contraseñas coinciden
- * y no están vacías. Es crucial para habilitar el botón de envío.
+ * Propiedad computada que verifica si las contraseñas ingresadas coinciden
+ * y no están vacías.
+ * @returns {boolean} `true` si las contraseñas coinciden y tienen contenido, `false` en caso contrario.
  */
 const passwordsMatch = computed(() => {
-  return newPassword.value.length > 0 && newPassword.value === confirmPassword.value
+  return form.value.newPassword.length > 0 && form.value.newPassword === form.value.confirmPassword
 })
 
 // --- SECCIÓN DE FUNCIONES ---
 /**
  * @docstring
- * Gestiona el envío del formulario. Llama a la acción `resetPassword`
- * del store, pasando el token (recibido como prop) y la nueva contraseña.
- * Si tiene éxito, muestra un mensaje de confirmación.
+ * Gestiona el envío del formulario para restablecer la contraseña.
+ * Extrae el token y el email de la URL y llama al DAO para realizar el restablecimiento.
+ * @returns {Promise<void>} Una promesa que se resuelve cuando el restablecimiento se completa.
+ * @effects Establece `isLoading` a `true` durante la operación y a `false` al finalizar.
+ * Actualiza el estado `error` en caso de fallo o `passwordReset` en caso de éxito.
  */
 async function handleSubmit(): Promise<void> {
-  if (!passwordsMatch.value || authStore.loading) return
+  if (!passwordsMatch.value || isLoading.value) return
 
-  const success = await authStore.resetPassword(props.token, newPassword.value)
-  if (success) {
+  isLoading.value = true;
+  error.value = null;
+
+  try {
+    // Se obtiene el token y el email desde la URL.
+    const verification_code = route.query.token as string
+    const email = route.query.email as string
+    
+    if (!verification_code || !email) {
+      throw new Error('Faltan parámetros en la URL para restablecer la contraseña.');
+    }
+
+    const payload: PasswordResetPayload = {
+      email: email,
+      verification_code: verification_code,
+      new_password: form.value.newPassword
+    }
+
+    // Cambio clave: se llama al método del DAO.
+    await AuthDao.resetPassword(payload)
     passwordReset.value = true
+
+  } catch (err: any) {
+    error.value = err.response?.data?.message || err.message || 'No se pudo actualizar la contraseña.'
+  } finally {
+    isLoading.value = false;
   }
 }
 </script>
@@ -65,21 +88,21 @@ async function handleSubmit(): Promise<void> {
           </p>
           <form @submit.prevent="handleSubmit" class="space-y-4">
             <input
-              v-model="newPassword"
+              v-model="form.newPassword"
               type="password"
               required
               placeholder="Nueva contraseña"
               class="input-focus-effect w-full"
             />
             <input
-              v-model="confirmPassword"
+              v-model="form.confirmPassword"
               type="password"
               required
               placeholder="Confirmar nueva contraseña"
               class="input-focus-effect w-full"
-              :class="{ 'border-red-500': confirmPassword && !passwordsMatch }"
+              :class="{ 'border-red-500': form.confirmPassword && !passwordsMatch }"
             />
-             <p v-if="confirmPassword && !passwordsMatch" class="text-xs text-red-500 -mt-2">
+             <p v-if="form.confirmPassword && !passwordsMatch" class="text-xs text-red-500 -mt-2">
               Las contraseñas no coinciden.
             </p>
 
@@ -89,11 +112,11 @@ async function handleSubmit(): Promise<void> {
               </RouterLink>
               <button
                 type="submit"
-                :disabled="!passwordsMatch || authStore.loading"
+                :disabled="!passwordsMatch || isLoading"
                 class="px-5 py-2.5 rounded-lg text-primary font-bold bg-accent hover:opacity-90 transition"
-                :class="{ 'opacity-50 cursor-not-allowed': !passwordsMatch || authStore.loading }"
+                :class="{ 'opacity-50 cursor-not-allowed': !passwordsMatch || isLoading }"
               >
-                <span v-if="!authStore.loading">Guardar Contraseña</span>
+                <span v-if="!isLoading">Guardar Contraseña</span>
                 <span v-else>Guardando...</span>
               </button>
             </div>
