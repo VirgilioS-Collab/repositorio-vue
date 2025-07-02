@@ -8,6 +8,9 @@ export default defineConfig({
     vue(),
     vueJsx(),
   ],
+  css: {
+    postcss: './postcss.config.cjs',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

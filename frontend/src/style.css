@@ -1,56 +1,383 @@
 /**
  * @file src/style.css
- * @description Archivo CSS principal.
- * - MODIFICADO: Se añaden las clases personalizadas para componentes
- * como AppNavbar para centralizar los estilos y resolver errores de
- * compilación de Vite.
+ * @description Archivo principal de estilos de la aplicación, utiliza Tailwind CSS v3.
+ * Este archivo centraliza las importaciones de Tailwind y define clases personalizadas
+ * para componentes de la interfaz de usuario (UI) y efectos comunes,
+ * asegurando un diseño responsivo y consistente en toda la aplicación.
  */
 
-/* Importaciones base de Tailwind */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
-/*
-  Clases de componentes personalizadas
-  -----------------------------------------
-  Estas clases utilizan @apply para agrupar utilidades de Tailwind,
-  manteniendo el HTML de los componentes más limpio.
-*/
+/* --- SECCIÓN DE CLASES DE COMPONENTES PERSONALIZADAS --- */
 
-/* Clases para AppNavbar (Desktop) */
+/* @docstring
+ * Estilos para los enlaces de navegación principales en la barra de navegación de escritorio.
+ * @effects Aplica color de texto, efectos hover de fondo y texto, padding, bordes redondeados,
+ * tamaño de fuente y transición de color para una navegación interactiva.
+ */
 .nav-link {
-  @apply text-gray-300 hover:bg-primary-dark hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors;
+  color: rgb(209 213 219);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
+
+.nav-link:hover {
+  background-color: #001A4D;
+  color: rgb(255 255 255);
+}
+
+/* @docstring
+ * Estilos para el enlace de navegación activo en la barra de navegación de escritorio.
+ * @effects Aplica un fondo oscuro y color de texto blanco para indicar la página actual.
+ */
 .nav-link-active {
-  @apply bg-primary-dark text-white;
+  background-color: #001A4D;
+  color: rgb(255 255 255);
 }
+
+/* @docstring
+ * Estilos para los elementos del menú de usuario desplegable.
+ * @effects Define el padding, tamaño de fuente, color de texto y un efecto hover de fondo.
+ */
 .user-menu-item {
-  @apply block px-4 py-2 text-sm text-darkText hover:bg-gray-100 transition-colors;
+  display: block;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #1a202c;
 }
 
-/* Clases para AppNavbar (Móvil) */
+.user-menu-item:hover {
+  background-color: rgb(243 244 246);
+}
+
+/* @docstring
+ * Estilos para los enlaces de navegación en la barra de navegación móvil.
+ * @effects Aplica color de texto, efectos hover de fondo y texto, padding, bordes redondeados,
+ * tamaño de fuente y transición de color, optimizado para la navegación móvil.
+ */
 .mobile-nav-link {
-   @apply text-gray-300 hover:bg-primary-dark hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors;
+  color: rgb(209 213 219);
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
+
+.mobile-nav-link:hover {
+  background-color: #001A4D;
+  color: rgb(255 255 255);
+}
+
+/* @docstring
+ * Estilos para el enlace de navegación activo en la barra de navegación móvil.
+ * @effects Aplica un fondo oscuro y color de texto blanco para indicar la página actual en móviles.
+ */
 .mobile-nav-link-active {
-  @apply bg-primary-dark text-white;
+  background-color: #001A4D;
+  color: rgb(255 255 255);
 }
+
+/* @docstring
+ * Estilos para los elementos del menú de usuario desplegable en móviles.
+ * @effects Define el padding, tamaño de fuente, color de texto y un efecto hover de fondo,
+ * adaptado para pantallas pequeñas.
+ */
 .user-menu-item-mobile {
-  @apply block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-primary-dark hover:text-white transition-colors;
+  display: block;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  color: rgb(209 213 219);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
-/* Otros estilos personalizados que ya tenías */
+.user-menu-item-mobile:hover {
+  background-color: #001A4D;
+  color: rgb(255 255 255);
+}
+
+/* @docstring
+ * Estilo para inputs de texto genéricos con efecto de enfoque.
+ * Esta clase se aplica a campos de entrada de texto, selectores y otras formas
+ * interactivas para proporcionar un aspecto y comportamiento coherentes.
+ * @effects Aplica estilos de bloque, ancho completo, bordes, sombras, padding uniforme
+ * y un efecto visual al enfocar el campo utilizando el color `accent` de la paleta.
+ */
 .input-focus-effect {
-  @apply block w-full border border-gray-300 rounded-md shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50 transition-shadow;
+  display: block;
+  width: 100%;
+  border: 1px solid rgb(209 213 219);
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  padding: 0.625rem 0.75rem;
+  transition-property: box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
-/* Botones para Settings.vue */
-.btn-primary-admin { @apply flex items-center justify-center px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors disabled:opacity-70; }
-.btn-secondary-admin { @apply px-4 py-2 bg-gray-200 text-darkText rounded-lg font-semibold hover:bg-gray-300 transition; }
-.btn-danger { @apply px-4 py-2 bg-transparent text-red-600 border border-red-600 rounded-lg font-semibold hover:bg-red-100 transition; }
+.input-focus-effect:focus {
+  border-color: #E4B95B;
+  --tw-ring-color: rgb(228 185 91 / 0.5);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
 
-/* Botones para Members.vue */
-.btn-primary-members { @apply flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors; }
-.btn-secondary-members { @apply flex items-center gap-2 px-4 py-2 bg-gray-200 text-darkText rounded-lg font-semibold hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed; }
-.btn-bulk-action { @apply px-3 py-1 text-xs font-semibold text-white bg-accent rounded-md hover:bg-yellow-500 transition; }
+/* @docstring
+ * Clase base para botones secundarios o de acción "Cancelar".
+ * Proporciona un estilo neutro y un efecto visual al pasar el cursor.
+ * @effects Aplica padding, bordes, fondo blanco, texto gris y un sutil efecto hover.
+ */
+.btn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(209 213 219);
+  background-color: rgb(255 255 255);
+  color: rgb(55 65 81);
+  transition-property: color, background-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.btn:hover {
+  background-color: rgb(243 244 246);
+}
+
+/* @docstring
+ * Clase para botones primarios, utilizados para acciones principales o confirmaciones.
+ * @effects Aplica padding, texto blanco, fondo con el color `primary` de la paleta
+ * y un efecto de opacidad al pasar el cursor para indicar interactividad.
+ */
+.btn-primary {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  color: rgb(255 255 255);
+  font-weight: 700;
+  background-color: #00205B;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* @docstring
+ * Clase para el botón principal de administración.
+ * @effects Alinea los ítems, centra el contenido, aplica padding, fondo `primary`,
+ * texto blanco, bordes redondeados, fuente semibold y un efecto hover más oscuro.
+ * También gestiona la opacidad para estados deshabilitados.
+ */
+.btn-primary-admin { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background-color: #00205B;
+  color: rgb(255 255 255);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition-property: color, background-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.btn-primary-admin:hover {
+  background-color: #001A4D;
+}
+
+.btn-primary-admin:disabled {
+  opacity: 0.7;
+}
+
+/* @docstring
+ * Clase para botones secundarios en interfaces de administración.
+ * @effects Aplica padding, fondo gris claro, texto oscuro, bordes redondeados,
+ * fuente semibold y un efecto hover de fondo más oscuro.
+ */
+.btn-secondary-admin { 
+  padding: 0.5rem 1rem;
+  background-color: rgb(229 231 235);
+  color: #1a202c;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.btn-secondary-admin:hover {
+  background-color: rgb(209 213 219);
+}
+
+/* @docstring
+ * Clase para botones de acción de peligro (e.g., eliminar).
+ * @effects Aplica padding, fondo transparente, texto rojo, borde rojo,
+ * bordes redondeados, fuente semibold y un sutil efecto hover de fondo.
+ */
+.btn-danger { 
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: rgb(220 38 38);
+  border: 1px solid rgb(220 38 38);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.btn-danger:hover {
+  background-color: rgb(254 226 226);
+}
+
+/* @docstring
+ * Clase para botones primarios utilizados en la gestión de miembros.
+ * @effects Alinea los ítems, aplica padding, fondo `primary`, texto blanco,
+ * bordes redondeados, fuente semibold y un efecto hover más oscuro.
+ */
+.btn-primary-members { 
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #00205B;
+  color: rgb(255 255 255);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition-property: color, background-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.btn-primary-members:hover {
+  background-color: #001A4D;
+}
+
+/* @docstring
+ * Clase para botones secundarios utilizados en la gestión de miembros.
+ * @effects Alinea los ítems, aplica padding, fondo gris claro, texto oscuro,
+ * bordes redondeados, fuente semibold, efecto hover y gestiona la opacidad
+ * para estados deshabilitados.
+ */
+.btn-secondary-members { 
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: rgb(229 231 235);
+  color: #1a202c;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition-property: color, background-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.btn-secondary-members:hover {
+  background-color: rgb(209 213 219);
+}
+
+.btn-secondary-members:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* @docstring
+ * Clase para botones de acción masiva (bulk actions).
+ * @effects Aplica padding compacto, tamaño de fuente pequeño, fuente semibold,
+ * texto blanco, fondo `accent` y un efecto hover de fondo más oscuro.
+ */
+.btn-bulk-action { 
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: rgb(255 255 255);
+  background-color: #E4B95B;
+  border-radius: 0.375rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.btn-bulk-action:hover {
+  background-color: rgb(234 179 8);
+}
+
+/* --- SECCIÓN DE UTILIDADES GLOBALES (para elementos HTML base o ajustes generales) --- */
+
+/* @docstring
+ * Define los estilos base para el cuerpo del documento.
+ * @effects Establece un color de fondo gris claro y un color de texto oscuro por defecto.
+ */
+body {
+  background-color: rgb(249 250 251);
+  color: rgb(17 24 39);
+}
+
+/* @docstring
+ * Clase para fondos suaves o ligeramente coloreados.
+ * @effects Aplica un color de fondo gris muy claro.
+ */
+.bg-soft {
+  background-color: rgb(243 244 246);
+}
+
+/* @docstring
+ * Clase para fondos de componentes tipo tarjeta.
+ * @effects Aplica un color de fondo blanco.
+ */
+.bg-card {
+  background-color: rgb(255 255 255);
+}
+
+/* @docstring
+ * Clase para texto oscuro principal.
+ * @effects Aplica un color de texto gris oscuro.
+ */
+.text-darkText {
+  color: rgb(31 41 55);
+}
+
+/* --- SECCIÓN DE ANIMACIONES Y TRANSICIONES --- */
+
+/* @docstring
+ * Define los estilos para la transición de entrada y salida de elementos con un efecto de deslizamiento y desvanecimiento.
+ * Esta transición es útil para modales, paneles laterales o notificaciones.
+ * @effects Aplica una transición suave para la opacidad y la transformación vertical.
+ */
+.slide-fade-enter-active, 
+.slide-fade-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+/* @docstring
+ * Define el estado inicial de entrada y el estado final de salida para la transición `slide-fade`.
+ * @effects Inicialmente, el elemento está ligeramente desplazado hacia abajo y es completamente transparente.
+ * Finaliza su salida con el mismo estado.
+ */
+.slide-fade-enter-from, 
+.slide-fade-leave-to {
+  transform: translateY(20px);
+  opacity: 0;
+}

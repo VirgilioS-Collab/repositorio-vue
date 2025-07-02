@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   /**
    * @docstring
    * La propiedad 'content' es la más importante para producción.
