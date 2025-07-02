@@ -6,16 +6,13 @@
  * su propio estado de carga y error, desacoplándose del useAuthStore.
  */
 
-// --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import AuthDao from '@/services/dao/AuthDao' // Cambio clave: se importa el DAO
-import type { UserEnrollDTO } from '@/services/dao/models/Auth' // Se importa el DTO
+import AuthDao from '@/services/dao/AuthDao' 
+import type { UserEnrollDTO } from '@/services/dao/models/Auth' 
 
-// --- SECCIÓN DE EMITS ---
 const emit = defineEmits<{ (e: 'registered'): void }>()
 
-// --- SECCIÓN DE CONSTANTES ---
 // El estado de carga y error ahora es local al componente.
 const isLoading = ref(false) 
 const error = ref<string | null>(null)
@@ -110,7 +107,7 @@ async function submit(): Promise<void> {
 <template>
   <div class="w-full">
     <header class="text-center mb-6">
-      <h2 class="text-3xl font-bold text-darkText">Crear una Cuenta</h2>
+      <h2 class="text-2xl sm:text-3xl font-bold text-darkText">Crear una Cuenta</h2>
       <p class="text-gray-600 mt-1">
         ¿Ya tienes una? 
         <RouterLink :to="{ name: 'Login' }" class="font-medium text-primary hover:underline">
@@ -121,15 +118,15 @@ async function submit(): Promise<void> {
 
     <form @submit.prevent="submit" class="space-y-6">
       <div>
-        <h3 class="text-base font-semibold text-gray-500 border-b-2 border-accent pb-2 mb-4">DATOS PERSONALES</h3>
+        <h3 class="text-base sm:text-lg font-semibold text-gray-500 border-b-2 border-accent pb-2 mb-4">DATOS PERSONALES</h3>
         <div class="space-y-4">
           <div class="flex flex-col sm:flex-row gap-4">
-            <input v-model="form.firstName" required placeholder="Nombre" class="input-focus-effect w-full" />
-            <input v-model="form.lastName" required placeholder="Apellido" class="input-focus-effect w-full" />
+            <input v-model="form.firstName" required placeholder="Nombre" class="input-focus-effect w-full py-2.5 px-3" />
+            <input v-model="form.lastName" required placeholder="Apellido" class="input-focus-effect w-full py-2.5 px-3" />
           </div>
           <div class="flex flex-col sm:flex-row gap-4">
-            <input v-model="form.birthDate" required type="date" placeholder="Fecha de Nacimiento" class="input-focus-effect w-full" />
-            <select v-model="form.gender" class="input-focus-effect w-full">
+            <input v-model="form.birthDate" required type="date" placeholder="Fecha de Nacimiento" class="input-focus-effect w-full py-2.5 px-3" />
+            <select v-model="form.gender" class="input-focus-effect w-full py-2.5 px-3">
               <option>Masculino</option>
               <option>Femenino</option>
               <option>Otro</option>
@@ -139,30 +136,30 @@ async function submit(): Promise<void> {
       </div>
 
       <div>
-        <h3 class="text-base font-semibold text-gray-500 border-b-2 border-accent pb-2 mb-4">IDENTIFICACIÓN Y CONTACTO</h3>
+        <h3 class="text-base sm:text-lg font-semibold text-gray-500 border-b-2 border-accent pb-2 mb-4">IDENTIFICACIÓN Y CONTACTO</h3>
         <div class="space-y-4">
           <div class="flex flex-col sm:flex-row gap-4">
-            <select v-model="form.docType" class="input-focus-effect sm:w-1/3">
+            <select v-model="form.docType" class="input-focus-effect sm:w-1/3 py-2.5 px-3">
               <option>Cédula</option>
               <option>Pasaporte</option>
               <option>Carné Residente</option>
             </select>
-            <input v-model="form.docNumber" required placeholder="N.º de documento" class="input-focus-effect sm:w-2/3" />
+            <input v-model="form.docNumber" required placeholder="N.º de documento" class="input-focus-effect sm:w-2/3 py-2.5 px-3" />
           </div>
-          <input v-model="form.phone" required placeholder="Teléfono (+507...)" class="input-focus-effect w-full" />
+          <input v-model="form.phone" required placeholder="Teléfono (+507...)" class="input-focus-effect w-full py-2.5 px-3" />
         </div>
       </div>
 
       <div>
-        <h3 class="text-base font-semibold text-gray-500 border-b-2 border-accent pb-2 mb-4">CREDENCIALES DE LA CUENTA</h3>
+        <h3 class="text-base sm:text-lg font-semibold text-gray-500 border-b-2 border-accent pb-2 mb-4">CREDENCIALES DE LA CUENTA</h3>
         <div class="space-y-4">
-          <input v-model="form.username" required placeholder="Nombre de usuario" class="input-focus-effect w-full" />
-          <input v-model="form.email" required placeholder="correo@utp.ac.pa" class="input-focus-effect w-full" :class="{ 'border-red-500': form.email && !emailOk }" />
+          <input v-model="form.username" required placeholder="Nombre de usuario" class="input-focus-effect w-full py-2.5 px-3" />
+          <input v-model="form.email" required placeholder="correo@utp.ac.pa" class="input-focus-effect w-full py-2.5 px-3" :class="{ 'border-red-500': form.email && !emailOk }" />
            <p v-if="form.email && !emailOk" class="text-xs text-red-500 -mt-2">
               El correo debe ser institucional (@utp.ac.pa).
             </p>
-          <input v-model="form.password" required type="password" placeholder="Contraseña" class="input-focus-effect w-full" />
-          <input v-model="form.confirmPassword" required type="password" placeholder="Confirmar contraseña" class="input-focus-effect w-full" :class="{ 'border-red-500': form.confirmPassword && !pwdOk }" />
+          <input v-model="form.password" required type="password" placeholder="Contraseña" class="input-focus-effect w-full py-2.5 px-3" />
+          <input v-model="form.confirmPassword" required type="password" placeholder="Confirmar contraseña" class="input-focus-effect w-full py-2.5 px-3" :class="{ 'border-red-500': form.confirmPassword && !pwdOk }" />
           <p v-if="form.confirmPassword && !pwdOk" class="text-xs text-red-500 -mt-2">
             Las contraseñas no coinciden.
           </p>

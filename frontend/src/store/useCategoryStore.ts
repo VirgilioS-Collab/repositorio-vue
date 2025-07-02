@@ -9,16 +9,9 @@ import http from '@/services/http';
 
 export const useCategoryStore = defineStore('categories', {
   state: () => ({
-    /**
-     * La lista de categorías. Se inicializa con las constantes locales.
-     */
     items: ACTIVITY_CATEGORIES as readonly string[],
     loading: false,
-    error: null as string | null,
-    /**
-     * Bandera para asegurar que el fetch solo se ejecute una vez por sesión.
-     */
-    _fetched: false,
+    _fetched: false, // Bandera para evitar llamadas múltiples
   }),
 
   actions: {
@@ -27,20 +20,17 @@ export const useCategoryStore = defineStore('categories', {
      * Si falla, la aplicación continúa funcionando con las categorías de fallback.
      */
     async fetchAll() {
-      if (this._fetched) return; // Evita llamadas múltiples
+      if (this._fetched || this.loading) return;
 
       this.loading = true;
       try {
-        // Usa `http` directamente para no modificar los DAOs existentes.
         const { data } = await http.get<string[]>('/activity-categories');
-        
         if (Array.isArray(data) && data.length > 0) {
           this.items = data;
         }
         this._fetched = true;
       } catch (e: any) {
-        // El fallo es silencioso para no interrumpir la UI, ya que tenemos el fallback.
-        console.error('Failed to fetch activity categories:', e.message);
+        console.error('Failed to fetch activity categories, using fallback. Error:', e.message);
       } finally {
         this.loading = false;
       }

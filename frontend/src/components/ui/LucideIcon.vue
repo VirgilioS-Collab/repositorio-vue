@@ -32,6 +32,6 @@ const IconComp = computed(() => {
 </script>
 
 <template>
-  <!--  ⚠️ CAS T → se deja de comprobar los props “iconNode, name, …” -->
+  <!--  ⚠️ CAST → se deja de comprobar los props “iconNode, name, …” -->
   <component :is="(IconComp as any)" :size="props.size ?? 24" />
 </template>

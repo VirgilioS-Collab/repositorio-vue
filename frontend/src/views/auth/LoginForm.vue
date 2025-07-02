@@ -41,21 +41,19 @@ async function submit(): Promise<void> {
 
 <template>
   <div class="w-full">
-      <h2 class="text-3xl font-bold text-center text-darkText mb-6">Iniciar Sesión</h2>
+      <h2 class="text-2xl sm:text-3xl font-bold text-center text-darkText mb-6">Iniciar Sesión</h2>
       <form @submit.prevent="submit" class="space-y-4">
         <input
             v-model="email"
             type="email"
             placeholder="Correo electrónico o usuario"
-            class="input-focus-effect w-full py-3 px-4 text-base"
-        />
+            class="input-focus-effect w-full py-2.5 px-3 text-base" />
 
         <input
             v-model="password"
             :type="showPwd ? 'text' : 'password'"
             placeholder="Contraseña"
-            class="input-focus-effect w-full py-3 px-4 text-base"
-        />
+            class="input-focus-effect w-full py-2.5 px-3 text-base" />
 
         <button
             type="submit"

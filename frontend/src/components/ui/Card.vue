@@ -3,6 +3,7 @@
  * @file src/components/ui/Card.vue
  * @description Un componente de tarjeta base reutilizable que encapsula
  * los estilos comunes de Tailwind para bordes, sombras y fondos.
+ * @slot (default) - Para el contenido que se mostrará dentro de la tarjeta.
  */
 </script>
 
