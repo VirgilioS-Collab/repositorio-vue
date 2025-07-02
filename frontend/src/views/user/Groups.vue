@@ -4,7 +4,7 @@
     <p class="text-gray-600">Selecciona un grupo o navega al dashboard de administración.</p>
     <router-link
         to="/admin"
-        class="mt-6 inline-block px-4 py-2 bg-[#00205B] text-white rounded hover:bg-[#00308F]">
+        class="btn-primary mt-6 inline-block">
       Ir al Dashboard Admin
     </router-link>
   </div>
