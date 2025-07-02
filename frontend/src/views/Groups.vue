@@ -14,6 +14,3 @@
 // Aquí puedes importar cualquier store de Pinia o lógica local
 </script>
 
-<style scoped>
-/* estilos adicionales si los necesitas */
-</style>

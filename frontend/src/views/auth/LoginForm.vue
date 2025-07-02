@@ -75,7 +75,7 @@ async function submit(): Promise<void> {
         <RouterLink
             :to="{ name: 'Register' }"
             :class="{ 'opacity-50 pointer-events-none': auth.loading }"
-            class="w-auto mx-auto block mt-4 px-6 py-3 rounded-lg text-primary font-bold bg-accent hover:opacity-90 transition">
+            class="btn-accent w-auto mx-auto block mt-4">
           Crear cuenta nueva
         </RouterLink>
       </form>

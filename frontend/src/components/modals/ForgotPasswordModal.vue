@@ -49,9 +49,3 @@ async function send () {
   </div>
 </template>
 
-<style scoped>
-/* Eliminar estilos locales de botones si ya están en style.css o se usan clases de Tailwind/nuevas globales */
-/* .btn { @apply px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200; } */
-/* .btn-primary { @apply px-4 py-2 rounded-md bg-accent text-primary hover:bg-yellow-500; } */
-/* Si usas las clases globales de style.css, estos estilos scoped ya no serían necesarios aquí. */
-</style>
