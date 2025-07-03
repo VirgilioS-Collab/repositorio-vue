@@ -58,3 +58,10 @@ def update_club_settings(club_id):
         return jsonify({'message': 'Configuración del club actualizada correctamente'}), 200
     except Exception as e:
         return jsonify({'error': 'Error interno del servidor'}), 500
+
+@jwts.token_required('access')
+def get_club_by_user():
+    user_id = request.current_user.get('user_id')
+    groups = ClubService.get_user_related_groups(user_id=user_id)
+    
+    return jsonify({'groups_list':groups}), 200

@@ -17,6 +17,20 @@ def get_all_activities():
     except Exception as e:
         return jsonify({'error': 'Error interno del servidor'}), 500
 
+@jwts.token_required('access')
+def get_activities_by_user():
+    """
+    Devuelve todas las actividades por usuario para el proceso de login
+    """
+    payload = request.current_user
+    user_id = payload.get('user_id')
+    try:
+        activities = ActivityService.get_user_related_activities(user_id=user_id)
+    except Exception as e:
+        return jsonify({"error": "Error al consultar actividades"}), 500
+    
+    return jsonify({'activities_list':activities}), 200
+
 def get_activity_by_id(activity_id):
     """
     GET /api/activities/{activity_id}

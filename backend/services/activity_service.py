@@ -71,6 +71,33 @@ class ActivityService:
         except Exception as e:
             print(f"Error getting all activities: {e}")
             return []
+        
+    @staticmethod
+    def get_user_related_activities(user_id:int) -> List[Dict]:
+        """Obtiene las actividades relacionadas al usuario por user_id"""
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_get_user_related_activities", (user_id, ))
+
+            result = cursor.fetchall()
+
+            columns = [desc[0] for desc in cursor.description]
+            activities = [dict(zip(columns, row)) for row in result]
+
+            return activities
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
     
     @staticmethod
     def get_activity_by_id(activity_id: int) -> Optional[Dict[str, Any]]:

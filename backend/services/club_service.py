@@ -126,3 +126,29 @@ class ClubService:
         except Exception as e:
             print(f"Error updating club settings: {e}")
             return False
+
+    @staticmethod   
+    def get_user_related_groups(user_id:int) -> Optional[list[Dict]]:
+        """Obtiene los grupos relacionados al usuario por user_id"""
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_get_user_related_groups", (user_id, ))
+
+            result = cursor.fetchall()
+
+            columns = [desc[0] for desc in cursor.description]
+            groups = [dict(zip(columns, row)) for row in result]
+
+            return groups
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
