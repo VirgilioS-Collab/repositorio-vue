@@ -78,11 +78,6 @@ def get_user_information():
         user_id = request.current_user.get("user_id")
 
         user_info = auth_service.get_user_info_db(user_id=user_id)
-
-        groups = auth_service.get_user_related_groups(user_id=user_id)
-
-        activities = auth_service.get_user_related_activities(user_id=user_id)
-
         user_dto = {
             "username": user_info.get("username"),
             "email": user_info.get("email"),
@@ -93,9 +88,7 @@ def get_user_information():
             "profile_photo_url": user_info.get("profile_photo_url"),
             "user_type": user_info.get("user_type"),
             "user_status": user_info.get("user_status"),
-            "career": user_info.get("career"),            
-            "groups": groups if groups else [],          
-            "activities": activities if activities else []                            
+            "career": user_info.get("career")                             
         }
     
     elif request.method == 'PUT':
@@ -133,11 +126,9 @@ def logout() ->tuple:
     """
     Función para hacer logout
     """
-    user_id = request.current_user.get('user_id')
-
-    if not user_id:
-        return jsonify({"message": "Token no valido: sin user_id", "success": False}), 401
-    
+    payload = request.current_user
+    user_id = payload.get('user_id')
+ 
     result = auth_service.revoke_user_sessions(user_id)
 
     if not result[1]:
