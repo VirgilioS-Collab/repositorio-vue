@@ -3,6 +3,10 @@
  * @file src/components/ui/PageContainer.vue
  * @description Un componente de layout reutilizable para estandarizar la estructura
  * y el encabezado de las páginas principales de la aplicación.
+ * @props
+ * - title: string (obligatorio) - El título principal que se mostrará en la cabecera de la página.
+ * - subtitle?: string (opcional) - Un subtítulo o descripción opcional que aparece debajo del título.
+ * @slot (default) - Para el contenido principal que se renderizará dentro del contenedor de la página.
  */
 defineProps<{
   /**

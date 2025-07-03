@@ -1,0 +1,14 @@
+# Entornos virtuales
+/entorno-alianza/
+/env/
+/.venv/
+
+# Archivos de cache de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.mypy_cache/
+
+# Archivos de entorno
+.env

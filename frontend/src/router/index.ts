@@ -62,28 +62,28 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '', // La ruta raíz (/) renderiza HomeView dentro del DefaultLayout
                 name: 'Home',
-                component: () => import('@/views/HomeView.vue'),
+                component: () => import('@/views/user/HomeView.vue'),
             },
             {
                 path: 'groups', // Ruta para el listado de grupos (/groups)
                 name: 'GroupList',
-                component: () => import('@/views/GroupListView.vue'),
+                component: () => import('@/views/user/GroupListView.vue'),
             },
             {
                 path: 'activities', // Ruta para el listado de actividades (/activities)
                 name: 'ActivityList',
-                component: () => import('@/views/ActivityListView.vue'),
+                component: () => import('@/views/user/ActivityListView.vue'),
             },
             {
                 path: 'groups/:id', // RUTA: para el detalle de un grupo
                 name: 'GroupDetail',
-                component: () => import('@/views/GroupDetailView.vue'),
+                component: () => import('@/views/user/GroupDetailView.vue'),
                 props: true
             },
             {
                 path: 'activities/:id', // RUTA: para el detalle de una actividad
                 name: 'ActivityDetail',
-                component: () => import('@/views/ActivityDetailView.vue'),
+                component: () => import('@/views/user/ActivityDetailView.vue'),
                 props: true
             }
         ]

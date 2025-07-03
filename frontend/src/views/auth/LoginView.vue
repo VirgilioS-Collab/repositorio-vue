@@ -9,7 +9,7 @@
 
 // --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router' // Se añadió useRoute
+import { useRouter, useRoute } from 'vue-router'
 import LoginForm from '@/views/auth/LoginForm.vue'
 import ForgotPasswordModal from '@/components/modals/ForgotPasswordModal.vue'
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
@@ -17,7 +17,7 @@ import { useAuthStore } from '@/store/useAuthStore.ts'
 
 // --- SECCIÓN DE CONSTANTES ---
 const router = useRouter()
-const route = useRoute() // Se añadió la declaración de route
+const route = useRoute()
 const auth = useAuthStore()
 const showForgot = ref(false)
 
@@ -55,18 +55,19 @@ function onCloseForgotPasswordModal(): void {
 
 <template>
   <main class="bg-soft min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-screen-xl bg-card rounded-2xl shadow-2xl flex overflow-hidden my-8">
+    <div class="w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-screen-xl 
+                bg-card rounded-2xl shadow-2xl flex overflow-hidden my-8 sm:my-12">
       
-      <div class="hidden lg:flex w-1/2 p-12 flex-col justify-center items-start">
-        <h1 class="text-6xl font-bold text-primary">
+      <div class="hidden lg:flex w-1/2 p-8 lg:p-12 flex-col justify-center items-start">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
           Agenda Académica
         </h1>
-        <p class="text-2xl mt-4 text-darkText leading-tight">
+        <p class="text-lg sm:text-xl lg:text-2xl mt-4 text-darkText leading-tight">
           La plataforma para organizar y participar en la vida estudiantil de la UTP.
         </p>
       </div>
 
-      <div class="w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center bg-gray-50/50">
+      <div class="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-center bg-gray-50/50">
         <LoginForm
             @logged="onUserLoggedIn"
             @forgot="onForgotPassword"

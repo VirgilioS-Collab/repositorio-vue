@@ -42,7 +42,7 @@ const userCanCreateContent = computed(() => {
         <button
           v-if="userCanCreateContent"
           @click="userStore.openModal('createActivity')"
-          class="quick-action-btn bg-accent text-primary border-transparent"
+          class="btn-quick-action bg-accent text-primary border-transparent"
           aria-label="Crear nueva actividad"
         >
           <LucideIcon name="plus-circle" :size="20" />
@@ -51,7 +51,7 @@ const userCanCreateContent = computed(() => {
 
         <button 
           @click="userStore.openModal('joinGroup')"
-          class="quick-action-btn bg-white text-darkText border-gray-300"
+          class="btn-quick-action bg-white text-darkText border-gray-300"
           aria-label="Unirme a un grupo existente"
         >
           <LucideIcon name="users" :size="20" />
@@ -60,7 +60,7 @@ const userCanCreateContent = computed(() => {
 
         <RouterLink
           :to="{ name: 'ActivityList' }"
-          class="quick-action-btn bg-white text-darkText border-gray-300"
+          class="btn-quick-action bg-white text-darkText border-gray-300"
           aria-label="Buscar eventos y actividades"
         >
           <LucideIcon name="search" :size="20" />
@@ -72,12 +72,4 @@ const userCanCreateContent = computed(() => {
   </div>
 </template>
 
-<style scoped>
-/*
-  He mantenido la clase base pero ahora la aplicaremos a botones
-  con estilos ligeramente diferentes para crear una jerarquía visual.
-*/
-.quick-action-btn {
-  @apply w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold border-2 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200;
-}
-</style>
+<!-- Los estilos para .btn-quick-action ahora están centralizados en style.css -->

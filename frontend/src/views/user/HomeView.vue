@@ -102,6 +102,3 @@ const { toggleGroupsView } = store;
   </main>
 </template>
 
-<style scoped>
-/* Estilos específicos para HomeView si son necesarios */
-</style>

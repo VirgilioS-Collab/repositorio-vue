@@ -3,17 +3,20 @@
  * @file src/views/auth/ResetPasswordView.vue
  * @description Vista para establecer una nueva contraseña.
  * - REFACTORIZADO: Llama directamente a AuthDao.
+ * - INTEGRADO: Usa `StateRenderer` para manejar estados de carga/error y `Card` para el layout.
  */
 
 // --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { ref, computed } from 'vue'
 import { useRouter, RouterLink, useRoute } from 'vue-router'
-import AuthDao from '@/services/dao/AuthDao' // Cambio clave: se usa el DAO
-import type { PasswordResetPayload } from '@/services/dao/models/Auth' // Se importa el tipo de payload
+import AuthDao from '@/services/dao/AuthDao'
+import type { PasswordResetPayload } from '@/services/dao/models/Auth'
+import StateRenderer from '@/components/ui/StateRenderer.vue' // Importar StateRenderer
+import Card from '@/components/ui/Card.vue' // Importar Card
 
 // --- SECCIÓN DE CONSTANTES ---
 const router = useRouter()
-const route = useRoute() // Se necesita para obtener el token/código de la URL.
+const route = useRoute()
 
 const isLoading = ref(false)
 const error = ref<string | null>(null)
@@ -50,12 +53,12 @@ async function handleSubmit(): Promise<void> {
   error.value = null;
 
   try {
-    // Se obtiene el token y el email desde la URL.
     const verification_code = route.query.token as string
     const email = route.query.email as string
     
     if (!verification_code || !email) {
-      throw new Error('Faltan parámetros en la URL para restablecer la contraseña.');
+      // Lanzar un error que será capturado por el catch y mostrado por StateRenderer
+      throw new Error('Faltan parámetros de verificación en la URL.');
     }
 
     const payload: PasswordResetPayload = {
@@ -64,7 +67,6 @@ async function handleSubmit(): Promise<void> {
       new_password: form.value.newPassword
     }
 
-    // Cambio clave: se llama al método del DAO.
     await AuthDao.resetPassword(payload)
     passwordReset.value = true
 
@@ -79,64 +81,62 @@ async function handleSubmit(): Promise<void> {
 <template>
   <main class="bg-soft min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
-      <div class="bg-card rounded-2xl shadow-xl p-8">
-        
-        <div v-if="!passwordReset">
-          <h2 class="text-2xl font-bold text-darkText">Establecer Nueva Contraseña</h2>
-          <p class="text-gray-600 mt-2 mb-6">
-            Por favor, introduce tu nueva contraseña a continuación.
-          </p>
-          <form @submit.prevent="handleSubmit" class="space-y-4">
-            <input
-              v-model="form.newPassword"
-              type="password"
-              required
-              placeholder="Nueva contraseña"
-              class="input-focus-effect w-full"
-            />
-            <input
-              v-model="form.confirmPassword"
-              type="password"
-              required
-              placeholder="Confirmar nueva contraseña"
-              class="input-focus-effect w-full"
-              :class="{ 'border-red-500': form.confirmPassword && !passwordsMatch }"
-            />
-             <p v-if="form.confirmPassword && !passwordsMatch" class="text-xs text-red-500 -mt-2">
-              Las contraseñas no coinciden.
+      <Card class="p-8"> <StateRenderer :loading="isLoading" :error="error">
+          <div v-if="!passwordReset">
+            <h2 class="text-2xl font-bold text-darkText">Establecer Nueva Contraseña</h2>
+            <p class="text-gray-600 mt-2 mb-6">
+              Por favor, introduce tu nueva contraseña a continuación.
             </p>
+            <form @submit.prevent="handleSubmit" class="space-y-4">
+              <input
+                v-model="form.newPassword"
+                type="password"
+                required
+                placeholder="Nueva contraseña"
+                class="input-focus-effect w-full"
+              />
+              <input
+                v-model="form.confirmPassword"
+                type="password"
+                required
+                placeholder="Confirmar nueva contraseña"
+                class="input-focus-effect w-full"
+                :class="{ 'border-red-500': form.confirmPassword && !passwordsMatch }"
+              />
+              <p v-if="form.confirmPassword && !passwordsMatch" class="text-xs text-red-500 -mt-2">
+                Las contraseñas no coinciden.
+              </p>
 
-            <div class="flex items-center justify-end gap-3 pt-4">
-              <RouterLink :to="{ name: 'Login' }" class="px-5 py-2.5 rounded-lg border hover:bg-gray-100">
-                Cancelar
-              </RouterLink>
-              <button
-                type="submit"
-                :disabled="!passwordsMatch || isLoading"
-                class="px-5 py-2.5 rounded-lg text-primary font-bold bg-accent hover:opacity-90 transition"
-                :class="{ 'opacity-50 cursor-not-allowed': !passwordsMatch || isLoading }"
-              >
-                <span v-if="!isLoading">Guardar Contraseña</span>
-                <span v-else>Guardando...</span>
-              </button>
-            </div>
-          </form>
-        </div>
+              <div class="flex items-center justify-end gap-3 pt-4">
+                <RouterLink :to="{ name: 'Login' }" class="px-5 py-2.5 rounded-lg border hover:bg-gray-100">
+                  Cancelar
+                </RouterLink>
+                <button
+                  type="submit"
+                  :disabled="!passwordsMatch || isLoading"
+                  class="px-5 py-2.5 rounded-lg text-primary font-bold bg-accent hover:opacity-90 transition"
+                  :class="{ 'opacity-50 cursor-not-allowed': !passwordsMatch || isLoading }"
+                >
+                  <span>Guardar Contraseña</span>
+                </button>
+              </div>
+            </form>
+          </div>
 
-        <div v-else class="text-center">
-          <h2 class="text-2xl font-bold text-darkText">¡Contraseña Actualizada!</h2>
-          <p class="text-gray-600 mt-4 mb-6">
-            Tu contraseña ha sido restablecida exitosamente. Ya puedes iniciar sesión con tus nuevas credenciales.
-          </p>
-          <RouterLink
-            :to="{ name: 'Login' }"
-            class="w-full block py-3 rounded-lg text-white font-bold bg-primary hover:opacity-90 transition"
-          >
-            Ir a Iniciar Sesión
-          </RouterLink>
-        </div>
-
-      </div>
+          <div v-else class="text-center">
+            <h2 class="text-2xl font-bold text-darkText">¡Contraseña Actualizada!</h2>
+            <p class="text-gray-600 mt-4 mb-6">
+              Tu contraseña ha sido restablecida exitosamente. Ya puedes iniciar sesión con tus nuevas credenciales.
+            </p>
+            <RouterLink
+              :to="{ name: 'Login' }"
+              class="w-full block py-3 rounded-lg text-white font-bold bg-primary hover:opacity-90 transition"
+            >
+              Ir a Iniciar Sesión
+            </RouterLink>
+          </div>
+        </StateRenderer>
+      </Card>
     </div>
   </main>
 </template>

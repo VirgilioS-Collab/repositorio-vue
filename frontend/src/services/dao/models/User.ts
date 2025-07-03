@@ -8,15 +8,15 @@
  * Este modelo refleja fielmente el contrato existente con el backend.
  */
 export interface UserDTO {
-    user_id:           number;
-    username:          string;
-    email:             string;
-    name:              string;
-    last_name:         string;
-    phone?:            string;
-    profile_photo_url?: string | null;
-    user_type:         'student' | 'admin' | 'leader';
-    user_status:       'active' | 'inactive';
+  user_id:           number;
+  username:          string;
+  email:             string;
+  name:              string;
+  last_name:         string;
+  phone?:            string;
+  profile_photo_url?: string | null;
+  user_type:         'student' | 'admin' | 'leader';
+  user_status:       'active' | 'inactive';
 }
 
 /**
@@ -29,5 +29,5 @@ export interface UserLeanDTO {
   user_id:   number;
   name:      string;
   user_type: 'student' | 'admin' | 'leader';
-  avatar?:   string | null; // Mapeado desde 'profile_photo_url'
+  avatar?:   string | null; 
 }
