@@ -22,7 +22,7 @@ export const useUserStore = defineStore('user', {
         editProfile: false,
         security: false,
         createActivity: false,
-        joinGroup: false,
+        joinClub: false,
         searchEvents: false,
     },
     showNotificationPanel: false,
@@ -31,26 +31,27 @@ export const useUserStore = defineStore('user', {
       message: '', 
       type: 'success' as 'success' | 'error' | 'warning' 
     },
-    showAllGroups: false,
+    showAllClubs: false,
+    showProfileDropdown: false, // Added for navbar dropdown
     loading: false,
     error: null as string | null
   }),
 
   getters: {
     /**
-     * @getter filteredGroups
-     * @description Devuelve una lista de los grupos del usuario para el dashboard.
+     * @getter filteredClubs
+     * @description Devuelve una lista de los clubs del usuario para el dashboard.
      */
-    filteredGroups: (state) => {
-        if (!state.user || !state.user.groups) return [];
-        return state.showAllGroups ? state.user.groups : state.user.groups.slice(0, 3);
+    filteredClubs: (state) => {
+        if (!state.user || !state.user.clubs) return [];
+        return state.showAllClubs ? state.user.clubs : state.user.clubs.slice(0, 3);
     },
     /**
      * @getter isAnyModalOpen
      * @description Devuelve true si algún modal o panel está activo.
      */
     isAnyModalOpen(state): boolean {
-      return Object.values(state.modals).some(isOpen => isOpen) || state.showNotificationPanel;
+      return Object.values(state.modals).some(isOpen => isOpen);
     }
   },
     
@@ -60,15 +61,29 @@ export const useUserStore = defineStore('user', {
      * @description Busca los datos del perfil del usuario desde la API.
      */
     async fetchProfile() {
-        this.loading = true;
-        this.error = null;
-        try {
-            this.user = await UserDao.fetchProfile();
-        } catch (err: any) {
-            this.error = err.message;
-        } finally {
-            this.loading = false;
-        }
+      this.loading = true;
+      this.error = null;
+      try {
+        this.user = await UserDao.fetchProfile();
+      } catch (err: any) {
+        this.error = err.message;
+        // Asignar un usuario por defecto en caso de error
+        this.user = {
+          user_id: 0,
+          username: 'Usuario Invitado',
+          email: 'invitado@example.com',
+          name: 'Usuario Invitado',
+          last_name: '',
+          profile_photo_url: '',
+          clubs: [],
+          activities: [],
+          notifications: [],
+          user_type: 'student', // Añadido
+          user_status: 'active', // Añadido
+        };
+      } finally {
+        this.loading = false;
+      }
     },
 
     /**
@@ -98,8 +113,14 @@ export const useUserStore = defineStore('user', {
     openModal(modalName: keyof typeof this.modals) {
       this.modals[modalName] = true;
     },
-    closeAllModals() { /* ... */ },
-    toggleNotificationPanel() { /* ... */ },
-    toggleGroupsView() { this.showAllGroups = !this.showAllGroups; },
+    closeAllModals() {
+      for (const modal in this.modals) {
+        this.modals[modal as keyof typeof this.modals] = false;
+      }
+    },
+    toggleNotificationPanel() {
+      this.showNotificationPanel = !this.showNotificationPanel;
+    },
+    toggleClubsView() { this.showAllClubs = !this.showAllClubs; },
   }
 });

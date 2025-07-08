@@ -5,24 +5,28 @@
  * - REDISEÑADO: Ahora es una "Tarjeta de Bienvenida" para anclar visualmente las acciones.
  * - AÑADIDO: Lógica de permisos. El botón "Crear actividad" solo es visible
  * para usuarios con roles de administrador o líder.
+ * - MODIFICADO: Incluye foto de perfil del usuario.
  */
 import { computed } from 'vue';
 import { useUserStore } from '@/store/useUserStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
+import ProfilePictureUpload from '@/components/ui/ProfilePictureUpload.vue';
 
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 // Obtenemos el nombre del usuario para el saludo.
-const userName = computed(() => userStore.user?.name || '');
+const userName = computed(() => userStore.user?.name || authStore.user?.name || '');
 
 /**
  * @docstring
  * Propiedad computada que determina si el usuario actual tiene permisos
- * para crear contenido (actividades, grupos, etc.).
+ * para crear contenido (actividades, clubs, etc.).
  * @returns {boolean}
  */
 const userCanCreateContent = computed(() => {
-  const userType = userStore.user?.user_type;
+  const userType = userStore.user?.user_type || authStore.user?.user_type;
   // Ajusta los roles según tu backend (ej. 'admin', 'leader', 'moderator')
   return userType === 'admin' || userType === 'leader';
 });
@@ -32,9 +36,18 @@ const userCanCreateContent = computed(() => {
   <div class="mb-10 p-6 bg-card border border-gray-200 rounded-xl shadow-sm">
     <div class="flex flex-col md:flex-row items-center justify-between gap-4">
       
-      <div>
-        <h2 class="text-2xl font-bold text-darkText">¡Bienvenida, {{ userName }}!</h2>
-        <p class="text-gray-500">¿Qué te gustaría hacer hoy?</p>
+      <div class="flex items-center gap-4">
+        <!-- Foto de perfil del usuario -->
+        <ProfilePictureUpload 
+          :current-image-url="userStore.user?.profile_photo_url"
+          size="medium"
+          :show-upload-button="false"
+        />
+        
+        <div>
+          <h2 class="text-2xl font-bold text-darkText">¡Bienvenida, {{ userName }}!</h2>
+          <p class="text-gray-500">¿Qué te gustaría hacer hoy?</p>
+        </div>
       </div>
 
       <div class="flex items-center justify-center gap-2 sm:gap-3 shrink-0">
@@ -50,12 +63,12 @@ const userCanCreateContent = computed(() => {
         </button>
 
         <button 
-          @click="userStore.openModal('joinGroup')"
+          @click="userStore.openModal('joinClub')"
           class="btn-quick-action bg-white text-darkText border-gray-300"
-          aria-label="Unirme a un grupo existente"
+          aria-label="Unirme a un club existente"
         >
           <LucideIcon name="users" :size="20" />
-          <span class="hidden sm:inline">Unirme a grupo</span>
+          <span class="hidden sm:inline">Unirme a club</span>
         </button>
 
         <RouterLink

@@ -13,6 +13,7 @@
  * pantalla de ajustes generales del club.
  */
 export interface ClubSettingsDTO {
+    name?: string;
     logo_url?: string;
     description?: string;
     social_links?: {

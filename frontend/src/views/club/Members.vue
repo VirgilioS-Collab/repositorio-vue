@@ -65,9 +65,9 @@ onMounted(fetchMembers);
   <div>
     <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h2 class="text-2xl font-bold text-darkText">Gestión de Miembros</h2>
-      <div class="flex items-center gap-2">
-        <button @click="exportToCSV" class="btn-secondary-admin"><LucideIcon name="download" :size="18"/>Exportar CSV</button>
-        <button @click="showInviteModal = true" class="btn-primary-admin"><LucideIcon name="user-plus" :size="18"/>Invitar Miembros</button>
+      <div class="flex flex-wrap items-center gap-2 w-auto">
+        <button @click="exportToCSV" class="btn-secondary-admin flex-shrink-0 inline-flex items-center justify-center px-4 py-2 text-sm"><LucideIcon name="download" :size="18"/>Exportar CSV</button>
+        <button @click="showInviteModal = true" class="btn-primary-admin flex-shrink-0 inline-flex items-center justify-center px-4 py-2 text-sm"><LucideIcon name="user-plus" :size="18"/>Invitar Miembros</button>
       </div>
     </header>
 
@@ -82,7 +82,7 @@ onMounted(fetchMembers);
 
     <div v-if="selectedMembers.length > 0" class="mb-4 p-3 bg-primary-dark text-white rounded-lg flex items-center justify-between">
         <span class="font-semibold">{{ selectedMembers.length }} miembro(s) seleccionado(s)</span>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             <button @click="applyBulkAction('activate')" class="btn-bulk-action">Activar</button>
             <button @click="applyBulkAction('deactivate')" class="btn-bulk-action">Desactivar</button>
             <button @click="applyBulkAction('remove')" class="btn-bulk-action bg-red-500 hover:bg-red-600">Eliminar</button>

@@ -47,12 +47,14 @@ async function submit(): Promise<void> {
             v-model="email"
             type="email"
             placeholder="Correo electrónico o usuario"
+            autocomplete="username"
             class="input-focus-effect w-full py-2.5 px-3 text-base" />
 
         <input
             v-model="password"
             :type="showPwd ? 'text' : 'password'"
             placeholder="Contraseña"
+            autocomplete="current-password"
             class="input-focus-effect w-full py-2.5 px-3 text-base" />
 
         <button

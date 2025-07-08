@@ -93,6 +93,7 @@ async function handleSubmit(): Promise<void> {
                 type="password"
                 required
                 placeholder="Nueva contraseña"
+                autocomplete="new-password"
                 class="input-focus-effect w-full"
               />
               <input
@@ -100,6 +101,7 @@ async function handleSubmit(): Promise<void> {
                 type="password"
                 required
                 placeholder="Confirmar nueva contraseña"
+                autocomplete="new-password"
                 class="input-focus-effect w-full"
                 :class="{ 'border-red-500': form.confirmPassword && !passwordsMatch }"
               />

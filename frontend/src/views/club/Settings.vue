@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router';
 import { useClubStore } from '@/store/useClubStore';
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
+import type { ClubSettingsDTO } from '@/services/dao/models/Admin';
 
 const route = useRoute();
 const clubStore = useClubStore();
@@ -16,7 +17,7 @@ const { details: clubDetails, loading } = storeToRefs(clubStore);
 const clubId = Number(route.params.id);
 
 // --- ESTADO LOCAL DEL FORMULARIO ---
-const form = ref<any>({});
+const form = ref<ClubSettingsDTO>({});
 const logoPreview = ref<string | null>(null);
 const showDangerModal = ref(false);
 const dangerActionType = ref<'transfer' | 'archive' | 'delete' | null>(null);
@@ -25,8 +26,14 @@ const confirmationText = ref('');
 // --- LÓGICA DE SINCRONIZACIÓN ---
 watch(clubDetails, (newDetails) => {
   if (newDetails) {
-    form.value = { ...newDetails };
-    logoPreview.value = newDetails.logo_url || null;
+    form.value = {
+      name: newDetails.name, // Añadido
+      description: newDetails.description, // Añadido
+      logo_url: newDetails.image_url,
+      social_links: newDetails.contact_info?.social_media || {},
+      has_funds: newDetails.has_funds ?? false,
+    };
+    logoPreview.value = newDetails.image_url || null;
   }
 }, { immediate: true });
 
@@ -53,7 +60,7 @@ function closeDangerModal() {
   dangerActionType.value = null;
 }
 function executeDangerAction() {
-    if (confirmationText.value !== clubDetails.value?.group_name) return;
+    if (confirmationText.value !== clubDetails.value?.name) return;
     console.log(`Ejecutando acción: ${dangerActionType.value}`);
     closeDangerModal();
 }
@@ -68,14 +75,32 @@ onMounted(() => { clubStore.fetchDetails(clubId); });
       <h3 class="text-lg font-bold text-darkText mb-4">Información del Club</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="md:col-span-2 space-y-4">
-            <input type="text" v-model="form.group_name" class="input-focus-effect w-full" />
-            <textarea v-model="form.group_description" rows="5" class="input-focus-effect w-full"></textarea>
+            <input type="text" v-model="form.name" class="input-focus-effect w-full" />
+            <textarea v-model="form.description" rows="5" class="input-focus-effect w-full"></textarea>
+            
+            <h4 class="font-semibold text-darkText mt-4 mb-2">Redes Sociales y Contacto</h4>
+            <div v-if="form.social_links">
+              <input type="text" v-model="form.social_links.facebook" placeholder="Enlace de Facebook" class="input-focus-effect w-full" />
+              <input type="text" v-model="form.social_links.instagram" placeholder="Enlace de Instagram" class="input-focus-effect w-full" />
+              <input type="text" v-model="form.social_links.twitter" placeholder="Enlace de Twitter" class="input-focus-effect w-full" />
+              <input type="text" v-model="form.social_links.website" placeholder="Enlace de Sitio Web" class="input-focus-effect w-full" />
+            </div>
         </div>
         <div class="md:col-span-1">
-          <img :src="logoPreview || 'https://via.placeholder.com/150'" alt="Logo" class="w-32 h-32 rounded-full object-cover shadow-md mx-auto">
+          <img :src="logoPreview || 'https://via.placeholder.com/150'" alt="Logo" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover shadow-md mx-auto">
           <input id="file-upload" type="file" @change="handleFileChange" class="hidden" accept="image/*"/>
           <label for="file-upload" class="cursor-pointer mt-4 block text-center text-sm font-semibold text-primary hover:underline">Cambiar logo</label>
         </div>
+      </div>
+      <div class="mt-6 flex items-center justify-between">
+        <label for="has-funds" class="flex items-center cursor-pointer">
+          <span class="text-sm font-medium text-gray-700 mr-3">Maneja Fondos</span>
+          <div class="relative">
+            <input type="checkbox" id="has-funds" class="sr-only" v-model="form.has_funds">
+            <div class="block bg-gray-200 w-10 h-6 rounded-full"></div>
+            <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+          </div>
+        </label>
       </div>
     </div>
     
@@ -105,12 +130,12 @@ onMounted(() => { clubStore.fetchDetails(clubId); });
           <div class="p-6">
             <h3 class="text-xl font-bold text-red-800">{{ dangerDetails[dangerActionType!]?.title }}</h3>
             <p class="text-gray-600 mt-2">{{ dangerDetails[dangerActionType!]?.msg }}</p>
-            <p class="mt-4 text-sm text-gray-700">Para confirmar, escribe: <strong class="text-primary">{{ clubDetails.group_name }}</strong></p>
+            <p class="mt-4 text-sm text-gray-700">Para confirmar, escribe: <strong class="text-primary">{{ clubDetails?.name }}</strong></p>
             <input v-model="confirmationText" type="text" class="input-focus-effect w-full mt-2" />
           </div>
           <div class="bg-gray-50 p-4 flex justify-end gap-3">
             <button @click="closeDangerModal" class="btn-secondary-admin">Cancelar</button>
-            <button @click="executeDangerAction" :disabled="confirmationText !== clubDetails.group_name" class="btn-danger bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300">Confirmar</button>
+            <button @click="executeDangerAction" :disabled="confirmationText !== clubDetails?.name" class="btn-danger bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300">Confirmar</button>
           </div>
       </div>
     </div>

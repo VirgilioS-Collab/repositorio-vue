@@ -1,36 +1,92 @@
 /**
  * @file src/services/dao/ActivityDao.ts
  * @description DAO para las operaciones de la API relacionadas con las actividades.
- * - REFACTORIZADO: Utiliza la instancia 'http' y sus métodos aceptan un AbortSignal.
  */
 import http from '@/services/http';
-import type { ActivityDTO } from '@/services/dao/models/Activity';
+import type { 
+  ActivityDTO, 
+  ActivityCreateRequestDTO, 
+  ActivityUpdateRequestDTO,
+  JoinActivityRequestDTO 
+} from '@/services/dao/models/Activity';
 
 class ActivityDao {
     /**
      * Obtiene la lista de todas las actividades públicas.
      */
-    async fetchAll(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
-        const { data } = await http.get<ActivityDTO[]>('/activities', options);
+    static async fetchAll(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
+        const { data } = await http.get<ActivityDTO[]>('/api/activities', options);
         return data;
     }
 
     /**
      * Obtiene los detalles de una actividad específica por su ID.
      */
-    async fetchById(id: number, options?: { signal?: AbortSignal }): Promise<ActivityDTO> {
-        const { data } = await http.get<ActivityDTO>(`/activities/${id}`, options);
+    static async fetchById(id: number, options?: { signal?: AbortSignal }): Promise<ActivityDTO> {
+        const { data } = await http.get<ActivityDTO>(`/api/activities/${id}`, options);
         return data;
+    }
+
+    /**
+     * Crea una nueva actividad.
+     */
+    static async create(activityData: ActivityCreateRequestDTO): Promise<ActivityDTO> {
+        const { data } = await http.post<ActivityDTO>('/api/activities', activityData);
+        return data;
+    }
+
+    /**
+     * Actualiza una actividad existente.
+     */
+    static async update(id: number, activityData: ActivityUpdateRequestDTO): Promise<ActivityDTO> {
+        const { data } = await http.put<ActivityDTO>(`/api/activities/${id}`, activityData);
+        return data;
+    }
+
+    /**
+     * Elimina una actividad.
+     */
+    static async delete(id: number): Promise<void> {
+        await http.delete(`/api/activities/${id}`);
+    }
+
+    /**
+     * Se une a una actividad.
+     */
+    static async join(payload: JoinActivityRequestDTO): Promise<void> {
+        await http.post(`/api/activities/${payload.activity_id}/participants`, payload);
+    }
+
+    /**
+     * Se retira de una actividad.
+     */
+    static async leave(activityId: number): Promise<void> {
+        await http.delete(`/api/activities/${activityId}/participants/me`);
     }
 
     /**
      * Obtiene las próximas actividades para el usuario autenticado.
      */
-    async getNextForMe(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
-        const { data } = await http.get<ActivityDTO[]>('/users/me/activities?next=true', options);
+    static async getNextForMe(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
+        const { data } = await http.get<ActivityDTO[]>('/api/users/me/activities?next=true', options);
+        return data;
+    }
+
+    /**
+     * Obtiene todas las actividades del usuario autenticado.
+     */
+    static async getMyActivities(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
+        const { data } = await http.get<ActivityDTO[]>('/api/users/me/activities', options);
+        return data;
+    }
+
+    /**
+     * Obtiene las actividades de un club específico.
+     */
+    static async getByGroup(clubId: number, options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
+        const { data } = await http.get<ActivityDTO[]>(`/api/clubs/${clubId}/activities`, options);
         return data;
     }
 }
 
-// Se exporta una única instancia para seguir el patrón Singleton[cite: 122].
-export default new ActivityDao();
+export default ActivityDao;

@@ -14,7 +14,7 @@ class UserDao {
      * Obtiene el perfil completo del usuario autenticado.
      */
     async fetchProfile(): Promise<UserDTO> {
-        const { data } = await http.get<UserDTO>('/auth/me');
+        const { data } = await http.get<UserDTO>('/api/auth/me');
         return data;
     }
 

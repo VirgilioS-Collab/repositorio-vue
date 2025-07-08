@@ -20,7 +20,7 @@ const form = reactive({
   email: userStore.user?.email || '',
   // NOTA: 'career' no está en el modelo UserDTO. Para que se guarde,
   // debes añadirlo a las interfaces UserDTO y UserUpdateDTO en 'User.ts'.
-  career: (userStore.user as any)?.career || '',
+  career: userStore.user?.career || '',
 });
 
 /**
@@ -44,7 +44,7 @@ function saveChanges() {
         class="text-gray-500 hover:text-gray-700 transition-colors"
         aria-label="Cerrar modal"
       >
-        <LucideIcon name="x" size="24" />
+        <LucideIcon name="x" :size="24 as number" />
       </button>
     </div>
 

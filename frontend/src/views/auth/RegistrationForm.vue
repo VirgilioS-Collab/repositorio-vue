@@ -121,12 +121,12 @@ async function submit(): Promise<void> {
         <h3 class="text-base sm:text-lg font-semibold text-gray-500 border-b-2 border-accent pb-2 mb-4">DATOS PERSONALES</h3>
         <div class="space-y-4">
           <div class="flex flex-col sm:flex-row gap-4">
-            <input v-model="form.firstName" required placeholder="Nombre" class="input-focus-effect w-full py-2.5 px-3" />
-            <input v-model="form.lastName" required placeholder="Apellido" class="input-focus-effect w-full py-2.5 px-3" />
+            <input v-model="form.firstName" required placeholder="Nombre" autocomplete="given-name" class="input-focus-effect w-full py-2.5 px-3" />
+            <input v-model="form.lastName" required placeholder="Apellido" autocomplete="family-name" class="input-focus-effect w-full py-2.5 px-3" />
           </div>
           <div class="flex flex-col sm:flex-row gap-4">
-            <input v-model="form.birthDate" required type="date" placeholder="Fecha de Nacimiento" class="input-focus-effect w-full py-2.5 px-3" />
-            <select v-model="form.gender" class="input-focus-effect w-full py-2.5 px-3">
+            <input v-model="form.birthDate" required type="date" placeholder="Fecha de Nacimiento" autocomplete="bday" class="input-focus-effect w-full py-2.5 px-3" />
+            <select v-model="form.gender" autocomplete="sex" class="input-focus-effect w-full py-2.5 px-3">
               <option>Masculino</option>
               <option>Femenino</option>
               <option>Otro</option>
@@ -144,22 +144,22 @@ async function submit(): Promise<void> {
               <option>Pasaporte</option>
               <option>Carné Residente</option>
             </select>
-            <input v-model="form.docNumber" required placeholder="N.º de documento" class="input-focus-effect sm:w-2/3 py-2.5 px-3" />
+            <input v-model="form.docNumber" required placeholder="N.º de documento" autocomplete="off" class="input-focus-effect sm:w-2/3 py-2.5 px-3" />
           </div>
-          <input v-model="form.phone" required placeholder="Teléfono (+507...)" class="input-focus-effect w-full py-2.5 px-3" />
+          <input v-model="form.phone" required placeholder="Teléfono (+507...)" autocomplete="tel" class="input-focus-effect w-full py-2.5 px-3" />
         </div>
       </div>
 
       <div>
         <h3 class="text-base sm:text-lg font-semibold text-gray-500 border-b-2 border-accent pb-2 mb-4">CREDENCIALES DE LA CUENTA</h3>
         <div class="space-y-4">
-          <input v-model="form.username" required placeholder="Nombre de usuario" class="input-focus-effect w-full py-2.5 px-3" />
-          <input v-model="form.email" required placeholder="correo@utp.ac.pa" class="input-focus-effect w-full py-2.5 px-3" :class="{ 'border-red-500': form.email && !emailOk }" />
+          <input v-model="form.username" required placeholder="Nombre de usuario" autocomplete="username" class="input-focus-effect w-full py-2.5 px-3" />
+          <input v-model="form.email" required placeholder="correo@utp.ac.pa" autocomplete="email" class="input-focus-effect w-full py-2.5 px-3" :class="{ 'border-red-500': form.email && !emailOk }" />
            <p v-if="form.email && !emailOk" class="text-xs text-red-500 -mt-2">
               El correo debe ser institucional (@utp.ac.pa).
             </p>
-          <input v-model="form.password" required type="password" placeholder="Contraseña" class="input-focus-effect w-full py-2.5 px-3" />
-          <input v-model="form.confirmPassword" required type="password" placeholder="Confirmar contraseña" class="input-focus-effect w-full py-2.5 px-3" :class="{ 'border-red-500': form.confirmPassword && !pwdOk }" />
+          <input v-model="form.password" required type="password" placeholder="Contraseña" autocomplete="new-password" class="input-focus-effect w-full py-2.5 px-3" />
+          <input v-model="form.confirmPassword" required type="password" placeholder="Confirmar contraseña" autocomplete="new-password" class="input-focus-effect w-full py-2.5 px-3" :class="{ 'border-red-500': form.confirmPassword && !pwdOk }" />
           <p v-if="form.confirmPassword && !pwdOk" class="text-xs text-red-500 -mt-2">
             Las contraseñas no coinciden.
           </p>

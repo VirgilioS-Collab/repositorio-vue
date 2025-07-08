@@ -109,3 +109,47 @@ export type UserEnrollResponseDTO = void;
  * @see {@link UserDTO}
  */
 export type MeResponseDTO = UserDTO;
+
+/**
+ * @docstring
+ * DTO para la petición de verificación de código de restablecimiento de contraseña.
+ * @property {string} verificationCode - Código de verificación recibido por correo electrónico.
+ */
+export interface VerifyCodeDTO {
+  verificationCode: string;
+}
+
+/**
+ * @docstring
+ * DTO para la petición de cambio de contraseña (usuario autenticado).
+ * @property {string} currentPassword - Contraseña actual del usuario.
+ * @property {string} newPassword - Nueva contraseña deseada.
+ */
+export interface ChangePasswordDTO {
+  currentPassword: string;
+  newPassword: string;
+}
+
+/**
+ * @docstring
+ * DTO para respuesta exitosa genérica.
+ * @property {boolean} success - Indica si la operación fue exitosa.
+ * @property {string} message - Mensaje descriptivo de la operación.
+ */
+export interface SuccessResponseDTO {
+  success: boolean;
+  message: string;
+}
+
+/**
+ * @docstring
+ * DTO para respuesta de solicitud de restablecimiento de contraseña.
+ * @property {string} token - Token temporal para el proceso de restablecimiento.
+ * @property {boolean} success - Indica si la operación fue exitosa.
+ * @property {string} message - Mensaje descriptivo de la operación.
+ */
+export interface ForgotPasswordResponseDTO {
+  token: string;
+  success: boolean;
+  message: string;
+}

@@ -34,7 +34,7 @@ function changePassword() {
         class="text-gray-500 hover:text-gray-700 transition-colors"
         aria-label="Cerrar modal"
       >
-        <LucideIcon name="x" size="24" />
+        <LucideIcon name="x" :size="24 as number" />
       </button>
     </div>
 
@@ -42,9 +42,9 @@ function changePassword() {
       <p class="text-sm text-gray-600">
         Para tu seguridad, te recomendamos usar una contraseña única que no uses en otros sitios.
       </p>
-      <BaseInput label="Contraseña actual" type="password" v-model="currentPassword" />
-      <BaseInput label="Nueva contraseña" type="password" v-model="newPassword" />
-      <BaseInput label="Confirmar nueva contraseña" type="password" v-model="confirmPassword" />
+      <BaseInput label="Contraseña actual" type="password" autocomplete="current-password" v-model="currentPassword" />
+      <BaseInput label="Nueva contraseña" type="password" autocomplete="new-password" v-model="newPassword" />
+      <BaseInput label="Confirmar nueva contraseña" type="password" autocomplete="new-password" v-model="confirmPassword" />
     </div>
 
     <div class="p-4 border-t flex justify-end gap-3 bg-gray-50 rounded-b-lg">

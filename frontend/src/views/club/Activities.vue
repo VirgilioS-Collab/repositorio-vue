@@ -16,7 +16,7 @@ import LucideIcon from '@/components/ui/LucideIcon.vue';
 // --- STORES Y ESTADO ---
 const route = useRoute();
 const activityStore = useActivityStore();
-const { items: activities, loading } = storeToRefs(activityStore);
+const { list: activities, loading } = storeToRefs(activityStore);
 const clubId = Number(route.params.id);
 
 // --- ESTADO LOCAL DEL COMPONENTE ---
@@ -27,7 +27,7 @@ const editingActivity = ref<any>(null);
 // --- PROPIEDADES COMPUTADAS ---
 const filteredActivities = computed(() => {
   return activities.value.filter(act => {
-    const keywordMatch = filters.value.keyword.trim() === '' || act.activity_name.toLowerCase().includes(filters.value.keyword.toLowerCase());
+    const keywordMatch = filters.value.keyword.trim() === '' || act.title.toLowerCase().includes(filters.value.keyword.toLowerCase());
     const typeMatch = filters.value.type === 'all' || act.activity_type_name === filters.value.type;
     const statusMatch = filters.value.status === 'all' || act.activity_status_name === filters.value.status;
     return keywordMatch && typeMatch && statusMatch;
@@ -80,18 +80,20 @@ function saveActivity() {
 
 // --- CICLO DE VIDA ---
 onMounted(() => {
-  activityStore.fetchAllForAdmin(clubId);
+  activityStore.fetchAll();
 });
 </script>
 
 <template>
   <div class="space-y-8">
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center flex-wrap gap-4">
         <h2 class="text-2xl font-bold text-darkText">Gestión de Actividades</h2>
-        <button @click="openCreateModal" class="btn-primary-admin flex items-center gap-2">
-            <LucideIcon name="plus" :size="18"/>
-            Crear Actividad
-        </button>
+        <div class="flex-shrink-0">
+            <button @click="openCreateModal" class="btn-primary-admin flex items-center gap-2">
+                <LucideIcon name="plus" :size="18"/>
+                Crear Actividad
+            </button>
+        </div>
     </div>
 
     <div class="bg-white p-4 rounded-xl shadow-sm border">
@@ -122,10 +124,10 @@ onMounted(() => {
                     <tr v-if="loading"><td colspan="5" class="td-cell text-center">Cargando...</td></tr>
                     <tr v-else-if="filteredActivities.length === 0"><td colspan="5" class="td-cell text-center">No se encontraron actividades.</td></tr>
                     <tr v-else v-for="act in filteredActivities" :key="act.activity_id" class="hover:bg-soft">
-                        <td class="td-cell font-medium">{{ act.activity_name }}</td>
-                        <td class="td-cell">{{ act.activity_type_name }}</td>
-                        <td class="td-cell">{{ new Date(act.activity_datetime).toLocaleString('es-PA') }}</td>
-                        <td class="td-cell"><span class="status-pill" :class="act.activity_status_name === 'Programada' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">{{ act.activity_status_name }}</span></td>
+                        <td class="td-cell font-medium">{{ act.title }}</td>
+                        <td class="td-cell">{{ act.activity_type }}</td>
+                        <td class="td-cell">{{ new Date(act.schedules?.[0]?.start_date || '').toLocaleString('es-PA') }}</td>
+                        <td class="td-cell"><span class="status-pill" :class="act.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">{{ act.status }}</span></td>
                         <td class="td-cell space-x-2">
                             <button @click="openEditModal(act)" class="text-primary hover:text-primary-dark"><LucideIcon name="edit" :size="16"/></button>
                         </td>

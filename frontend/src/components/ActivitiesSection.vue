@@ -6,7 +6,7 @@
  * - MODIFICADO: Estilos basados exclusivamente en Tailwind CSS.
  * - AÑADIDO: Muestra un mensaje cuando no hay actividades.
  * - REDISEÑADO: Las actividades ahora se muestran en un layout de cuadrícula (cards)
- * para consistencia visual con la sección de grupos.
+ * para consistencia visual con la sección de clubs.
  * - CORRECCIÓN DEFINITIVA: El botón "Ver Detalles" ahora redirige a 'ActivityDetail'
  * dado que la ruta ha sido añadida al router.
  */
@@ -49,7 +49,7 @@ defineProps<{
         <div class="mt-3 flex items-center justify-between">
             <span class="text-xs text-gray-500 flex items-center gap-1.5">
               <LucideIcon name="calendar" :size="14" />
-              {{ new Date(activity.activity_datetime).toLocaleDateString('es-PA') }}
+              {{ activity.activity_datetime ? new Date(activity.activity_datetime).toLocaleDateString('es-PA') : 'Fecha no disponible' }}
             </span>
           <RouterLink 
             :to="{ name: 'ActivityDetail', params: { id: activity.activity_id } }" 

@@ -13,7 +13,7 @@ import { RouterLink } from 'vue-router';
 
 // --- STORES Y ESTADO ---
 const activityStore = useActivityStore();
-const { items: activities, loading } = storeToRefs(activityStore);
+const { list: activities, loading } = storeToRefs(activityStore);
 
 // Estado local para los filtros de esta vista
 const searchQuery = ref('');
@@ -27,12 +27,12 @@ const categoryFilter = ref('all');
 const filteredActivities = computed(() => {
   return activities.value.filter(activity => {
     const searchMatch = searchQuery.value.trim() === '' ||
-      activity.activity_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      activity.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       activity.group_name?.toLowerCase().includes(searchQuery.value.toLowerCase());
     
     // Asumiendo que tu DTO tiene 'activity_type_name'
     const categoryMatch = categoryFilter.value === 'all' ||
-      activity.activity_type_name === categoryFilter.value;
+      activity.activity_type === categoryFilter.value;
       
     return searchMatch && categoryMatch;
   });
@@ -41,7 +41,7 @@ const filteredActivities = computed(() => {
 // --- CICLO DE VIDA ---
 onMounted(() => {
   // Llama a la acción correcta para buscar todas las actividades
-  activityStore.fetchAllActivities(); 
+  activityStore.fetchAll(); 
 });
 </script>
 
@@ -58,7 +58,7 @@ onMounted(() => {
           <input 
             type="text" 
             v-model="searchQuery"
-            placeholder="Buscar por nombre o grupo organizador..."
+            placeholder="Buscar por nombre o club organizador..."
             class="w-full py-2.5 pl-10 pr-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-accent"
           />
           <LucideIcon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -82,9 +82,9 @@ onMounted(() => {
         <div v-for="activity in filteredActivities" :key="activity.activity_id" class="bg-card border border-gray-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm hover:shadow-xl transition-shadow">
           <div>
             <span class="text-xs font-bold uppercase text-accent">{{ activity.group_name }}</span>
-            <h3 class="text-xl font-bold text-primary">{{ activity.activity_name }}</h3>
+            <h3 class="text-xl font-bold text-primary">{{ activity.title }}</h3>
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600 mt-1">
-              <span class="flex items-center gap-1.5"><LucideIcon name="calendar-days" :size="16"/> {{ new Date(activity.activity_datetime).toLocaleDateString('es-PA') }}</span>
+              <span class="flex items-center gap-1.5"><LucideIcon name="calendar-days" :size="16"/> {{ new Date(activity.schedules?.[0]?.start_date || '').toLocaleDateString('es-PA') }}</span>
               <span class="flex items-center gap-1.5"><LucideIcon name="map-pin" :size="16"/> {{ activity.location || 'Online' }}</span>
             </div>
           </div>

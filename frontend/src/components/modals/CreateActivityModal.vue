@@ -11,7 +11,7 @@ const userStore = useUserStore();
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold">Crear Nueva Actividad</h3>
         <button @click="userStore.closeAllModals()" class="text-gray-500 hover:text-gray-700">
-          <LucideIcon name="x" size="24" />
+          <LucideIcon name="x" :size="24 as number" />
         </button>
       </div>
       <p>Aquí iría el formulario para crear una nueva actividad...</p>

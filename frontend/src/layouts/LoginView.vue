@@ -10,7 +10,7 @@ import { useRouter } from 'vue-router';
 import LoginForm from '@/views/auth/LoginForm.vue';
 import ForgotPasswordModal from '@/components/modals/ForgotPasswordModal.vue';
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue';
-import { useAuthStore } from '@/store/useAuthStore.ts';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const router = useRouter();
 const auth = useAuthStore();

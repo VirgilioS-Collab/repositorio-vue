@@ -9,6 +9,7 @@ import { computed } from 'vue';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import type { ActivityDTO } from '@/services/dao/models/Activity';
+import LucideIcon from '@/components/ui/LucideIcon.vue';
 
 const props = defineProps<{
   activities: ActivityDTO[] | undefined;
@@ -66,35 +67,3 @@ const calendarOptions = {
   </div>
 </template>
 
-<style>
-/* Estilos globales refinados para sobreescribir FullCalendar.
-  No usamos 'scoped' para que puedan afectar a los elementos internos de FullCalendar.
-*/
-.calendar-widget-container .fc {
-  font-family: inherit;
-}
-.calendar-widget-container .fc .fc-toolbar-title {
-  font-size: 1.125rem; /* text-lg */
-  font-weight: 700;
-  color: #1a202c; /* darkText */
-}
-.calendar-widget-container .fc .fc-button {
-  background-color: transparent !important;
-  border: none !important;
-  color: #00205B !important; /* primary */
-  box-shadow: none !important;
-  padding: 0.5rem;
-}
-.calendar-widget-container .fc .fc-daygrid-day.fc-day-today {
-  background-color: rgba(228, 185, 91, 0.15); /* accent con 15% de opacidad */
-}
-.calendar-widget-container .fc .fc-daygrid-day-number {
-  padding: 0.5em;
-  font-size: 0.8em;
-}
-/* Estilo para el enlace "+X más eventos" */
-.calendar-widget-container .fc-daygrid-more-link {
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-</style>
