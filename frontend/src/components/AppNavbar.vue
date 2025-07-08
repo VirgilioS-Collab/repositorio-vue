@@ -14,13 +14,13 @@ const router = useRouter();
 
 // --- SECCIÓN DE ESTADO LOCAL ---
 const isMobileMenuOpen = ref(false);
-const isUserMenuOpen = ref(false);
 const userMenuButton = ref<HTMLElement | null>(null);
 const userMenuDropdown = ref<HTMLElement | null>(null);
 
 // --- SECCIÓN DE PROPIEDADES COMPUTADAS ---
-const userName = computed((): string => userStore.user?.u_name || 'Usuario');
-const userPhoto = computed((): string | undefined => userStore.user?.u_profile_photo_url || undefined);
+const userName = computed((): string => authStore.currentUser?.u_name || 'Usuario');
+const userPhoto = computed((): string | undefined => authStore.currentUser?.u_profile_photo_url || undefined);
+const isUserMenuOpen = computed(() => userStore.showProfileDropdown);
 
 // --- SECCIÓN DE FUNCIONES ---
 function handleLogout(): void {
@@ -35,17 +35,17 @@ function handleOpenModalAndCloseMenu(
 ): void {
   userStore.openModal(modalName);
   if (menuType === 'desktop') {
-    isUserMenuOpen.value = false;
+    userStore.toggleProfileDropdown(); // Cierra el menú usando la acción del store
   } else {
     isMobileMenuOpen.value = false;
   }
 }
 
 function handleClickOutside(event: MouseEvent) {
-  if (userMenuDropdown.value && userMenuButton.value &&
+  if (isUserMenuOpen.value && userMenuDropdown.value && userMenuButton.value &&
       !userMenuDropdown.value.contains(event.target as Node) &&
       !userMenuButton.value.contains(event.target as Node)) {
-    isUserMenuOpen.value = false;
+    userStore.toggleProfileDropdown(); // Cierra el menú usando la acción del store
   }
 }
 
@@ -98,7 +98,7 @@ onUnmounted(() => {
             </div>
 
             <div class="relative">
-              <button ref="userMenuButton" @click="isUserMenuOpen = !isUserMenuOpen" class="flex items-center gap-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary focus:ring-white">
+              <button ref="userMenuButton" @click="userStore.toggleProfileDropdown()" class="flex items-center gap-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary focus:ring-white">
                 <span class="sr-only">Abrir menú de usuario</span>
                 <img v-if="userPhoto" class="h-8 w-8 rounded-full object-cover" :src="userPhoto" alt="Foto de perfil">
                 <div v-else class="h-8 w-8 rounded-full bg-accent flex items-center justify-center font-bold text-primary">{{ userName.charAt(0) }}</div>
@@ -121,7 +121,7 @@ onUnmounted(() => {
                       <div v-else class="h-10 w-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary text-lg">{{ userName.charAt(0) }}</div>
                       <div>
                         <p class="text-sm font-semibold text-darkText">{{ userName }}</p>
-                        <p class="text-xs text-gray-500">{{ userStore.user?.u_email }}</p>
+                        <p class="text-xs text-gray-500">{{ authStore.currentUser?.u_email }}</p>
                       </div>
                     </div>
                   </div>
@@ -159,7 +159,7 @@ onUnmounted(() => {
           </div>
           <div class="ml-3">
             <div class="text-base font-medium">{{ userName }}</div>
-            <div class="text-sm font-medium text-gray-300">{{ userStore.user?.u_email }}</div>
+            <div class="text-sm font-medium text-gray-300">{{ authStore.currentUser?.u_email }}</div>
           </div>
            <button @click="userStore.toggleNotificationPanel(); isMobileMenuOpen = false" class="relative ml-auto flex-shrink-0 p-1 rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-white" aria-label="Ver notificaciones">
             <LucideIcon name="bell" :size="24" />

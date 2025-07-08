@@ -16,6 +16,8 @@ import type {
   ClubMemberUpdateDTO
 } from '@/services/dao/models/Club';
 import type { ClubSettingsDTO } from '@/services/dao/models/Admin';
+import StatsDao from '@/services/dao/StatsDao';
+import type { WeeklyActivityHeatmapDTO } from '@/services/dao/models/Stats';
 
 export const useClubStore = defineStore('club', {
   state: () => ({
@@ -35,7 +37,7 @@ export const useClubStore = defineStore('club', {
     creatingClub: false,
     updatingClub: false,
     joiningClub: false,
-    
+    weeklyActivityHeatmap: [] as WeeklyActivityHeatmapDTO[],
     error: null as string | null,
   }),
 
@@ -59,9 +61,24 @@ export const useClubStore = defineStore('club', {
     
     // Estado de error
     hasError: (state) => !!state.error,
+    getWeeklyActivityHeatmap: (state) => state.weeklyActivityHeatmap,
   },
 
   actions: {
+    /**
+     * Obtiene los datos para el heatmap semanal de actividades de un club.
+     */
+    async fetchWeeklyActivityHeatmap(clubId: number): Promise<void> {
+      this.loading = true;
+      this.error = null;
+      try {
+        this.weeklyActivityHeatmap = await StatsDao.fetchWeeklyActivityHeatmap(clubId);
+      } catch (err: any) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
     /**
      * Limpia el estado de error
      */
@@ -341,6 +358,23 @@ export const useClubStore = defineStore('club', {
         await this.fetchClubMembers(clubId);
       } catch (err: any) {
         this.error = err.response?.data?.message || err.message || 'Error al actualizar miembro del club';
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * Elimina un miembro de un club.
+     */
+    async removeClubMember(clubId: number, userId: number): Promise<void> {
+      this.loading = true;
+      this.error = null;
+      try {
+        await ClubDao.removeMember(clubId, userId);
+        this.clubMembers = this.clubMembers.filter(member => member.user_id !== userId);
+      } catch (err: any) {
+        this.error = err.response?.data?.message || err.message || 'Error al eliminar miembro del club';
         throw err;
       } finally {
         this.loading = false;

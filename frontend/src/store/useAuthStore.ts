@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { jwtDecode } from 'jwt-decode';
 import AuthDao from '@/services/dao/AuthDao'; // Importa el DAO de autenticación
 import type { LoginDTO } from '@/services/dao/models/Auth'; // Importa el DTO de login
-import type { UserDTO, UserLeanDTO } from '@/services/dao/models/User'; // Importa UserDTO y AHORA UserLeanDTO
+import type { UserDTO } from '@/services/dao/models/User'; // Importa UserDTO
 
 // --- SECCIÓN DE INTERFACES ---
 /**
@@ -21,43 +21,19 @@ interface JwtPayload {
   exp: number;
 }
 
-// --- SECCIÓN DE HELPERS ---
-/**
- * @docstring
- * Función auxiliar para mapear un objeto `UserDTO` completo (recibido del backend)
- * a una versión "más ligera" (`UserLeanDTO`) específica para el estado del store.
- * Esto optimiza la memoria al mantener solo los datos esenciales para la UI en el estado global.
- * @param {UserDTO} userDto - El objeto UserDTO completo recibido del DAO.
- * @returns {UserLeanDTO} Un objeto UserLeanDTO con las propiedades relevantes para el store.
- * @effects Realiza una transformación de datos.
- */
-function mapUserToLean(userDto: UserDTO): UserLeanDTO {
-  return {
-    user_id: userDto.user_id,
-    u_username: userDto.u_username,
-    u_email: userDto.u_email,
-    u_name: userDto.u_name,
-    u_last_name: userDto.u_last_name,
-    u_user_type: userDto.u_user_type,
-    // La propiedad `avatar` en UserLeanDTO es opcional y puede ser `null`.
-    // Si `u_profile_photo_url` es `null`, `avatar` también lo será, lo cual es correcto.
-    avatar: userDto.u_profile_photo_url || null, 
-  };
-}
-
 // --- SECCIÓN PRINCIPAL DEL STORE ---
 export const useAuthStore = defineStore('auth', {
   /**
    * @docstring
    * Define el estado inicial del store de autenticación.
-   * @property {UserLeanDTO | null} user - Objeto que contiene la información esencial
+   * @property {UserDTO | null} user - Objeto que contiene la información completa
    * del usuario autenticado, o `null` si no hay usuario.
    * @property {string | null} accessToken - El token JWT utilizado para autenticar las solicitudes a la API, o `null`.
    * @property {boolean} loading - Indicador booleano para mostrar el estado de carga de las operaciones de autenticación.
    * @property {string | null} error - Mensaje de error para las operaciones de autenticación, o `null` si no hay error.
    */
   state: () => ({
-    user: null as UserLeanDTO | null, // CAMBIO: Tipo de user ahora es UserLeanDTO | null
+    user: null as UserDTO | null, // CAMBIO: Tipo de user ahora es UserDTO | null
     accessToken: null as string | null,
     loading: false,
     error: null as string | null,
@@ -79,7 +55,7 @@ export const useAuthStore = defineStore('auth', {
     /**
      * @docstring
      * Devuelve la información esencial del usuario actualmente autenticado.
-     * @returns {UserLeanDTO | null} El objeto `UserLeanDTO` del usuario o `null`.
+     * @returns {UserDTO | null} El objeto `UserDTO` del usuario o `null`.
      */
     currentUser: (state) => state.user,
     
@@ -142,18 +118,10 @@ export const useAuthStore = defineStore('auth', {
 
         this.setAccessToken(token);
         
-        // Creamos un objeto de usuario parcial a partir del token.
-        // Los detalles completos (como clubs o actividades) se deberían cargar
-        // desde un endpoint de API (/api/auth/me) si es necesario.
-        this.user = {
-          user_id: decodedToken.user_id,
-          u_username: decodedToken.u_username,
-          u_email: decodedToken.u_email,
-          u_name: decodedToken.u_name,
-          u_last_name: '', // Assuming last_name is not in JWT payload, set to empty string
-          u_user_type: decodedToken.u_user_type,
-          avatar: null, // El avatar no viene en el payload del token
-        };
+        // Una vez logueado y con el token, obtener los detalles completos del usuario
+        // y mapearlos a la versión "lean".
+        const fullUser = await AuthDao.me();
+        this.user = fullUser;
       } catch (error) {
         console.error('Token inválido o malformado:', error);
         this.logout();
@@ -183,7 +151,7 @@ export const useAuthStore = defineStore('auth', {
         // Una vez logueado y con el token, obtener los detalles del usuario
         // y mapearlos a la versión "lean".
         const fullUser = await AuthDao.me();
-        this.user = mapUserToLean(fullUser); // CAMBIO: Mapeo a UserLeanDTO
+        this.user = fullUser;
       } catch (e: any) {
         // Capturar el error y establecer un mensaje amigable, si es posible del backend.
         this.error = e.response?.data?.message || 'Credenciales inválidas. Por favor, verifica tu correo y contraseña.';

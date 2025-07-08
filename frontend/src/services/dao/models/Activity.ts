@@ -28,6 +28,14 @@ export interface ActivityParticipantDTO {
 }
 
 /**
+ * DTO para estadísticas de inscripción de actividad
+ */
+export interface ActivityEnrollmentStatsDTO {
+  date: string;
+  enrollments: number;
+}
+
+/**
  * DTO completo de actividad
  */
 export interface ActivityDTO {
@@ -41,6 +49,9 @@ export interface ActivityDTO {
   activity_uuid?: string;
   ga_max_participants?: number;
   group_name?: string;
+  club_name?: string; // Añadido según el error en Dashboard.vue
+  ga_max_capacity?: number; // Añadido según el error en Activities.vue y Dashboard.vue
+  ga_current_participants?: number; // Añadido según el error en Activities.vue y Dashboard.vue
   created_date?: string;
   current_participants?: number;
   location?: string;

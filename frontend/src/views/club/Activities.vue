@@ -21,17 +21,23 @@ const { activities, loading } = storeToRefs(activityStore);
 const clubId = Number(route.params.id);
 
 // --- ESTADO LOCAL DEL COMPONENTE ---
-const filters = ref({ keyword: '', type: 'all', status: 'all' });
+const filters = ref({ keyword: '', type: 'all', status: 'all', startDate: '', endDate: '' });
 const showActivityModal = ref(false);
 const editingActivity = ref<any>(null);
 
 // --- PROPIEDADES COMPUTADAS ---
 const filteredActivities = computed(() => {
   return activities.value.filter((act: ActivityDTO) => {
+    const activityDate = new Date(act.schedules?.[0]?.start_date || '');
+    const start = filters.value.startDate ? new Date(filters.value.startDate) : null;
+    const end = filters.value.endDate ? new Date(filters.value.endDate) : null;
+
     const keywordMatch = filters.value.keyword.trim() === '' || act.ga_activity_name.toLowerCase().includes(filters.value.keyword.toLowerCase());
     const typeMatch = filters.value.type === 'all' || act.ga_activity_type === filters.value.type;
     const statusMatch = filters.value.status === 'all' || act.ga_activity_status === filters.value.status;
-    return keywordMatch && typeMatch && statusMatch;
+    const dateMatch = (!start || activityDate >= start) && (!end || activityDate <= end);
+
+    return keywordMatch && typeMatch && statusMatch && dateMatch;
   });
 });
 
@@ -68,15 +74,21 @@ function openEditModal(activity: any) {
 }
 
 function saveActivity() {
-  console.log("Guardando actividad:", editingActivity.value);
-  // Aquí llamarías a la acción del store:
-  // if (editingActivity.value.activity_id) {
-  //   activityStore.updateActivity(editingActivity.value.activity_id, editingActivity.value);
-  // } else {
-  //   activityStore.createActivity(clubId, editingActivity.value);
-  // }
+  if (editingActivity.value) {
+    if (editingActivity.value.activity_id) {
+      activityStore.updateActivity(editingActivity.value.activity_id, editingActivity.value);
+    } else {
+      activityStore.createActivity(clubId, editingActivity.value);
+    }
+  }
   showActivityModal.value = false;
   editingActivity.value = null;
+}
+
+function deleteActivity(activityId: number) {
+  if (confirm('¿Estás seguro de que quieres eliminar esta actividad?')) {
+    activityStore.deleteActivity(activityId);
+  }
 }
 
 // --- CICLO DE VIDA ---
@@ -112,13 +124,15 @@ onMounted(() => {
                 <option value="all">Todos los estados</option>
                 <option>Programada</option><option>Realizada</option><option>Cancelada</option>
             </select>
+            <input type="date" v-model="filters.startDate" class="input-focus-effect" />
+            <input type="date" v-model="filters.endDate" class="input-focus-effect" />
         </div>
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="th-cell">Nombre</th><th class="th-cell">Tipo</th><th class="th-cell">Fecha</th><th class="th-cell">Estado</th><th class="th-cell">Acciones</th>
+                        <th class="th-cell">Nombre</th><th class="th-cell">Tipo</th><th class="th-cell">Fecha</th><th class="th-cell">Cupo Máximo</th><th class="th-cell">Plazas Disponibles</th><th class="th-cell">Estado</th><th class="th-cell">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -128,9 +142,12 @@ onMounted(() => {
                         <td class="td-cell font-medium">{{ act.ga_activity_name }}</td>
                         <td class="td-cell">{{ act.ga_activity_type }}</td>
                         <td class="td-cell">{{ new Date(act.schedules?.[0]?.start_date || '').toLocaleString('es-PA') }}</td>
+                        <td class="td-cell">{{ act.ga_max_capacity ?? 0 }}</td>
+                        <td class="td-cell">{{ (act.ga_max_capacity ?? 0) - (act.ga_current_participants ?? 0) }}</td>
                         <td class="td-cell"><span class="status-pill" :class="act.ga_activity_status === 'Programada' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">{{ act.ga_activity_status }}</span></td>
                         <td class="td-cell space-x-2">
                             <button @click="openEditModal(act)" class="text-primary hover:text-primary-dark"><LucideIcon name="edit" :size="16"/></button>
+                            <button @click="deleteActivity(act.activity_id)" class="text-red-600 hover:text-red-800"><LucideIcon name="trash-2" :size="16"/></button>
                         </td>
                     </tr>
                 </tbody>

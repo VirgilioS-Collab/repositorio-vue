@@ -12,10 +12,17 @@ import type {
 
 class ImageDao {
   /**
-   * Sube una imagen genérica
+   * Sube una imagen genérica a /api/images/upload
    */
-  static async uploadImage(payload: ImageUploadRequestDTO): Promise<ImageUploadResponseDTO> {
-    const response = await Http.post('/api/images/upload', payload);
+  static async uploadGenericImage(file: File): Promise<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await Http.post('/api/images/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   }
 

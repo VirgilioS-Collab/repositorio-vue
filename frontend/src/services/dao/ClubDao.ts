@@ -116,6 +116,13 @@ class ClubDao {
   static async updateMember(clubId: number, userId: number, payload: ClubMemberUpdateDTO): Promise<void> {
     await http.put(`/api/clubs/${clubId}/members/${userId}`, payload);
   }
+
+  /**
+   * Elimina un miembro de un club.
+   */
+  static async removeMember(clubId: number, userId: number): Promise<void> {
+    await http.delete(`/api/clubs/${clubId}/members/${userId}`);
+  }
 }
 
 export default ClubDao;

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import ActivityDao from '@/services/dao/ActivityDao';
-import type { ActivityDTO } from '@/services/dao/models/Activity';
+import type { ActivityDTO, ActivityEnrollmentStatsDTO, ActivityCreateRequestDTO } from '@/services/dao/models/Activity';
 
 export const useActivityStore = defineStore('activity', {
   state: () => ({
@@ -20,6 +20,7 @@ export const useActivityStore = defineStore('activity', {
       limit: 10,
       hasMore: true,
     },
+    enrollmentStats: [] as ActivityEnrollmentStatsDTO[],
   }),
 
   getters: {
@@ -30,9 +31,21 @@ export const useActivityStore = defineStore('activity', {
     },
     isLoading: (state) => state.loading,
     activityError: (state) => state.error,
+    getEnrollmentStats: (state) => state.enrollmentStats,
   },
 
   actions: {
+    async fetchEnrollmentStats(clubId: number) {
+      this.loading = true;
+      this.error = null;
+      try {
+        this.enrollmentStats = await ActivityDao.fetchEnrollmentStats(clubId);
+      } catch (err: any) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
     async fetchActivities(loadMore: boolean = false) {
       this.loading = true;
       this.error = null;
@@ -100,6 +113,64 @@ export const useActivityStore = defineStore('activity', {
       } catch (err: any) {
         this.error = err.message;
         this.showToast(`Error al desinscribirse: ${err.message}`, 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async createActivity(clubId: number, activityData: Partial<ActivityDTO>) {
+      this.loading = true;
+      this.error = null;
+      try {
+        // Asegurarse de que activityData tenga la estructura correcta para ActivityCreateRequestDTO
+        const createRequest: ActivityCreateRequestDTO = {
+          ga_activity_name: activityData.ga_activity_name!,
+          ga_activity_description: activityData.ga_activity_description!,
+          ga_activity_type: activityData.ga_activity_type!,
+          ga_group_id: clubId, // Asegurarse de que el clubId se pase correctamente
+          ga_max_participants: activityData.ga_max_participants,
+          location: activityData.location,
+          schedules: activityData.schedules,
+        };
+        const newActivity = await ActivityDao.create(clubId, createRequest);
+        this.activities.push(newActivity);
+        this.showToast('Actividad creada exitosamente!', 'success');
+      } catch (err: any) {
+        this.error = err.message;
+        this.showToast(`Error al crear actividad: ${err.message}`, 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async updateActivity(activityId: number, activityData: Partial<ActivityDTO>) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const updatedActivity = await ActivityDao.update(activityId, activityData);
+        const index = this.activities.findIndex(act => act.activity_id === activityId);
+        if (index !== -1) {
+          this.activities[index] = updatedActivity;
+        }
+        this.showToast('Actividad actualizada exitosamente!', 'success');
+      } catch (err: any) {
+        this.error = err.message;
+        this.showToast(`Error al actualizar actividad: ${err.message}`, 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async deleteActivity(activityId: number) {
+      this.loading = true;
+      this.error = null;
+      try {
+        await ActivityDao.delete(activityId); // Cambiado de .remove a .delete
+        this.activities = this.activities.filter(act => act.activity_id !== activityId);
+        this.showToast('Actividad eliminada exitosamente!', 'success');
+      } catch (err: any) {
+        this.error = err.message;
+        this.showToast(`Error al eliminar actividad: ${err.message}`, 'error');
       } finally {
         this.loading = false;
       }

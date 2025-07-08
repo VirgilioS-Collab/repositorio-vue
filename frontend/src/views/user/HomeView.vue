@@ -14,7 +14,7 @@
 
 // Sección de Librerías/Imports
 // =============================================================================
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/useUserStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -29,6 +29,7 @@ import ViewProfileModal from '@/components/modals/ViewProfileModal.vue';
 import EditProfileModal from '@/components/modals/EditProfileModal.vue';
 import SecurityModal from '@/components/modals/SecurityModal.vue';
 import CreateActivityModal from '@/components/modals/CreateActivityModal.vue';
+import CreateClubModal from '@/components/modals/CreateClubModal.vue'; // Importar el nuevo modal
 
 // Componente del nuevo Overlay para modales
 import ModalOverlay from '@/components/ui/ModalOverlay.vue';
@@ -51,27 +52,37 @@ const authStore = useAuthStore();
 // Desestructura las propiedades reactivas del store, incluyendo el getter `isAnyModalOpen`
 // y el estado `user` y `loading`.
 const {
-  user, modals, toast, filteredClubs, showAllClubs, isAnyModalOpen, loading
+  modals, toast, filteredClubs, showAllClubs, isAnyModalOpen, loading
 } = storeToRefs(userStore);
 
 const { toggleClubsView } = userStore;
 
+const showCreateClubModal = ref(false); // Nuevo estado para controlar la visibilidad del modal
+
+function openCreateClubModal() {
+  showCreateClubModal.value = true;
+}
+
+function closeCreateClubModal() {
+  showCreateClubModal.value = false;
+  // Opcional: Recargar los clubes del usuario después de crear uno nuevo
+  // userStore.fetchProfile(); // Ya no es necesario, authStore.currentUser se actualiza en el login/refresh
+}
+
 // Cargar datos del usuario al montar el componente
-onMounted(async () => {
-  // Si tenemos token pero no datos del usuario, cargar el perfil completo
-  if (authStore.isAuthenticated && !userStore.user) {
-    await userStore.fetchProfile();
-  }
-});
+// La carga del perfil del usuario ya se maneja en useAuthStore.tryLoadTokenFromStorage
+// al inicio de la aplicación. No es necesario volver a llamarlo aquí.
+
 </script>
 
 <template>
-  <ModalOverlay v-if="isAnyModalOpen">
+  <ModalOverlay v-if="isAnyModalOpen || showCreateClubModal">
     <ViewProfileModal v-if="modals.viewProfile" />
     <EditProfileModal v-if="modals.editProfile" />
     <SecurityModal    v-if="modals.security"     />
     <CreateActivityModal v-if="modals.createActivity" />
-    </ModalOverlay>
+    <CreateClubModal v-if="showCreateClubModal" @close="closeCreateClubModal" @clubCreated="closeCreateClubModal" />
+  </ModalOverlay>
 
   <ToastNotification v-if="toast.show"
                      :message="toast.message"
@@ -84,18 +95,19 @@ onMounted(async () => {
 
         <div class="lg:col-span-2 space-y-10">
           <QuickActions />
+          <button @click="openCreateClubModal" class="btn-primary-admin mb-4">Crear Nuevo Club</button>
           <ClubsSection
               :clubs="filteredClubs || []"
               :show-all-clubs="showAllClubs"
               @toggle-clubs-view="toggleClubsView"
           />
-          <ActivitiesSection :activities="user?.activities || []" />
+          <ActivitiesSection :activities="authStore.currentUser?.activities || []" />
         </div>
 
         <div class="lg:col-span-1 space-y-8">
-          <UpcomingEventsWidget :activities="user?.activities || []" />
-          <CalendarWidget :activities="user?.activities || []" />
-          <NotificationsWidget :notifications="user?.notifications || []" />
+          <UpcomingEventsWidget :activities="authStore.currentUser?.activities || []" />
+          <CalendarWidget :activities="authStore.currentUser?.activities || []" />
+          <NotificationsWidget :notifications="authStore.currentUser?.notifications || []" />
         </div>
 
       </div>

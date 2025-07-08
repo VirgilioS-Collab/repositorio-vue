@@ -37,7 +37,7 @@ const fileInput = ref<HTMLInputElement | null>(null);
 
 // Computed
 const displayUrl = computed(() => {
-  return previewUrl.value || props.currentImageUrl || authStore.user?.avatar || null;
+  return previewUrl.value || props.currentImageUrl || authStore.currentUser?.u_profile_photo_url || null;
 });
 
 const avatarSize = computed(() => {
@@ -81,9 +81,7 @@ async function handleFileSelect(event: Event) {
     
     // Actualizar stores
     authStore.updateUserProfilePicture(response.imageUrl);
-    if (userStore.user) {
-      userStore.user.u_profile_photo_url = response.imageUrl;
-    }
+    authStore.currentUser!.u_profile_photo_url = response.imageUrl;
     
     userStore.showToast('Foto de perfil actualizada exitosamente', 'success');
     previewUrl.value = null; // Reset preview

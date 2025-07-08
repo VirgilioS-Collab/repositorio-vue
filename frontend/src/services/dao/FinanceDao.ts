@@ -40,6 +40,30 @@ class FinanceDao {
         const { data } = await http.post<TransactionDTO>(`/admin/clubs/${clubId}/finances/transactions`, payload);
         return data;
     }
+
+    /**
+     * @docstring
+     * Actualiza una transacción existente.
+     * @param {number} clubId - El ID del club.
+     * @param {number} transactionId - El ID de la transacción a actualizar.
+     * @param {TransactionCreateDTO} payload - Los datos actualizados de la transacción.
+     * @returns {Promise<TransactionDTO>} La transacción actualizada.
+     */
+    async updateTransaction(clubId: number, transactionId: number, payload: TransactionCreateDTO): Promise<TransactionDTO> {
+        const { data } = await http.put<TransactionDTO>(`/admin/clubs/${clubId}/finances/transactions/${transactionId}`, payload);
+        return data;
+    }
+
+    /**
+     * @docstring
+     * Elimina una transacción.
+     * @param {number} clubId - El ID del club.
+     * @param {number} transactionId - El ID de la transacción a eliminar.
+     * @returns {Promise<void>}
+     */
+    async deleteTransaction(clubId: number, transactionId: number): Promise<void> {
+        await http.delete(`/admin/clubs/${clubId}/finances/transactions/${transactionId}`);
+    }
 }
 
 // Exportamos una instancia de FinanceDao para que pueda ser utilizada en otros módulos

@@ -63,6 +63,14 @@ function closeDangerModal() {
 function executeDangerAction() {
     if (confirmationText.value !== clubDetails.value?.g_group_name) return;
     console.log(`Ejecutando acción: ${dangerActionType.value}`);
+    // Aquí se debería llamar a la acción del store correspondiente
+    if (dangerActionType.value === 'transfer') {
+      // clubStore.transferLeadership(clubId, newLeaderId);
+    } else if (dangerActionType.value === 'archive') {
+      // clubStore.archiveClub(clubId);
+    } else if (dangerActionType.value === 'delete') {
+      // clubStore.deleteClub(clubId);
+    }
     closeDangerModal();
 }
 
@@ -112,12 +120,26 @@ onMounted(() => { clubStore.fetchDetails(clubId); });
         </button>
     </div>
 
+    <div class="bg-white p-6 rounded-xl shadow-sm border">
+      <h3 class="text-lg font-bold text-darkText mb-4">Permisos del Club</h3>
+      <p class="text-gray-600">Aquí se gestionarán los roles y accesos de los miembros del club por módulo.</p>
+      <!-- TODO: Implementar la matriz de chequeo de permisos (RF5.4.3) -->
+      <div class="mt-4 p-4 border border-dashed border-gray-300 rounded-md text-center text-gray-500">
+        <p>Sección de Permisos en construcción.</p>
+        <p>Aquí irá la matriz de chequeo para asignar roles y accesos.</p>
+      </div>
+    </div>
+
     <div class="p-6 rounded-xl border-2 border-dashed border-red-400 bg-red-50">
         <h3 class="text-lg font-bold text-red-800">Zona Peligrosa</h3>
         <div class="mt-4 space-y-4">
             <div class="flex justify-between items-center">
                 <div><h4 class="font-semibold">Transferir Liderazgo</h4><p class="text-sm text-red-600">Asigna a otro miembro como administrador.</p></div>
                 <button @click="openDangerModal('transfer')" class="btn-danger">Transferir</button>
+            </div>
+            <div class="flex justify-between items-center">
+                <div><h4 class="font-semibold">Archivar Club</h4><p class="text-sm text-red-600">El club no será visible públicamente.</p></div>
+                <button @click="openDangerModal('archive')" class="btn-danger">Archivar</button>
             </div>
             <div class="flex justify-between items-center">
                 <div><h4 class="font-semibold">Eliminar Club</h4><p class="text-sm text-red-600">Esta acción no se puede deshacer.</p></div>

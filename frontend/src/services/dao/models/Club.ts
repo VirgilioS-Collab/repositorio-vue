@@ -48,6 +48,7 @@ export interface ClubCreateRequestDTO {
   g_group_category: string;
   max_members?: number;
   contact_info?: ClubContactInfo;
+  image_url?: string; // Añadido para permitir la URL de la imagen
 }
 
 /**

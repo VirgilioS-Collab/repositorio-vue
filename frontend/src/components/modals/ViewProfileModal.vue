@@ -9,20 +9,22 @@
  */
 import { reactive } from 'vue';
 import { useUserStore } from '@/store/useUserStore';
+import { useAuthStore } from '@/store/useAuthStore'; // Importar useAuthStore
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import BaseInput from '@/components/ui/BaseInput.vue';
 import ProfilePictureUpload from '@/components/ui/ProfilePictureUpload.vue';
 
 const userStore = useUserStore();
+const authStore = useAuthStore(); // Obtener instancia de authStore
 
 // El formulario ahora puede incluir todos los campos de forma segura
 // porque están definidos en UserDTO.
 const form = reactive({
-  u_name: userStore.user?.u_name || '',
-  u_last_name: userStore.user?.u_last_name || '',
-  u_email: userStore.user?.u_email || '',
-  u_phone: userStore.user?.u_phone || '',
-  u_about_me: userStore.user?.u_about_me || '',
+  u_name: authStore.currentUser?.u_name || '',
+  u_last_name: authStore.currentUser?.u_last_name || '',
+  u_email: authStore.currentUser?.u_email || '',
+  u_phone: authStore.currentUser?.u_phone || '',
+  u_about_me: authStore.currentUser?.u_about_me || '',
 });
 
 function saveChanges() {
@@ -45,7 +47,7 @@ function saveChanges() {
       <!-- Sección de foto de perfil -->
       <div class="flex justify-center mb-6">
         <ProfilePictureUpload 
-          :current-image-url="userStore.user?.u_profile_photo_url"
+          :current-image-url="authStore.currentUser?.u_profile_photo_url"
           size="large"
         />
       </div>

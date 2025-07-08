@@ -81,6 +81,8 @@ export interface FinanceSummaryDTO {
     income: number;
     expenses: number;
     balance: number;
+    historical_dates?: string[];
+    historical_balances?: number[];
 }
 
 /**

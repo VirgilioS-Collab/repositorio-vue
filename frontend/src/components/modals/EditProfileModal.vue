@@ -7,17 +7,19 @@
  */
 import { reactive } from 'vue';
 import { useUserStore } from '@/store/useUserStore';
+import { useAuthStore } from '@/store/useAuthStore'; // Importar useAuthStore
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import BaseInput from '@/components/ui/BaseInput.vue';
 
 // Obtenemos la instancia del store.
 const userStore = useUserStore();
+const authStore = useAuthStore(); // Obtener instancia de authStore
 
 // Creamos un formulario reactivo solo con los campos necesarios.
 // Se inicializa con los datos actuales del usuario desde el store.
 const form = reactive({
-  u_name: userStore.user?.u_name || '',
-  u_email: userStore.user?.u_email || '',
+  u_name: authStore.currentUser?.u_name || '',
+  u_email: authStore.currentUser?.u_email || '',
 });
 
 /**

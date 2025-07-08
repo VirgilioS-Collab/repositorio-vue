@@ -21,6 +21,7 @@ const clubChildren: RouteRecordRaw[] = [
   { path: '', name: 'Dashboard', component: () => import('@/views/club/Dashboard.vue') },
   { path: 'members', name: 'Members', component: () => import('@/views/club/Members.vue') },
   { path: 'activities', name: 'Activities', component: () => import('@/views/club/Activities.vue') },
+  { path: 'finance', name: 'Finance', component: () => import('@/views/club/FinanceView.vue') },
   { path: 'settings', name: 'Settings', component: () => import('@/views/club/Settings.vue') }
 ];
 

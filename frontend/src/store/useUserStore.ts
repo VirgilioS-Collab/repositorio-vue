@@ -8,6 +8,7 @@
 import { defineStore } from 'pinia';
 import AuthDao from '@/services/dao/AuthDao';
 import type { UserDTO, UserUpdateDTO } from '@/services/dao/models/User';
+import { useAuthStore } from '@/store/useAuthStore'; // Importar useAuthStore
 
 export const useUserStore = defineStore('user', {
   /**
@@ -16,7 +17,7 @@ export const useUserStore = defineStore('user', {
    * para asegurar la correcta inferencia de tipos y reactividad de Pinia.
    */
   state: () => ({
-    user: null as UserDTO | null,
+    // El usuario principal ahora se gestiona en useAuthStore. Este store se enfoca en la UI.
     modals: {
         viewProfile: false,
         editProfile: false,
@@ -43,8 +44,9 @@ export const useUserStore = defineStore('user', {
      * @description Devuelve una lista de los clubs del usuario para el dashboard.
      */
     filteredClubs: (state) => {
-        if (!state.user || !state.user.clubs) return [];
-        return state.showAllClubs ? state.user.clubs : state.user.clubs.slice(0, 3);
+        const authStore = useAuthStore();
+        if (!authStore.currentUser || !authStore.currentUser.clubs) return [];
+        return state.showAllClubs ? authStore.currentUser.clubs : authStore.currentUser.clubs.slice(0, 3);
     },
     /**
      * @getter isAnyModalOpen
@@ -57,49 +59,23 @@ export const useUserStore = defineStore('user', {
     
   actions: {
     /**
-     * @action fetchProfile
-     * @description Busca los datos del perfil del usuario desde la API.
-     */
-    async fetchProfile() {
-      this.loading = true;
-      this.error = null;
-      try {
-        this.user = await AuthDao.me();
-      } catch (err: any) {
-        this.error = err.message;
-        // Asignar un usuario por defecto en caso de error
-        this.user = {
-          user_id: 0,
-          u_username: 'Usuario Invitado',
-          u_email: 'invitado@example.com',
-          u_name: 'Usuario Invitado',
-          u_last_name: '',
-          u_profile_photo_url: '',
-          clubs: [],
-          activities: [],
-          notifications: [],
-          u_user_type: 'student', // Añadido
-          u_user_status: 'active', // Añadido
-        };
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    /**
      * @action updateProfile
      * @description Envía los datos actualizados del perfil del usuario a la API.
      * @param {UserUpdateDTO} payload - Objeto con los campos a actualizar.
      */
     async updateProfile(payload: UserUpdateDTO) {
-        if (!this.user) return;
+        const authStore = useAuthStore();
+        if (!authStore.currentUser) return;
         this.loading = true;
         this.error = null;
         try {
             const updatedUser = await AuthDao.updateProfile(payload);
-            this.user = updatedUser;
+            // Actualizar el usuario en el store de autenticación
+            authStore.user = updatedUser;
+            this.showToast('Perfil actualizado exitosamente!', 'success');
         } catch (err: any) {
             this.error = err.message;
+            this.showToast('Error al actualizar el perfil.', 'error');
         } finally {
             this.loading = false;
         }
@@ -117,10 +93,12 @@ export const useUserStore = defineStore('user', {
       for (const modal in this.modals) {
         this.modals[modal as keyof typeof this.modals] = false;
       }
+      this.showProfileDropdown = false; // Cierra el menú desplegable
     },
     toggleNotificationPanel() {
       this.showNotificationPanel = !this.showNotificationPanel;
     },
     toggleClubsView() { this.showAllClubs = !this.showAllClubs; },
+    toggleProfileDropdown() { this.showProfileDropdown = !this.showProfileDropdown; }, // Acción para el menú
   }
 });

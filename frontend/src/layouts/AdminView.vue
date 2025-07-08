@@ -28,6 +28,7 @@ const menu = [
   { name: 'Dashboard',  label:'Dashboard',   icon:'layout-dashboard' },
   { name: 'Activities', label:'Actividades', icon:'calendar' },
   { name: 'Members',    label:'Miembros',    icon:'users' },
+  { name: 'Finance',    label:'Finanzas',    icon:'dollar-sign', requiresFunds: true },
   { name: 'Settings',   label:'Ajustes',     icon:'settings' }
 ];
 
@@ -70,6 +71,7 @@ onMounted(() => {
         <ul>
           <li v-for="m in menu" :key="m.name" class="px-2">
             <RouterLink
+                v-if="!m.requiresFunds || clubDetails?.has_funds"
                 :to="{ name: m.name, params: { id: route.params.id } }"
                 class="flex items-center gap-3 px-4 py-2.5 text-sm rounded-md transition-colors"
                 :class="route.name === m.name ? 'bg-accent text-primary font-bold shadow-inner' : 'text-white/80 hover:bg-white/10'"
@@ -111,6 +113,7 @@ onMounted(() => {
         <ul>
           <li v-for="m in menu" :key="m.name" class="px-2">
             <RouterLink
+                v-if="!m.requiresFunds || clubDetails?.has_funds"
                 :to="{ name: m.name, params: { id: route.params.id } }"
                 class="flex items-center gap-3 px-4 py-2.5 text-sm rounded-md transition-colors"
                 :class="route.name === m.name ? 'bg-accent text-primary font-bold shadow-inner' : 'text-white/80 hover:bg-white/10'"

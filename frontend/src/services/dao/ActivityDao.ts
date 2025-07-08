@@ -7,7 +7,8 @@ import type {
   ActivityDTO, 
   ActivityCreateRequestDTO, 
   ActivityUpdateRequestDTO,
-  JoinActivityRequestDTO 
+  JoinActivityRequestDTO,
+  ActivityEnrollmentStatsDTO
 } from '@/services/dao/models/Activity';
 
 class ActivityDao {
@@ -30,8 +31,8 @@ class ActivityDao {
     /**
      * Crea una nueva actividad.
      */
-    static async create(activityData: ActivityCreateRequestDTO): Promise<ActivityDTO> {
-        const { data } = await http.post<ActivityDTO>('/api/activities', activityData);
+    static async create(clubId: number, activityData: ActivityCreateRequestDTO): Promise<ActivityDTO> {
+        const { data } = await http.post<ActivityDTO>(`/api/clubs/${clubId}/activities`, activityData);
         return data;
     }
 
@@ -85,6 +86,14 @@ class ActivityDao {
      */
     static async getByGroup(clubId: number, options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
         const { data } = await http.get<ActivityDTO[]>(`/api/clubs/${clubId}/activities`, options);
+        return data;
+    }
+
+    /**
+     * Obtiene estadísticas de inscripciones de actividades para un club específico.
+     */
+    static async fetchEnrollmentStats(clubId: number): Promise<ActivityEnrollmentStatsDTO[]> {
+        const { data } = await http.get<ActivityEnrollmentStatsDTO[]>(`/api/clubs/${clubId}/activity-enrollment-stats`);
         return data;
     }
 }
