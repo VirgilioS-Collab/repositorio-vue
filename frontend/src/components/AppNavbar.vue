@@ -19,8 +19,8 @@ const userMenuButton = ref<HTMLElement | null>(null);
 const userMenuDropdown = ref<HTMLElement | null>(null);
 
 // --- SECCIÓN DE PROPIEDADES COMPUTADAS ---
-const userName = computed((): string => userStore.user?.name || 'Usuario');
-const userPhoto = computed((): string | undefined => userStore.user?.profile_photo_url || undefined);
+const userName = computed((): string => userStore.user?.u_name || 'Usuario');
+const userPhoto = computed((): string | undefined => userStore.user?.u_profile_photo_url || undefined);
 
 // --- SECCIÓN DE FUNCIONES ---
 function handleLogout(): void {
@@ -121,7 +121,7 @@ onUnmounted(() => {
                       <div v-else class="h-10 w-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary text-lg">{{ userName.charAt(0) }}</div>
                       <div>
                         <p class="text-sm font-semibold text-darkText">{{ userName }}</p>
-                        <p class="text-xs text-gray-500">{{ userStore.user?.email }}</p>
+                        <p class="text-xs text-gray-500">{{ userStore.user?.u_email }}</p>
                       </div>
                     </div>
                   </div>
@@ -159,7 +159,7 @@ onUnmounted(() => {
           </div>
           <div class="ml-3">
             <div class="text-base font-medium">{{ userName }}</div>
-            <div class="text-sm font-medium text-gray-300">{{ userStore.user?.email }}</div>
+            <div class="text-sm font-medium text-gray-300">{{ userStore.user?.u_email }}</div>
           </div>
            <button @click="userStore.toggleNotificationPanel(); isMobileMenuOpen = false" class="relative ml-auto flex-shrink-0 p-1 rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-white" aria-label="Ver notificaciones">
             <LucideIcon name="bell" :size="24" />

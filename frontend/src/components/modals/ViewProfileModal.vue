@@ -18,16 +18,15 @@ const userStore = useUserStore();
 // El formulario ahora puede incluir todos los campos de forma segura
 // porque están definidos en UserDTO.
 const form = reactive({
-  name: userStore.user?.name || '',
-  last_name: userStore.user?.last_name || '', // Es bueno poder editar ambos
-  email: userStore.user?.email || '',
-  phone: userStore.user?.phone || '',
-  about_me: userStore.user?.about_me || '',
-  career: userStore.user?.career || '',
+  u_name: userStore.user?.u_name || '',
+  u_last_name: userStore.user?.u_last_name || '',
+  u_email: userStore.user?.u_email || '',
+  u_phone: userStore.user?.u_phone || '',
+  u_about_me: userStore.user?.u_about_me || '',
 });
 
 function saveChanges() {
-  userStore.updateProfile(form); // La acción del store recibe el objeto completo
+  userStore.updateProfile(form);
   userStore.closeAllModals();
 }
 </script>
@@ -46,29 +45,28 @@ function saveChanges() {
       <!-- Sección de foto de perfil -->
       <div class="flex justify-center mb-6">
         <ProfilePictureUpload 
-          :current-image-url="userStore.user?.profile_photo_url"
+          :current-image-url="userStore.user?.u_profile_photo_url"
           size="large"
         />
       </div>
       
       <div class="flex flex-col sm:flex-row gap-4">
-        <BaseInput label="Nombre(s)" v-model="form.name" />
-        <BaseInput label="Apellido(s)" v-model="form.last_name" />
+        <BaseInput label="Nombre(s)" v-model="form.u_name" />
+        <BaseInput label="Apellido(s)" v-model="form.u_last_name" />
       </div>
-      <BaseInput label="Correo electrónico" v-model="form.email" type="email" />
-      <BaseInput label="Carrera" v-model="form.career" />
-      <BaseInput label="Teléfono" v-model="form.phone" />
+      <BaseInput label="Correo electrónico" v-model="form.u_email" type="email" />
+      <BaseInput label="Teléfono" v-model="form.u_phone" />
       <div>
         <label for="about_me" class="block text-sm font-medium text-gray-700">Acerca de mí</label>
         <textarea 
           id="about_me"
-          v-model="form.about_me"
+          v-model="form.u_about_me"
           rows="3"
           maxlength="200"
           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50 resize-none"
         ></textarea>
         <p class="text-xs text-right text-gray-500 mt-1">
-          {{ form.about_me.length }} / 200
+          {{ form.u_about_me.length }} / 200
         </p>
       </div>
     </div>

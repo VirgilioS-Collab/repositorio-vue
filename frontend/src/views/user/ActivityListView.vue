@@ -10,10 +10,11 @@ import { useActivityStore } from '@/store/useActivityStore';
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import { RouterLink } from 'vue-router';
+import type { ActivityDTO } from '@/services/dao/models/Activity';
 
 // --- STORES Y ESTADO ---
 const activityStore = useActivityStore();
-const { list: activities, loading } = storeToRefs(activityStore);
+const { activities, loading } = storeToRefs(activityStore);
 
 // Estado local para los filtros de esta vista
 const searchQuery = ref('');
@@ -25,14 +26,14 @@ const categoryFilter = ref('all');
  * @description Filtra la lista de actividades basándose en los filtros locales.
  */
 const filteredActivities = computed(() => {
-  return activities.value.filter(activity => {
+  return activities.value.filter((activity: ActivityDTO) => {
     const searchMatch = searchQuery.value.trim() === '' ||
-      activity.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      activity.group_name?.toLowerCase().includes(searchQuery.value.toLowerCase());
+      activity.ga_activity_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      activity.ga_group_id?.toString().toLowerCase().includes(searchQuery.value.toLowerCase()); // Asumiendo que el ID del grupo se puede buscar
     
-    // Asumiendo que tu DTO tiene 'activity_type_name'
+    // Asumiendo que tu DTO tiene 'ga_activity_type'
     const categoryMatch = categoryFilter.value === 'all' ||
-      activity.activity_type === categoryFilter.value;
+      activity.ga_activity_type === categoryFilter.value;
       
     return searchMatch && categoryMatch;
   });
@@ -41,7 +42,7 @@ const filteredActivities = computed(() => {
 // --- CICLO DE VIDA ---
 onMounted(() => {
   // Llama a la acción correcta para buscar todas las actividades
-  activityStore.fetchAll(); 
+  activityStore.fetchActivities(); 
 });
 </script>
 
@@ -81,8 +82,8 @@ onMounted(() => {
       <div v-else-if="filteredActivities.length > 0" class="space-y-4">
         <div v-for="activity in filteredActivities" :key="activity.activity_id" class="bg-card border border-gray-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm hover:shadow-xl transition-shadow">
           <div>
-            <span class="text-xs font-bold uppercase text-accent">{{ activity.group_name }}</span>
-            <h3 class="text-xl font-bold text-primary">{{ activity.title }}</h3>
+            <span class="text-xs font-bold uppercase text-accent">{{ activity.ga_group_id }}</span>
+            <h3 class="text-xl font-bold text-primary">{{ activity.ga_activity_name }}</h3>
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600 mt-1">
               <span class="flex items-center gap-1.5"><LucideIcon name="calendar-days" :size="16"/> {{ new Date(activity.schedules?.[0]?.start_date || '').toLocaleDateString('es-PA') }}</span>
               <span class="flex items-center gap-1.5"><LucideIcon name="map-pin" :size="16"/> {{ activity.location || 'Online' }}</span>

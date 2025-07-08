@@ -18,8 +18,8 @@ const props = defineProps<{
 const calendarEvents = computed(() => {
   if (!props.activities) return [];
   return props.activities.map(activity => ({
-    title: activity.activity_name,
-    start: activity.activity_datetime,
+    title: activity.ga_activity_name,
+    start: activity.schedules?.[0]?.start_date,
     allDay: true,
     // Damos un color a los eventos para que resalten
     backgroundColor: '#E4B95B', // accent

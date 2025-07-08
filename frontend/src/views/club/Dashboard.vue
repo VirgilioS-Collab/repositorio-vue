@@ -26,12 +26,12 @@ const financeStore = useFinanceStore();
 
 // --- ESTADO REACTIVO ---
 const { stats: memberStats } = storeToRefs(memberStore);
-const { list: activities, loading: activityLoading } = storeToRefs(activityStore);
+const { activities, loading: activityLoading } = storeToRefs(activityStore);
 const { summary: financeSummary, hasFunds } = storeToRefs(financeStore);
 
 // --- KPIs COMPUTADOS ---
 const activeKpi = computed(() => memberStats.value?.active ?? 0);
-const upcomingKpi = computed(() => activities.value.filter((a: ActivityDTO) => new Date(a.activity_datetime || '') >= new Date()).length);
+const upcomingKpi = computed(() => activities.value.filter((a: ActivityDTO) => new Date(a.schedules?.[0]?.start_date || '') >= new Date()).length);
 const totalIncome = computed(() => financeSummary.value?.income ?? 0);
 const totalBalance = computed(() => financeSummary.value?.balance ?? 0);
 
@@ -65,7 +65,7 @@ const financeChartOption = computed(() => ({
 onMounted(() => {
   if (clubId.value) {
     memberStore.fetchStats(clubId.value);
-    activityStore.fetchAll();
+    activityStore.fetchActivities();
     if (hasFunds.value) {
       financeStore.fetchSummary(clubId.value);
     }
@@ -116,9 +116,9 @@ onMounted(() => {
                     <tr v-if="activityLoading"><td colspan="3" class="text-center py-8">Cargando...</td></tr>
                     <tr v-else-if="activities.length === 0"><td colspan="3" class="text-center py-8">No hay eventos próximos.</td></tr>
                     <tr v-else v-for="activity in activities.slice(0, 5)" :key="activity.activity_id" class="hover:bg-soft">
-                        <td class="px-6 py-4 font-medium">{{ activity.title }}</td>
+                        <td class="px-6 py-4 font-medium">{{ activity.ga_activity_name }}</td>
                         <td class="px-6 py-4">{{ new Date(activity.schedules?.[0]?.start_date || '').toLocaleDateString('es-PA') }}</td>
-                        <td class="px-6 py-4"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ activity.status }}</span></td>
+                        <td class="px-6 py-4"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ activity.ga_activity_status }}</span></td>
                     </tr>
                 </tbody>
             </table>

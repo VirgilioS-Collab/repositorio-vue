@@ -9,20 +9,26 @@
  */
 export interface UserDTO {
   user_id:           number;
-  username:          string;
-  email:             string;
-  name:              string;
-  full_name?:        string; // Añadido
-  last_name:         string;
-  phone?:            string;
-  profile_photo_url?: string | null;
-  user_type:         'student' | 'admin' | 'leader';
-  user_status:       'active' | 'inactive';
-  about_me?:         string;
-  career?:           string;
-  clubs?:            any[]; // Cambiado de groups a clubs
+  u_username:        string;
+  u_email:           string;
+  u_name:            string;
+  u_last_name:       string;
+  u_phone?:          string;
+  u_about_me?:       string;
+  u_profile_photo_url?: string | null;
+  u_user_type:       'student' | 'admin' | 'leader';
+  u_user_status:     'active' | 'inactive';
+  u_creation_date?:  string; // timestamp
+  u_last_login_date?: string; // timestamp
+  u_birth_date?:     string; // date
+  u_document_number?: string;
+  u_document_type_id?: number; // FK
+  u_gender_id?:      number; // FK
+  user_uuid?:        string; // uuid
+  full_name?:        string; // Mantener si es una propiedad calculada en el backend
+  clubs?:            any[];
   activities?:       any[];
-  notifications?:    any[]; // Añadido
+  notifications?:    any[];
 }
 
 /**
@@ -33,11 +39,11 @@ export interface UserDTO {
  */
 export interface UserLeanDTO {
   user_id:   number;
-  username:  string;
-  email:     string;
-  name:      string;
-  last_name: string;
-  user_type: 'student' | 'admin' | 'leader';
+  u_username:  string;
+  u_email:     string;
+  u_name:      string;
+  u_last_name: string;
+  u_user_type: 'student' | 'admin' | 'leader';
   avatar?:   string | null; 
 }
 
@@ -45,10 +51,9 @@ export interface UserLeanDTO {
  * DTO para actualización de perfil de usuario
  */
 export interface UserUpdateDTO {
-  name?:             string;
-  last_name?:        string;
-  phone?:            string;
-  about_me?:         string;
-  career?:           string;
-  profile_photo_url?: string | null;
+  u_name?:             string;
+  u_last_name?:        string;
+  u_phone?:            string;
+  u_about_me?:         string;
+  u_profile_photo_url?: string | null;
 }

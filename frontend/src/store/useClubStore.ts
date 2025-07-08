@@ -5,14 +5,17 @@
  */
 import { defineStore } from 'pinia';
 import ClubDao from '@/services/dao/ClubDao';
-import type { 
-  ClubDTO, 
-  ClubCreateRequestDTO, 
+import type {
+  ClubDTO,
+  ClubCreateRequestDTO,
   ClubUpdateRequestDTO,
   ClubMemberDTO,
   JoinRequestDTO,
-  JoinClubRequestDTO 
+  JoinClubRequestDTO,
+  ClubMemberInviteDTO,
+  ClubMemberUpdateDTO
 } from '@/services/dao/models/Club';
+import type { ClubSettingsDTO } from '@/services/dao/models/Admin';
 
 export const useClubStore = defineStore('club', {
   state: () => ({
@@ -294,7 +297,7 @@ export const useClubStore = defineStore('club', {
     /**
      * Actualiza los ajustes del club.
      */
-    async updateSettings(clubId: number, payload: ClubUpdateRequestDTO): Promise<void> {
+    async updateSettings(clubId: number, payload: ClubSettingsDTO): Promise<void> {
       this.loading = true;
       this.error = null;
       try {
@@ -303,6 +306,41 @@ export const useClubStore = defineStore('club', {
         // await this.fetchDetails(clubId);
       } catch (err: any) {
         this.error = err.response?.data?.message || err.message || 'Error al actualizar ajustes del club';
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * Invita a nuevos miembros a un club.
+     */
+    async inviteMembers(clubId: number, payload: ClubMemberInviteDTO): Promise<void> {
+      this.loading = true;
+      this.error = null;
+      try {
+        await ClubDao.inviteMembers(clubId, payload);
+        // Podrías añadir lógica para mostrar un toast de éxito aquí
+      } catch (err: any) {
+        this.error = err.response?.data?.message || err.message || 'Error al invitar miembros';
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * Actualiza el rol o estado de un miembro específico del club.
+     */
+    async updateClubMember(clubId: number, userId: number, payload: ClubMemberUpdateDTO): Promise<void> {
+      this.loading = true;
+      this.error = null;
+      try {
+        await ClubDao.updateMember(clubId, userId, payload);
+        // Opcional: Recargar los miembros del club para reflejar el cambio
+        await this.fetchClubMembers(clubId);
+      } catch (err: any) {
+        this.error = err.response?.data?.message || err.message || 'Error al actualizar miembro del club';
         throw err;
       } finally {
         this.loading = false;

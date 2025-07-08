@@ -23,7 +23,7 @@ const activityStore = useActivityStore();
 // Hacemos el estado reactivo para la UI
 const { details: club, loading: clubLoading } = storeToRefs(clubStore);
 const { items: members, loading: membersLoading } = storeToRefs(memberStore);
-const { list: activities, loading: activitiesLoading } = storeToRefs(activityStore);
+const { activities, loading: activitiesLoading } = storeToRefs(activityStore);
 
 // Al montar el componente, buscamos toda la información necesaria
 onMounted(() => {
@@ -37,7 +37,7 @@ onMounted(() => {
 // Busca al propietario dentro de la lista de miembros cargada
 const owner = computed(() => {
     if (!club.value || members.value.length === 0) return null;
-    return members.value.find((m: MemberDTO) => m.user_id === club.value?.leader_id);
+    return members.value.find((m: MemberDTO) => m.user_id === club.value?.g_group_owner_id);
 });
 </script>
 
@@ -51,7 +51,7 @@ const owner = computed(() => {
           <LucideIcon name="users" :size="36" class="text-primary"/>
         </div>
         <div class="flex-grow text-center sm:text-left">
-          <h1 class="text-3xl font-bold text-darkText">{{ club.name }}</h1>
+          <h1 class="text-3xl font-bold text-darkText">{{ club.g_group_name }}</h1>
           <p class="text-gray-500">Club de la comunidad Alianza UTP</p>
         </div>
         <button class="px-6 py-2 text-white font-semibold bg-primary rounded-lg hover:bg-primary-dark transition shrink-0">
@@ -64,14 +64,14 @@ const owner = computed(() => {
       <div class="lg:col-span-2 space-y-8">
         <div class="bg-card border border-gray-200 p-6 rounded-xl">
           <h2 class="font-bold text-xl mb-3">Acerca de este club</h2>
-          <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ club.description || 'No hay descripción disponible.' }}</p>
+          <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ club.g_group_description || 'No hay descripción disponible.' }}</p>
         </div>
         <div class="bg-card border border-gray-200 p-6 rounded-xl">
           <h2 class="font-bold text-xl mb-4">Próximas Actividades del Club</h2>
           <div v-if="activities.length > 0" class="space-y-3">
             <div v-for="act in activities" :key="act.activity_id" class="p-3 rounded-md hover:bg-gray-50 flex justify-between items-center cursor-pointer">
               <div>
-                <p class="font-semibold">{{ act.activity_name }}</p>
+                <p class="font-semibold">{{ act.ga_activity_name }}</p>
                 <p class="text-sm text-gray-500">{{ new Date(act.schedules?.[0]?.start_date || '').toLocaleDateString('es-PA') }}</p>
               </div>
               <LucideIcon name="chevron-right" class="text-gray-400"/>

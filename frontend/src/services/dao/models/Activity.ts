@@ -32,40 +32,32 @@ export interface ActivityParticipantDTO {
  */
 export interface ActivityDTO {
   activity_id: number;
-  title: string;
-  description: string;
-  activity_type: string; // meeting, workshop, event, etc.
-  status: string; // scheduled, in_progress, completed, cancelled
-  group_id: number;
-  group_name: string;
-  created_by: number;
-  created_date: string;
-  max_participants?: number;
-  current_participants: number;
+  ga_activity_name: string;
+  ga_activity_description: string;
+  ga_activity_type: string; // meeting, workshop, event, etc.
+  ga_activity_status: string; // scheduled, in_progress, completed, cancelled
+  ga_group_id: number;
+  ga_creator_id: number;
+  activity_uuid?: string;
+  ga_max_participants?: number;
+  group_name?: string;
+  created_date?: string;
+  current_participants?: number;
   location?: string;
   image_url?: string;
   schedules?: ActivityScheduleDTO[];
   participants?: ActivityParticipantDTO[];
-  
-  // Mantener compatibilidad con la estructura anterior
-  activity_name?: string;
-  activity_description?: string;
-  activity_datetime?: string;
-  start_time?: string;
-  participants_count?: number;
-  activity_type_name?: string;
-  activity_status_name?: string;
 }
 
 /**
  * DTO para crear una actividad
  */
 export interface ActivityCreateRequestDTO {
-  title: string;
-  description: string;
-  activity_type: string;
-  group_id: number;
-  max_participants?: number;
+  ga_activity_name: string;
+  ga_activity_description: string;
+  ga_activity_type: string;
+  ga_group_id: number;
+  ga_max_participants?: number;
   location?: string;
   schedules?: {
     start_date: string;
@@ -77,12 +69,12 @@ export interface ActivityCreateRequestDTO {
  * DTO para actualizar una actividad
  */
 export interface ActivityUpdateRequestDTO {
-  title?: string;
-  description?: string;
-  activity_type?: string;
-  max_participants?: number;
+  ga_activity_name?: string;
+  ga_activity_description?: string;
+  ga_activity_type?: string;
+  ga_max_participants?: number;
+  ga_activity_status?: string;
   location?: string;
-  status?: string;
   image_url?: string;
 }
 

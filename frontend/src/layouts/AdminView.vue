@@ -56,11 +56,11 @@ onMounted(() => {
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full border-2 border-accent bg-white flex items-center justify-center shrink-0">
             <span class="text-primary font-bold">
-              {{ clubDetails?.name?.substring(0, 2).toUpperCase() || '...' }}
+              {{ clubDetails?.g_group_name?.substring(0, 2).toUpperCase() || '...' }}
             </span>
           </div>
           <div>
-            <h2 class="font-semibold leading-none">{{ clubDetails?.name || 'Cargando...' }}</h2>
+            <h2 class="font-semibold leading-none">{{ clubDetails?.g_group_name || 'Cargando...' }}</h2>
             <p class="text-xs text-white/70">Club UTP</p>
           </div>
         </div>
@@ -97,11 +97,11 @@ onMounted(() => {
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full border-2 border-accent bg-white flex items-center justify-center shrink-0">
             <span class="text-primary font-bold">
-              {{ clubDetails?.name?.substring(0, 2).toUpperCase() || '...' }}
+              {{ clubDetails?.g_group_name?.substring(0, 2).toUpperCase() || '...' }}
             </span>
           </div>
           <div>
-            <h2 class="font-semibold leading-none">{{ clubDetails?.name || 'Cargando...' }}</h2>
+            <h2 class="font-semibold leading-none">{{ clubDetails?.g_group_name || 'Cargando...' }}</h2>
             <p class="text-xs text-white/70">Club UTP</p>
           </div>
         </div>

@@ -14,6 +14,8 @@ export interface ClubContactInfo {
     telegram?: string;
     instagram?: string;
     facebook?: string;
+    twitter?: string;
+    website?: string;
   };
 }
 
@@ -22,27 +24,28 @@ export interface ClubContactInfo {
  */
 export interface ClubDTO {
   club_id: number;
-  name: string;
-  description: string;
-  club_type: string; // academic, recreational, sports, etc.
-  status: string; // active, inactive
+  g_group_name: string;
+  g_group_description: string;
+  g_group_category: string; // academic, recreational, sports, etc.
+  g_group_status: string; // active, inactive
+  g_group_owner_id?: number;
+  group_uuid?: string;
   max_members?: number;
-  current_members: number;
+  current_members?: number;
   created_date?: string;
-  leader_id?: number;
   leader_name?: string;
   image_url?: string;
   contact_info?: ClubContactInfo;
-  has_funds?: boolean; // Añadido
+  has_funds?: boolean;
 }
 
 /**
  * DTO para crear un club
  */
 export interface ClubCreateRequestDTO {
-  name: string;
-  description: string;
-  club_type: string;
+  g_group_name: string;
+  g_group_description: string;
+  g_group_category: string;
   max_members?: number;
   contact_info?: ClubContactInfo;
 }
@@ -51,8 +54,8 @@ export interface ClubCreateRequestDTO {
  * DTO para actualizar un club
  */
 export interface ClubUpdateRequestDTO {
-  name?: string;
-  description?: string;
+  g_group_name?: string;
+  g_group_description?: string;
   max_members?: number;
   contact_info?: ClubContactInfo;
   image_url?: string;
@@ -68,6 +71,7 @@ export interface ClubMemberDTO {
   last_name: string;
   profile_photo_url?: string;
   role: string; // leader, admin, member
+  status: string; // active, inactive
   joined_date?: string;
 }
 
@@ -95,4 +99,19 @@ export interface JoinRequestDTO {
  */
 export interface JoinClubRequestDTO {
   club_id: number;
+}
+
+/**
+ * DTO para actualizar el rol de un miembro del club
+ */
+export interface ClubMemberUpdateDTO {
+  role?: string; // e.g., 'member', 'moderator', 'admin'
+  status?: 'active' | 'inactive';
+}
+
+/**
+ * DTO para invitar miembros a un club
+ */
+export interface ClubMemberInviteDTO {
+  emails: string[];
 }

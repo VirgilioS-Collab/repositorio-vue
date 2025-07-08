@@ -12,7 +12,9 @@ import type {
   ClubUpdateRequestDTO,
   ClubMemberDTO,
   JoinRequestDTO,
-  JoinClubRequestDTO
+  JoinClubRequestDTO,
+  ClubMemberInviteDTO,
+  ClubMemberUpdateDTO
 } from '@/services/dao/models/Club';
 
 class ClubDao {
@@ -99,6 +101,20 @@ class ClubDao {
    */
   static async updateSettings(clubId: number, payload: ClubSettingsDTO): Promise<void> {
     await http.put(`/admin/clubs/${clubId}/settings`, payload);
+  }
+
+  /**
+   * Invita a nuevos miembros a un club.
+   */
+  static async inviteMembers(clubId: number, payload: ClubMemberInviteDTO): Promise<void> {
+    await http.post(`/api/clubs/${clubId}/members/invite`, payload);
+  }
+
+  /**
+   * Actualiza el rol o estado de un miembro específico del club.
+   */
+  static async updateMember(clubId: number, userId: number, payload: ClubMemberUpdateDTO): Promise<void> {
+    await http.put(`/api/clubs/${clubId}/members/${userId}`, payload);
   }
 }
 

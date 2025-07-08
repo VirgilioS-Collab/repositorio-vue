@@ -22,15 +22,15 @@
           </button>
         </div>
         <div>
-          <h2 class="text-xl font-semibold">{{ authStore.user?.name }} {{ authStore.user?.last_name }}</h2>
-          <p class="text-gray-500">@{{ authStore.user?.username }}</p>
+          <h2 class="text-xl font-semibold">{{ authStore.user?.u_name }} {{ authStore.user?.u_last_name }}</h2>
+          <p class="text-gray-500">@{{ authStore.user?.u_username }}</p>
         </div>
       </div>
 
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-          <p class="mt-1 text-lg text-gray-900">{{ authStore.user?.email }}</p>
+          <p class="mt-1 text-lg text-gray-900">{{ authStore.user?.u_email }}</p>
         </div>
       </div>
     </div>

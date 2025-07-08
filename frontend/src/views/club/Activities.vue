@@ -12,11 +12,12 @@ import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
+import type { ActivityDTO } from '@/services/dao/models/Activity';
 
 // --- STORES Y ESTADO ---
 const route = useRoute();
 const activityStore = useActivityStore();
-const { list: activities, loading } = storeToRefs(activityStore);
+const { activities, loading } = storeToRefs(activityStore);
 const clubId = Number(route.params.id);
 
 // --- ESTADO LOCAL DEL COMPONENTE ---
@@ -26,10 +27,10 @@ const editingActivity = ref<any>(null);
 
 // --- PROPIEDADES COMPUTADAS ---
 const filteredActivities = computed(() => {
-  return activities.value.filter(act => {
-    const keywordMatch = filters.value.keyword.trim() === '' || act.title.toLowerCase().includes(filters.value.keyword.toLowerCase());
-    const typeMatch = filters.value.type === 'all' || act.activity_type_name === filters.value.type;
-    const statusMatch = filters.value.status === 'all' || act.activity_status_name === filters.value.status;
+  return activities.value.filter((act: ActivityDTO) => {
+    const keywordMatch = filters.value.keyword.trim() === '' || act.ga_activity_name.toLowerCase().includes(filters.value.keyword.toLowerCase());
+    const typeMatch = filters.value.type === 'all' || act.ga_activity_type === filters.value.type;
+    const statusMatch = filters.value.status === 'all' || act.ga_activity_status === filters.value.status;
     return keywordMatch && typeMatch && statusMatch;
   });
 });
@@ -37,10 +38,10 @@ const filteredActivities = computed(() => {
 const calendarEvents = computed(() => {
     return filteredActivities.value.map(act => ({
         id: String(act.activity_id),
-        title: act.activity_name,
-        start: act.activity_datetime,
-        backgroundColor: act.activity_status_name === 'Programada' ? '#00205B' : '#6b7280',
-        borderColor: act.activity_status_name === 'Programada' ? '#00205B' : '#6b7280',
+        title: act.ga_activity_name,
+        start: act.schedules?.[0]?.start_date,
+        backgroundColor: act.ga_activity_status === 'Programada' ? '#00205B' : '#6b7280',
+        borderColor: act.ga_activity_status === 'Programada' ? '#00205B' : '#6b7280',
     }));
 });
 
@@ -57,7 +58,7 @@ const calendarOptions = computed(() => ({
 
 // --- MÉTODOS ---
 function openCreateModal() {
-  editingActivity.value = { activity_type_name: 'Reunión', activity_status_name: 'Programada' };
+  editingActivity.value = { ga_activity_type: 'Reunión', ga_activity_status: 'Programada' };
   showActivityModal.value = true;
 }
 
@@ -80,7 +81,7 @@ function saveActivity() {
 
 // --- CICLO DE VIDA ---
 onMounted(() => {
-  activityStore.fetchAll();
+  activityStore.fetchActivities();
 });
 </script>
 
@@ -124,10 +125,10 @@ onMounted(() => {
                     <tr v-if="loading"><td colspan="5" class="td-cell text-center">Cargando...</td></tr>
                     <tr v-else-if="filteredActivities.length === 0"><td colspan="5" class="td-cell text-center">No se encontraron actividades.</td></tr>
                     <tr v-else v-for="act in filteredActivities" :key="act.activity_id" class="hover:bg-soft">
-                        <td class="td-cell font-medium">{{ act.title }}</td>
-                        <td class="td-cell">{{ act.activity_type }}</td>
+                        <td class="td-cell font-medium">{{ act.ga_activity_name }}</td>
+                        <td class="td-cell">{{ act.ga_activity_type }}</td>
                         <td class="td-cell">{{ new Date(act.schedules?.[0]?.start_date || '').toLocaleString('es-PA') }}</td>
-                        <td class="td-cell"><span class="status-pill" :class="act.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">{{ act.status }}</span></td>
+                        <td class="td-cell"><span class="status-pill" :class="act.ga_activity_status === 'Programada' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">{{ act.ga_activity_status }}</span></td>
                         <td class="td-cell space-x-2">
                             <button @click="openEditModal(act)" class="text-primary hover:text-primary-dark"><LucideIcon name="edit" :size="16"/></button>
                         </td>
@@ -142,8 +143,8 @@ onMounted(() => {
             <div class="p-6">
                 <h3 class="text-lg font-bold mb-4">{{ editingActivity.activity_id ? 'Editar' : 'Crear' }} Actividad</h3>
                 <div class="space-y-4">
-                    <input type="text" placeholder="Nombre de la actividad" v-model="editingActivity.activity_name" class="input-focus-effect w-full"/>
-                    <textarea placeholder="Descripción" v-model="editingActivity.activity_description" class="input-focus-effect w-full" rows="3"></textarea>
+                    <input type="text" placeholder="Nombre de la actividad" v-model="editingActivity.ga_activity_name" class="input-focus-effect w-full"/>
+                    <textarea placeholder="Descripción" v-model="editingActivity.ga_activity_description" class="input-focus-effect w-full" rows="3"></textarea>
                 </div>
             </div>
             <div class="bg-gray-50 p-4 flex justify-end gap-3">

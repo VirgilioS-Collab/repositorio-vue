@@ -95,7 +95,7 @@ onMounted(async () => {
         <div class="lg:col-span-1 space-y-8">
           <UpcomingEventsWidget :activities="user?.activities || []" />
           <CalendarWidget :activities="user?.activities || []" />
-          <NotificationsWidget />
+          <NotificationsWidget :notifications="user?.notifications || []" />
         </div>
 
       </div>

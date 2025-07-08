@@ -52,8 +52,8 @@ function handleToggleView() {
         class="block bg-card border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
         aria-label="Ver detalles del club"
       >
-        <h3 class="font-bold text-primary truncate">{{ club.name }}</h3>
-        <p class="text-sm text-gray-500 mt-1 truncate">{{ club.description || 'Sin descripción' }}</p>
+        <h3 class="font-bold text-primary truncate">{{ club.g_group_name }}</h3>
+        <p class="text-sm text-gray-500 mt-1 truncate">{{ club.g_group_description || 'Sin descripción' }}</p>
       </RouterLink>
     </div>
 

@@ -27,7 +27,7 @@ class ImageDao {
     const formData = new FormData();
     formData.append('profileImage', file);
 
-    const response = await Http.post('/api/users/profile-picture', formData, {
+    const response = await Http.post('/api/users/me/change-profile-picture', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

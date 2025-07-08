@@ -6,7 +6,7 @@
  * inexistentes (`loading`, `error`, etc.).
  */
 import { defineStore } from 'pinia';
-import UserDao from '@/services/dao/UserDao';
+import AuthDao from '@/services/dao/AuthDao';
 import type { UserDTO, UserUpdateDTO } from '@/services/dao/models/User';
 
 export const useUserStore = defineStore('user', {
@@ -64,22 +64,22 @@ export const useUserStore = defineStore('user', {
       this.loading = true;
       this.error = null;
       try {
-        this.user = await UserDao.fetchProfile();
+        this.user = await AuthDao.me();
       } catch (err: any) {
         this.error = err.message;
         // Asignar un usuario por defecto en caso de error
         this.user = {
           user_id: 0,
-          username: 'Usuario Invitado',
-          email: 'invitado@example.com',
-          name: 'Usuario Invitado',
-          last_name: '',
-          profile_photo_url: '',
+          u_username: 'Usuario Invitado',
+          u_email: 'invitado@example.com',
+          u_name: 'Usuario Invitado',
+          u_last_name: '',
+          u_profile_photo_url: '',
           clubs: [],
           activities: [],
           notifications: [],
-          user_type: 'student', // Añadido
-          user_status: 'active', // Añadido
+          u_user_type: 'student', // Añadido
+          u_user_status: 'active', // Añadido
         };
       } finally {
         this.loading = false;
@@ -96,7 +96,7 @@ export const useUserStore = defineStore('user', {
         this.loading = true;
         this.error = null;
         try {
-            const updatedUser = await UserDao.updateProfile(this.user.user_id, payload);
+            const updatedUser = await AuthDao.updateProfile(payload);
             this.user = updatedUser;
         } catch (err: any) {
             this.error = err.message;

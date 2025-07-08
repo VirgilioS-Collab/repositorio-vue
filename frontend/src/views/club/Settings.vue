@@ -10,6 +10,7 @@ import { useClubStore } from '@/store/useClubStore';
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import type { ClubSettingsDTO } from '@/services/dao/models/Admin';
+import type { ClubUpdateRequestDTO } from '@/services/dao/models/Club';
 
 const route = useRoute();
 const clubStore = useClubStore();
@@ -27,8 +28,8 @@ const confirmationText = ref('');
 watch(clubDetails, (newDetails) => {
   if (newDetails) {
     form.value = {
-      name: newDetails.name, // Añadido
-      description: newDetails.description, // Añadido
+      name: newDetails.g_group_name,
+      description: newDetails.g_group_description,
       logo_url: newDetails.image_url,
       social_links: newDetails.contact_info?.social_media || {},
       has_funds: newDetails.has_funds ?? false,
@@ -60,7 +61,7 @@ function closeDangerModal() {
   dangerActionType.value = null;
 }
 function executeDangerAction() {
-    if (confirmationText.value !== clubDetails.value?.name) return;
+    if (confirmationText.value !== clubDetails.value?.g_group_name) return;
     console.log(`Ejecutando acción: ${dangerActionType.value}`);
     closeDangerModal();
 }
@@ -130,12 +131,12 @@ onMounted(() => { clubStore.fetchDetails(clubId); });
           <div class="p-6">
             <h3 class="text-xl font-bold text-red-800">{{ dangerDetails[dangerActionType!]?.title }}</h3>
             <p class="text-gray-600 mt-2">{{ dangerDetails[dangerActionType!]?.msg }}</p>
-            <p class="mt-4 text-sm text-gray-700">Para confirmar, escribe: <strong class="text-primary">{{ clubDetails?.name }}</strong></p>
+            <p class="mt-4 text-sm text-gray-700">Para confirmar, escribe: <strong class="text-primary">{{ clubDetails?.g_group_name }}</strong></p>
             <input v-model="confirmationText" type="text" class="input-focus-effect w-full mt-2" />
           </div>
           <div class="bg-gray-50 p-4 flex justify-end gap-3">
             <button @click="closeDangerModal" class="btn-secondary-admin">Cancelar</button>
-            <button @click="executeDangerAction" :disabled="confirmationText !== clubDetails?.name" class="btn-danger bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300">Confirmar</button>
+            <button @click="executeDangerAction" :disabled="confirmationText !== clubDetails?.g_group_name" class="btn-danger bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300">Confirmar</button>
           </div>
       </div>
     </div>

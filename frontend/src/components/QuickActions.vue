@@ -17,7 +17,7 @@ const userStore = useUserStore();
 const authStore = useAuthStore();
 
 // Obtenemos el nombre del usuario para el saludo.
-const userName = computed(() => userStore.user?.name || authStore.user?.name || '');
+const userName = computed(() => userStore.user?.u_name || authStore.user?.u_name || '');
 
 /**
  * @docstring
@@ -26,7 +26,7 @@ const userName = computed(() => userStore.user?.name || authStore.user?.name || 
  * @returns {boolean}
  */
 const userCanCreateContent = computed(() => {
-  const userType = userStore.user?.user_type || authStore.user?.user_type;
+  const userType = userStore.user?.u_user_type || authStore.user?.u_user_type;
   // Ajusta los roles según tu backend (ej. 'admin', 'leader', 'moderator')
   return userType === 'admin' || userType === 'leader';
 });
@@ -39,7 +39,7 @@ const userCanCreateContent = computed(() => {
       <div class="flex items-center gap-4">
         <!-- Foto de perfil del usuario -->
         <ProfilePictureUpload 
-          :current-image-url="userStore.user?.profile_photo_url"
+          :current-image-url="userStore.user?.u_profile_photo_url"
           size="medium"
           :show-upload-button="false"
         />

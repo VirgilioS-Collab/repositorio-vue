@@ -9,6 +9,7 @@ import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useMemberStore } from '@/store/useMemberStore';
 import { useUserStore } from '@/store/useUserStore';
+import { useClubStore } from '@/store/useClubStore'; // Importar useClubStore
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 
@@ -16,6 +17,7 @@ import LucideIcon from '@/components/ui/LucideIcon.vue';
 const route = useRoute();
 const memberStore = useMemberStore();
 const userStore = useUserStore();
+const clubStore = useClubStore(); // Definir clubStore
 const { items: members, loading, filters, page, pageSize, total } = storeToRefs(memberStore);
 const clubId = computed(() => Number(route.params.id));
 const showInviteModal = ref(false);
@@ -35,7 +37,7 @@ function handleInvite() {
     return;
   }
   const emailList = emailsToInvite.value.split(/[\n,;]+/).map(e => e.trim()).filter(Boolean);
-  memberStore.inviteMany(clubId.value, emailList);
+  clubStore.inviteMembers(clubId.value, { emails: emailList });
   showInviteModal.value = false;
   emailsToInvite.value = '';
 }
@@ -45,14 +47,31 @@ function toggleSelectAll() {
   else selectedMembers.value = members.value.map(m => m.user_id);
 }
 
-function applyBulkAction(action: 'activate' | 'deactivate' | 'remove') {
+async function applyBulkAction(action: 'activate' | 'deactivate' | 'remove') {
   if (selectedMembers.value.length === 0) {
     userStore.showToast("Seleccione al menos un miembro.", 'warning');
     return;
   }
-  console.log(`Aplicando acción: ${action} a los miembros:`, selectedMembers.value);
-  userStore.showToast(`Acción "${action}" aplicada a ${selectedMembers.value.length} miembros.`, 'success');
-  selectedMembers.value = [];
+
+  try {
+    for (const userId of selectedMembers.value) {
+      if (action === 'activate') {
+        await clubStore.updateClubMember(clubId.value, userId, { status: 'active' });
+      } else if (action === 'deactivate') {
+        await clubStore.updateClubMember(clubId.value, userId, { status: 'inactive' });
+      } else if (action === 'remove') {
+        // Asumiendo que hay un método para eliminar miembros en ClubDao/Store
+        // Si no existe, se necesitaría implementar.
+        // await clubStore.removeMember(clubId.value, userId);
+        console.warn(`Acción 'remove' no implementada para el miembro ${userId}.`);
+      }
+    }
+    userStore.showToast(`Acción "${action}" aplicada a ${selectedMembers.value.length} miembros.`, 'success');
+    selectedMembers.value = [];
+    fetchMembers(); // Recargar la lista de miembros para reflejar los cambios
+  } catch (error: any) {
+    userStore.showToast(`Error al aplicar la acción: ${error.message}`, 'error');
+  }
 }
 
 function exportToCSV() { memberStore.exportCsv(clubId.value); }

@@ -16,11 +16,8 @@ const userStore = useUserStore();
 // Creamos un formulario reactivo solo con los campos necesarios.
 // Se inicializa con los datos actuales del usuario desde el store.
 const form = reactive({
-  name: userStore.user?.name || '',
-  email: userStore.user?.email || '',
-  // NOTA: 'career' no está en el modelo UserDTO. Para que se guarde,
-  // debes añadirlo a las interfaces UserDTO y UserUpdateDTO en 'User.ts'.
-  career: userStore.user?.career || '',
+  u_name: userStore.user?.u_name || '',
+  u_email: userStore.user?.u_email || '',
 });
 
 /**
@@ -49,9 +46,8 @@ function saveChanges() {
     </div>
 
     <div class="p-6 space-y-4">
-      <BaseInput label="Nombre completo"    v-model="form.name" />
-      <BaseInput label="Correo electrónico" v-model="form.email" type="email" />
-      <BaseInput label="Carrera"            v-model="form.career" />
+      <BaseInput label="Nombre completo"    v-model="form.u_name" />
+      <BaseInput label="Correo electrónico" v-model="form.u_email" type="email" />
     </div>
 
     <div class="p-4 border-t flex justify-end gap-3">

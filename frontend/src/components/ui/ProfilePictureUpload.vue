@@ -82,7 +82,7 @@ async function handleFileSelect(event: Event) {
     // Actualizar stores
     authStore.updateUserProfilePicture(response.imageUrl);
     if (userStore.user) {
-      userStore.user.profile_photo_url = response.imageUrl;
+      userStore.user.u_profile_photo_url = response.imageUrl;
     }
     
     userStore.showToast('Foto de perfil actualizada exitosamente', 'success');
@@ -114,14 +114,14 @@ function triggerFileSelect() {
       <img 
         v-if="displayUrl"
         :src="displayUrl" 
-        :alt="authStore.user?.name || 'Usuario'"
+        :alt="authStore.user?.u_name || 'Usuario'"
         class="w-full h-full object-cover"
         @error="(e) => (e.target as HTMLImageElement).src = defaultAvatar"
       />
       <img 
         v-else
         :src="defaultAvatar" 
-        :alt="authStore.user?.name || 'Usuario'"
+        :alt="authStore.user?.u_name || 'Usuario'"
         class="w-full h-full object-cover"
       />
       

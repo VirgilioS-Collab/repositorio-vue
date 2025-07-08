@@ -125,6 +125,8 @@ playwright-report/
 /bugs_documentation.md
 /requrimientos_documentation.md
 /estructura_base_datos.md
+/postmanEndpoints_documentation.md
+/postmanEndpoints_*.json
 
 # =======================================
 # ARCHIVOS DE BASE DE DATOS

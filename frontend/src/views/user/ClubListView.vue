@@ -17,11 +17,11 @@ const categoryFilter = ref('all');
 const filteredClubs = computed(() => {
   return clubs.value.filter(club => {
     const searchMatch = searchTerm.value.trim() === '' ||
-      club.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      club.description?.toLowerCase().includes(searchTerm.value.toLowerCase());
+      club.g_group_name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      club.g_group_description?.toLowerCase().includes(searchTerm.value.toLowerCase());
     
     const categoryMatch = categoryFilter.value === 'all' ||
-      club.club_type === categoryFilter.value; // Asumiendo que ClubDTO tiene una propiedad 'club_type'
+      club.g_group_category === categoryFilter.value;
       
     return searchMatch && categoryMatch;
   });
@@ -67,8 +67,8 @@ onMounted(() => {
 
       <div v-else-if="filteredClubs.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div v-for="club in filteredClubs" :key="club.club_id" class="bg-card border border-gray-200 rounded-xl p-5 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-          <h3 class="text-xl font-bold text-primary mb-2">{{ club.name }}</h3>
-          <p class="text-sm text-gray-600 flex-grow mb-4">{{ club.description || 'Este club no ha añadido una descripción.' }}</p>
+          <h3 class="text-xl font-bold text-primary mb-2">{{ club.g_group_name }}</h3>
+          <p class="text-sm text-gray-600 flex-grow mb-4">{{ club.g_group_description || 'Este club no ha añadido una descripción.' }}</p>
           <RouterLink :to="{ name: 'ClubDetail', params: { id: club.club_id } }" class="mt-auto w-full py-2 text-center font-semibold bg-accent text-primary rounded-lg hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">
             Ver Club
           </RouterLink>

@@ -13,11 +13,11 @@ import type { UserDTO, UserLeanDTO } from '@/services/dao/models/User'; // Impor
  */
 interface JwtPayload {
   user_id: number;
-  username: string;
-  email: string;
-  name: string;
-  last_name: string;
-  user_type: 'student' | 'admin' | 'leader';
+  u_username: string;
+  u_email: string;
+  u_name: string;
+  u_last_name: string;
+  u_user_type: 'student' | 'admin' | 'leader';
   exp: number;
 }
 
@@ -34,14 +34,14 @@ interface JwtPayload {
 function mapUserToLean(userDto: UserDTO): UserLeanDTO {
   return {
     user_id: userDto.user_id,
-    username: userDto.username,
-    email: userDto.email,
-    name: userDto.name,
-    last_name: userDto.last_name,
-    user_type: userDto.user_type,
+    u_username: userDto.u_username,
+    u_email: userDto.u_email,
+    u_name: userDto.u_name,
+    u_last_name: userDto.u_last_name,
+    u_user_type: userDto.u_user_type,
     // La propiedad `avatar` en UserLeanDTO es opcional y puede ser `null`.
-    // Si `profile_photo_url` es `null`, `avatar` también lo será, lo cual es correcto.
-    avatar: userDto.profile_photo_url || null, 
+    // Si `u_profile_photo_url` es `null`, `avatar` también lo será, lo cual es correcto.
+    avatar: userDto.u_profile_photo_url || null, 
   };
 }
 
@@ -147,11 +147,11 @@ export const useAuthStore = defineStore('auth', {
         // desde un endpoint de API (/api/auth/me) si es necesario.
         this.user = {
           user_id: decodedToken.user_id,
-          username: decodedToken.username,
-          email: decodedToken.email,
-          name: decodedToken.name,
-          last_name: '', // Assuming last_name is not in JWT payload, set to empty string
-          user_type: decodedToken.user_type,
+          u_username: decodedToken.u_username,
+          u_email: decodedToken.u_email,
+          u_name: decodedToken.u_name,
+          u_last_name: '', // Assuming last_name is not in JWT payload, set to empty string
+          u_user_type: decodedToken.u_user_type,
           avatar: null, // El avatar no viene en el payload del token
         };
       } catch (error) {
