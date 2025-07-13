@@ -62,7 +62,7 @@ def login_user() -> tuple:
             value=refresh_token,
             httponly=True,
             secure=True,
-            samesite='Strict',
+            samesite='None',
             max_age= REFRESH_TOKEN_EXPIRES,
             path='/' #se maneja asi porque el user/changepassword debe acceder a la cookie
         )
