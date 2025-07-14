@@ -9,6 +9,7 @@ from emails.email_types import welcome
 REFRESH_TOKEN_EXPIRES = 604800 #7 dias
 ACCESS_TOKEN_EXPIRES = 300 #5 minutos
 RESET_PASS_TOKEN_EXPIRES = 600 #10 minutos
+COOKIES_CONFIG = auth_service.cookies_config() #Configuracion de cookies
 
 def login_user() -> tuple:
     """
@@ -60,9 +61,9 @@ def login_user() -> tuple:
         response.set_cookie(
             'refresh_token',
             value=refresh_token,
-            httponly=True,
-            secure=True,
-            samesite='None',
+            httponly=COOKIES_CONFIG.get('SESSION_COOKIE_HTTPONLY'),
+            secure=COOKIES_CONFIG.get('SESSION_COOKIE_SECURE'),
+            samesite=COOKIES_CONFIG.get('SESSION_COOKIE_SAMESITE'),
             max_age= REFRESH_TOKEN_EXPIRES,
             path='/' #se maneja asi porque el user/changepassword debe acceder a la cookie
         )
