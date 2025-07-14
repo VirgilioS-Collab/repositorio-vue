@@ -1,5 +1,5 @@
-from utils.db import get_connection
-from utils.security import hash_password, validate_password, gen_random_fp_code
+from utils.db import get_connection, null_parse
+from utils.security import hash_password, validate_password, gen_random_fp_code, cookies_config
 
 def login_user_db(username:str = None, email:str = None) -> tuple:
     """Autentica un usuario en la base de datos usando nombre de usuario o email."""
@@ -7,7 +7,7 @@ def login_user_db(username:str = None, email:str = None) -> tuple:
         conn = get_connection()
         cursor = conn.cursor()
 
-        cursor.callproc("public.fn_user_login", (username, email))
+        cursor.callproc("public.fn_user_login", (null_parse(username), null_parse(email)))
         result = cursor.fetchone()
 
         cursor.close()
