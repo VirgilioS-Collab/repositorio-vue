@@ -1,5 +1,5 @@
-from utils.db import get_connection
-from utils.security import hash_password, validate_password, gen_random_fp_code
+from utils.db import get_connection, null_parse
+from utils.security import hash_password, validate_password, gen_random_fp_code, cookies_config
 
 def login_user_db(username:str = None, email:str = None) -> tuple:
     """Autentica un usuario en la base de datos usando nombre de usuario o email."""
@@ -7,7 +7,7 @@ def login_user_db(username:str = None, email:str = None) -> tuple:
         conn = get_connection()
         cursor = conn.cursor()
 
-        cursor.callproc("public.fn_user_login", (username, email))
+        cursor.callproc("public.fn_user_login", (null_parse(username), null_parse(email)))
         result = cursor.fetchone()
 
         cursor.close()
@@ -246,55 +246,4 @@ def get_user_info_db(user_id: int) -> dict | None:
             cursor.close()
         if conn:
             conn.close()
-    
-def get_user_related_groups(user_id:int) -> list:
-    """Obtiene los grupos relacionados al usuario por user_id"""
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.callproc("public.fn_get_user_related_groups", (user_id, ))
-
-        result = cursor.fetchall()
-
-        columns = [desc[0] for desc in cursor.description]
-        groups = [dict(zip(columns, row)) for row in result]
-
-        return groups
-    
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        return (str(e), False)
-    
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-
-def get_user_related_activities(user_id:int) -> list:
-    """Obtiene las actividades relacionadas al usuario por user_id"""
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.callproc("public.fn_get_user_related_activities", (user_id, ))
-
-        result = cursor.fetchall()
-
-        columns = [desc[0] for desc in cursor.description]
-        activities = [dict(zip(columns, row)) for row in result]
-
-        return activities
-    
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        return (str(e), False)
-    
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+ 

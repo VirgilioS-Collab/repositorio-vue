@@ -52,8 +52,7 @@ class JWTService:
             def decorator_function(*args, **kwargs):
                 token = None
                 auth_header = request.headers.get('Authorization')
-
-                if auth_header and auth_header.startswith('Bearer '):
+                if auth_header and auth_header.startswith('Bearer ') and expected_type != 'refresh':
                     token = auth_header.split(' ')[1]
                 else:
                     token = request.cookies.get('refresh_token')
@@ -61,7 +60,6 @@ class JWTService:
                     return jsonify({"error": "Falta el token o está mal formado"}), 401 
                 try:
                     data = JWTService.verify_token(token)
-
                     if not data:
                         return jsonify({"error": "Token es invalido o expirado"}), 401
                     

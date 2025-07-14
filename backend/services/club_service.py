@@ -1,0 +1,110 @@
+"""
+Club Service
+Maneja la lógica de negocio para los clubs/grupos
+"""
+from utils.db import get_connection, null_parse
+from typing import Dict, Any, Optional
+import json
+
+class ClubService:
+    
+    @staticmethod
+    def get_club_details(club_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Obtiene los detalles de un club/grupo específico por su ID
+        """
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+            
+            cursor.callproc('public.fn_get_club_details', (club_id,))
+            club = cursor.fetchone()
+            
+            if not club:
+                cursor.close()
+                connection.close()
+                return None
+
+            result = {
+                'group_id': club[0],
+                'group_name': club[1],
+                'group_description': club[2],
+                'owner_name': club[3],
+                'creation_date': club[4].isoformat() if club[4] else None,
+                'logo_url': club[5],
+                'group_contact': club[6],
+                'group_type_name': club[7],
+                'group_status_name': club[8],
+                'members_count': club[9]
+            }
+            
+            cursor.close()
+            connection.close()
+            return result
+            
+        except Exception as e:
+            print(f"Error getting club details: {e}")
+            return None
+
+    
+    @staticmethod
+    def update_club_settings(club_id: int, settings_data: Dict[str, Any]) -> bool:
+        """
+        Actualiza los ajustes generales de un club
+        """
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+            
+            name = null_parse(settings_data.get('name'))
+            description = null_parse(settings_data.get('description'))
+            status_id = null_parse(settings_data.get('status'))
+            category = null_parse(settings_data.get('category'))
+            logo_url = null_parse(settings_data.get('logo_url'))
+
+            # Llamar a la función
+            cursor.callproc(
+                'public.fn_update_club_settings',
+                (club_id, 
+                 name,
+                 description,
+                 status_id, 
+                 category, 
+                 logo_url))
+
+            connection.commit()
+            message, success = cursor.fetchall()[0]
+            cursor.close()
+            connection.close()
+            
+            return (message, success)
+            
+        except Exception as e:
+            print(f"Error updating club settings: {e}")
+            return False
+
+    @staticmethod   
+    def get_user_related_groups(user_id:int) -> Optional[list[Dict]]:
+        """Obtiene los grupos relacionados al usuario por user_id"""
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_get_user_related_groups", (user_id, ))
+
+            result = cursor.fetchall()
+
+            columns = [desc[0] for desc in cursor.description]
+            groups = [dict(zip(columns, row)) for row in result]
+
+            return groups
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
