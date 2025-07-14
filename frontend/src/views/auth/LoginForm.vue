@@ -22,7 +22,8 @@ const auth = useAuthStore()
 const router = useRouter()
 
 // --- SECCIÓN DE PROPIEDADES COMPUTADAS ---
-const formOk = computed(() => !!email.value && !!password.value && !auth.loading)
+const emailValid = computed(() => /.+@.+\..+/.test(email.value));
+const formOk = computed(() => !!email.value && emailValid.value && !!password.value && !auth.loading)
 
 // --- SECCIÓN DE FUNCIONES ---
 /**
@@ -47,12 +48,18 @@ async function submit(): Promise<void> {
             v-model="email"
             type="email"
             placeholder="Correo electrónico o usuario"
-            class="input-focus-effect w-full py-2.5 px-3 text-base" />
+            autocomplete="username"
+            class="input-focus-effect w-full py-2.5 px-3 text-base" 
+            :class="{ 'border-red-500': email.length > 0 && !emailValid }" />
+        <p v-if="email.length > 0 && !emailValid" class="text-xs text-red-500 -mt-2">
+          Por favor, introduce un correo electrónico válido.
+        </p>
 
         <input
             v-model="password"
             :type="showPwd ? 'text' : 'password'"
             placeholder="Contraseña"
+            autocomplete="current-password"
             class="input-focus-effect w-full py-2.5 px-3 text-base" />
 
         <button
@@ -79,5 +86,6 @@ async function submit(): Promise<void> {
           Crear cuenta nueva
         </RouterLink>
       </form>
+      <p v-if="auth.error" class="text-sm text-red-500 text-center mt-4">{{ auth.error }}</p>
   </div>
 </template>

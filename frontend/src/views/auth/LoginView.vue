@@ -13,7 +13,7 @@ import { useRouter, useRoute } from 'vue-router'
 import LoginForm from '@/views/auth/LoginForm.vue'
 import ForgotPasswordModal from '@/components/modals/ForgotPasswordModal.vue'
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
-import { useAuthStore } from '@/store/useAuthStore.ts'
+import { useAuthStore } from '@/store/useAuthStore'
 
 // --- SECCIÓN DE CONSTANTES ---
 const router = useRouter()
@@ -73,7 +73,7 @@ function onCloseForgotPasswordModal(): void {
             @forgot="onForgotPassword"
         />
         <p class="text-center text-sm text-gray-600 mt-6">
-          <b>Crea una página</b> para un club, grupo de estudio o comunidad.
+          <b>Crea una página</b> para un club de estudio o comunidad.
         </p>
       </div>
     </div>

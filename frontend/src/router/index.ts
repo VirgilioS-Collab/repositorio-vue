@@ -6,7 +6,7 @@
  */
 
 // --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, type RouteRecordRaw, type NavigationGuardNext, type RouteLocationNormalized } from 'vue-router';
 import { useAuthStore } from '@/store/useAuthStore';
 import AdminView from '@/layouts/AdminView.vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
@@ -21,6 +21,7 @@ const clubChildren: RouteRecordRaw[] = [
   { path: '', name: 'Dashboard', component: () => import('@/views/club/Dashboard.vue') },
   { path: 'members', name: 'Members', component: () => import('@/views/club/Members.vue') },
   { path: 'activities', name: 'Activities', component: () => import('@/views/club/Activities.vue') },
+  { path: 'finance', name: 'Finance', component: () => import('@/views/club/FinanceView.vue') },
   { path: 'settings', name: 'Settings', component: () => import('@/views/club/Settings.vue') }
 ];
 
@@ -65,9 +66,9 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('@/views/user/HomeView.vue'),
             },
             {
-                path: 'groups', // Ruta para el listado de grupos (/groups)
-                name: 'GroupList',
-                component: () => import('@/views/user/GroupListView.vue'),
+                path: 'clubs', // Ruta para el listado de clubs (/clubs)
+                name: 'ClubList',
+                component: () => import('@/views/user/ClubListView.vue'),
             },
             {
                 path: 'activities', // Ruta para el listado de actividades (/activities)
@@ -75,9 +76,9 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('@/views/user/ActivityListView.vue'),
             },
             {
-                path: 'groups/:id', // RUTA: para el detalle de un grupo
-                name: 'GroupDetail',
-                component: () => import('@/views/user/GroupDetailView.vue'),
+                path: 'clubs/:id', // RUTA: para el detalle de un club
+                name: 'ClubDetail',
+                component: () => import('@/views/user/ClubDetailView.vue'),
                 props: true
             },
             {
@@ -117,7 +118,7 @@ export const router = createRouter({
  * Verifica si la ruta destino requiere autenticación (`meta.requiresAuth`).
  * Si es así y el usuario no está autenticado, lo redirige forzosamente a la página de Login.
  */
-router.beforeEach((to, _from, next) => { 
+router.beforeEach((to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => { 
     const auth = useAuthStore();
     if (to.meta.requiresAuth && !auth.isAuthenticated) {
         next({ name: 'Login' });

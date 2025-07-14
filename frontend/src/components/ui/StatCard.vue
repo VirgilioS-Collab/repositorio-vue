@@ -16,7 +16,7 @@ defineProps<Props>()
       <p class="text-sm font-medium text-gray-500">{{ label }}</p>
       <h3 class="text-2xl font-bold text-utp-blue mt-1">{{ value }}</h3>
     </div>
-    <div :class="['p-3 rounded-full bg-blue-50', `text-${color}`]">
+    <div :class="['p-3 rounded-full bg-blue-50 flex items-center justify-center', `text-${color}`]">
       <LucideIcon :name="icon" class="w-6 h-6" />
     </div>
   </div>

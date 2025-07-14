@@ -1,28 +1,24 @@
 // --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
 import { defineStore } from 'pinia';
+import { jwtDecode } from 'jwt-decode';
 import AuthDao from '@/services/dao/AuthDao'; // Importa el DAO de autenticación
 import type { LoginDTO } from '@/services/dao/models/Auth'; // Importa el DTO de login
-import type { UserDTO, UserLeanDTO } from '@/services/dao/models/User'; // Importa UserDTO y AHORA UserLeanDTO
+import type { UserDTO } from '@/services/dao/models/User'; // Importa UserDTO
 
-// --- SECCIÓN DE HELPERS ---
+// --- SECCIÓN DE INTERFACES ---
 /**
- * @docstring
- * Función auxiliar para mapear un objeto `UserDTO` completo (recibido del backend)
- * a una versión "más ligera" (`UserLeanDTO`) específica para el estado del store.
- * Esto optimiza la memoria al mantener solo los datos esenciales para la UI en el estado global.
- * @param {UserDTO} userDto - El objeto UserDTO completo recibido del DAO.
- * @returns {UserLeanDTO} Un objeto UserLeanDTO con las propiedades relevantes para el store.
- * @effects Realiza una transformación de datos.
+ * @interface JwtPayload
+ * @description Define la estructura esperada del payload decodificado de un token JWT.
+ * Esto proporciona seguridad de tipos al acceder a las propiedades del token.
  */
-function mapUserToLean(userDto: UserDTO): UserLeanDTO {
-  return {
-    user_id: userDto.user_id,
-    name: userDto.name,
-    user_type: userDto.user_type,
-    // La propiedad `avatar` en UserLeanDTO es opcional y puede ser `null`.
-    // Si `profile_photo_url` es `null`, `avatar` también lo será, lo cual es correcto.
-    avatar: userDto.profile_photo_url || null, 
-  };
+interface JwtPayload {
+  user_id: number;
+  u_username: string;
+  u_email: string;
+  u_name: string;
+  u_last_name: string;
+  u_user_type: 'student' | 'admin' | 'leader';
+  exp: number;
 }
 
 // --- SECCIÓN PRINCIPAL DEL STORE ---
@@ -30,14 +26,14 @@ export const useAuthStore = defineStore('auth', {
   /**
    * @docstring
    * Define el estado inicial del store de autenticación.
-   * @property {UserLeanDTO | null} user - Objeto que contiene la información esencial
+   * @property {UserDTO | null} user - Objeto que contiene la información completa
    * del usuario autenticado, o `null` si no hay usuario.
    * @property {string | null} accessToken - El token JWT utilizado para autenticar las solicitudes a la API, o `null`.
    * @property {boolean} loading - Indicador booleano para mostrar el estado de carga de las operaciones de autenticación.
    * @property {string | null} error - Mensaje de error para las operaciones de autenticación, o `null` si no hay error.
    */
   state: () => ({
-    user: null as UserLeanDTO | null, // CAMBIO: Tipo de user ahora es UserLeanDTO | null
+    user: null as UserDTO | null, // CAMBIO: Tipo de user ahora es UserDTO | null
     accessToken: null as string | null,
     loading: false,
     error: null as string | null,
@@ -59,7 +55,7 @@ export const useAuthStore = defineStore('auth', {
     /**
      * @docstring
      * Devuelve la información esencial del usuario actualmente autenticado.
-     * @returns {UserLeanDTO | null} El objeto `UserLeanDTO` del usuario o `null`.
+     * @returns {UserDTO | null} El objeto `UserDTO` del usuario o `null`.
      */
     currentUser: (state) => state.user,
     
@@ -93,48 +89,42 @@ export const useAuthStore = defineStore('auth', {
     setAccessToken(token: string | null): void {
       this.accessToken = token;
       if (token) {
-        sessionStorage.setItem('accessToken', token);
+        localStorage.setItem('authToken', token);
       } else {
-        sessionStorage.removeItem('accessToken');
+        localStorage.removeItem('authToken');
       }
     },
 
     /**
      * @docstring
-     * Intenta inicializar la sesión del usuario al cargar la aplicación.
-     * Primero, intenta recuperar un token de acceso de `sessionStorage`. Si no hay token o
-     * el token almacenado no es válido (por ejemplo, ha expirado), intenta refrescar el token
-     * a través del `AuthDao.refresh()`. Finalmente, si obtiene un token válido,
-     * recupera los detalles completos del usuario (`AuthDao.me()`) y los mapea a `UserLeanDTO`.
-     * @returns {Promise<void>} Una promesa que se resuelve cuando la sesión ha sido inicializada
-     * (con o sin usuario autenticado).
-     * @effects Puede actualizar `accessToken` y `user` en el store. Limpia la sesión si
-     * la inicialización falla.
+     * Intenta cargar y validar el token desde localStorage para restaurar la sesión.
+     * Se ejecuta al iniciar la aplicación.
      */
-    async bootstrap(): Promise<void> {
-      // Si ya hay un token en el estado y un usuario, no es necesario hacer bootstrap de nuevo.
-      if (this.accessToken && this.user) return; 
-
-      const storedToken = sessionStorage.getItem('accessToken');
-      if (storedToken) {
-        this.accessToken = storedToken; // Se restaura el token al iniciar la app.
+    async tryLoadTokenFromStorage(): Promise<void> {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return;
       }
 
       try {
-        if (!this.accessToken) {
-          // Si no hay token en el estado o el que se tenía expiró, se intenta refrescar.
-          const { token } = await AuthDao.refresh();
-          this.setAccessToken(token);
+        const decodedToken: JwtPayload = jwtDecode(token);
+
+        // Verifica si el token ha expirado
+        if (decodedToken.exp * 1000 < Date.now()) {
+          console.log('Token expirado. Se requiere nuevo inicio de sesión.');
+          this.logout();
+          return;
         }
-        // Después de asegurar un token válido, obtener los detalles completos del usuario
-        // y mapearlos a la versión "lean" para el store.
+
+        this.setAccessToken(token);
+        
+        // Una vez logueado y con el token, obtener los detalles completos del usuario
+        // y mapearlos a la versión "lean".
         const fullUser = await AuthDao.me();
-        this.user = mapUserToLean(fullUser); // CAMBIO: Mapeo a UserLeanDTO
-      } catch (e) {
-        console.error("Fallo en la inicialización (bootstrap), limpiando sesión:", e);
-        // Si hay algún error durante el bootstrap, limpiar cualquier sesión parcial.
-        this.setAccessToken(null);
-        this.user = null;
+        this.user = fullUser;
+      } catch (error) {
+        console.error('Token inválido o malformado:', error);
+        this.logout();
       }
     },
 
@@ -161,7 +151,7 @@ export const useAuthStore = defineStore('auth', {
         // Una vez logueado y con el token, obtener los detalles del usuario
         // y mapearlos a la versión "lean".
         const fullUser = await AuthDao.me();
-        this.user = mapUserToLean(fullUser); // CAMBIO: Mapeo a UserLeanDTO
+        this.user = fullUser;
       } catch (e: any) {
         // Capturar el error y establecer un mensaje amigable, si es posible del backend.
         this.error = e.response?.data?.message || 'Credenciales inválidas. Por favor, verifica tu correo y contraseña.';
@@ -196,6 +186,16 @@ export const useAuthStore = defineStore('auth', {
         this.setAccessToken(null); // Limpiar el token localmente.
         this.user = null; // Limpiar la información del usuario.
         this.loading = false;
+      }
+    },
+    /**
+     * @docstring
+     * Actualiza la URL de la foto de perfil del usuario en el estado.
+     * @param {string} newImageUrl - La nueva URL de la imagen de perfil.
+     */
+    updateUserProfilePicture(newImageUrl: string) {
+      if (this.user) {
+        this.user.avatar = newImageUrl;
       }
     },
   },

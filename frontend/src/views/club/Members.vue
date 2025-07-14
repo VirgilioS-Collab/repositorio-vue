@@ -9,6 +9,7 @@ import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useMemberStore } from '@/store/useMemberStore';
 import { useUserStore } from '@/store/useUserStore';
+import { useClubStore } from '@/store/useClubStore'; // Importar useClubStore
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 
@@ -16,15 +17,19 @@ import LucideIcon from '@/components/ui/LucideIcon.vue';
 const route = useRoute();
 const memberStore = useMemberStore();
 const userStore = useUserStore();
+const clubStore = useClubStore(); // Definir clubStore
 const { items: members, loading, filters, page, pageSize, total } = storeToRefs(memberStore);
+filters.value.role = filters.value.role || 'all'; // Inicializar el filtro de rol
 const clubId = computed(() => Number(route.params.id));
 const showInviteModal = ref(false);
 const emailsToInvite = ref('');
 const selectedMembers = ref<number[]>([]);
+const showChangeRoleModal = ref(false);
+const newRole = ref('member');
 
 // --- PROPIEDADES COMPUTADAS ---
 const totalPages = computed(() => Math.ceil(total.value / pageSize.value));
-const isAllSelected = computed(() => members.value.length > 0 && selectedMembers.value.length === members.value.length);
+const isAllSelected = computed(() => members.value && members.value.length > 0 && selectedMembers.value.length === members.value.length);
 
 // --- MÉTODOS ---
 function fetchMembers() { memberStore.fetchAllForAdmin(clubId.value); }
@@ -35,7 +40,7 @@ function handleInvite() {
     return;
   }
   const emailList = emailsToInvite.value.split(/[\n,;]+/).map(e => e.trim()).filter(Boolean);
-  memberStore.inviteMany(clubId.value, emailList);
+  clubStore.inviteMembers(clubId.value, { emails: emailList });
   showInviteModal.value = false;
   emailsToInvite.value = '';
 }
@@ -45,14 +50,51 @@ function toggleSelectAll() {
   else selectedMembers.value = members.value.map(m => m.user_id);
 }
 
-function applyBulkAction(action: 'activate' | 'deactivate' | 'remove') {
+async function applyBulkAction(action: 'activate' | 'deactivate' | 'remove' | 'changeRole') {
   if (selectedMembers.value.length === 0) {
     userStore.showToast("Seleccione al menos un miembro.", 'warning');
     return;
   }
-  console.log(`Aplicando acción: ${action} a los miembros:`, selectedMembers.value);
-  userStore.showToast(`Acción "${action}" aplicada a ${selectedMembers.value.length} miembros.`, 'success');
-  selectedMembers.value = [];
+
+  if (action === 'changeRole') {
+    showChangeRoleModal.value = true;
+    return;
+  }
+
+  try {
+    for (const userId of selectedMembers.value) {
+      if (action === 'activate') {
+        await clubStore.updateClubMember(clubId.value, userId, { status: 'active' });
+      } else if (action === 'deactivate') {
+        await clubStore.updateClubMember(clubId.value, userId, { status: 'inactive' });
+      } else if (action === 'remove') {
+        await clubStore.removeClubMember(clubId.value, userId);
+      }
+    }
+    userStore.showToast(`Acción "${action}" aplicada a ${selectedMembers.value.length} miembros.`, 'success');
+    selectedMembers.value = [];
+    fetchMembers(); // Recargar la lista de miembros para reflejar los cambios
+  } catch (error: any) {
+    userStore.showToast(`Error al aplicar la acción: ${error.message}`, 'error');
+  }
+}
+
+async function handleChangeRole() {
+  if (selectedMembers.value.length === 0 || !newRole.value) {
+    userStore.showToast("Seleccione miembros y un rol.", 'warning');
+    return;
+  }
+  try {
+    for (const userId of selectedMembers.value) {
+      await clubStore.updateClubMember(clubId.value, userId, { role: newRole.value });
+    }
+    userStore.showToast(`Rol cambiado a '${newRole.value}' para ${selectedMembers.value.length} miembros.`, 'success');
+    selectedMembers.value = [];
+    showChangeRoleModal.value = false;
+    fetchMembers();
+  } catch (error: any) {
+    userStore.showToast(`Error al cambiar el rol: ${error.message}`, 'error');
+  }
 }
 
 function exportToCSV() { memberStore.exportCsv(clubId.value); }
@@ -65,9 +107,9 @@ onMounted(fetchMembers);
   <div>
     <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h2 class="text-2xl font-bold text-darkText">Gestión de Miembros</h2>
-      <div class="flex items-center gap-2">
-        <button @click="exportToCSV" class="btn-secondary-admin"><LucideIcon name="download" :size="18"/>Exportar CSV</button>
-        <button @click="showInviteModal = true" class="btn-primary-admin"><LucideIcon name="user-plus" :size="18"/>Invitar Miembros</button>
+      <div class="flex flex-wrap items-center gap-2 w-auto">
+        <button @click="exportToCSV" class="btn-secondary-admin flex-shrink-0 inline-flex items-center justify-center px-4 py-2 text-sm"><LucideIcon name="download" :size="18"/>Exportar CSV</button>
+        <button @click="showInviteModal = true" class="btn-primary-admin flex-shrink-0 inline-flex items-center justify-center px-4 py-2 text-sm"><LucideIcon name="user-plus" :size="18"/>Invitar Miembros</button>
       </div>
     </header>
 
@@ -78,13 +120,19 @@ onMounted(fetchMembers);
         <option value="active">Activos</option>
         <option value="inactive">Inactivos</option>
       </select>
+      <select v-model="filters.role" @change="fetchMembers" class="input-focus-effect">
+        <option value="all">Todos los roles</option>
+        <option value="member">Miembro</option>
+        <option value="admin">Administrador</option>
+      </select>
     </div>
 
     <div v-if="selectedMembers.length > 0" class="mb-4 p-3 bg-primary-dark text-white rounded-lg flex items-center justify-between">
         <span class="font-semibold">{{ selectedMembers.length }} miembro(s) seleccionado(s)</span>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             <button @click="applyBulkAction('activate')" class="btn-bulk-action">Activar</button>
             <button @click="applyBulkAction('deactivate')" class="btn-bulk-action">Desactivar</button>
+            <button @click="applyBulkAction('changeRole')" class="btn-bulk-action">Cambiar Rol</button>
             <button @click="applyBulkAction('remove')" class="btn-bulk-action bg-red-500 hover:bg-red-600">Eliminar</button>
         </div>
     </div>
@@ -116,7 +164,7 @@ onMounted(fetchMembers);
               <td class="px-6 py-4 text-sm text-gray-500">{{ member.role_name }}</td>
               <td class="px-6 py-4"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" :class="member.status_name === 'Activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">{{ member.status_name }}</span></td>
             </tr>
-             <tr v-if="!loading && members.length === 0"><td colspan="4" class="text-center py-8 text-gray-500">No se encontraron miembros.</td></tr>
+             <tr v-if="!loading && (!members || members.length === 0)"><td colspan="4" class="text-center py-8 text-gray-500">No se encontraron miembros.</td></tr>
           </tbody>
         </table>
       </div>
@@ -138,6 +186,21 @@ onMounted(fetchMembers);
         <div class="flex justify-end gap-3 mt-6">
           <button @click="showInviteModal = false" class="btn-secondary-admin">Cancelar</button>
           <button @click="handleInvite" class="btn-primary-admin">Enviar Invitaciones</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showChangeRoleModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <h3 class="text-lg font-bold mb-4">Cambiar Rol de Miembros</h3>
+        <p class="text-sm text-gray-500 mb-4">Selecciona el nuevo rol para los miembros seleccionados.</p>
+        <select v-model="newRole" class="input-focus-effect w-full">
+          <option value="member">Miembro</option>
+          <option value="admin">Administrador</option>
+        </select>
+        <div class="flex justify-end gap-3 mt-6">
+          <button @click="showChangeRoleModal = false" class="btn-secondary-admin">Cancelar</button>
+          <button @click="handleChangeRole" class="btn-primary-admin">Confirmar Cambio</button>
         </div>
       </div>
     </div>

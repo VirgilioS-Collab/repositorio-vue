@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useUserStore } from '@/store/useUserStore'      /* ← tu carpeta “store” */
+import { useUserStore } from '@/store/useUserStore'
 import AppNavbar from '@/components/AppNavbar.vue'
 import { RouterView } from 'vue-router'
 
 /* -------- estado necesario para el navbar ---------- */
-const store = useUserStore()
+const userStore = useUserStore()
 const {
-  user, showProfileDropdown      // refs que el navbar necesita
-} = storeToRefs(store)
+  user, showProfileDropdown
+} = storeToRefs(userStore)
 
 /* -------- acciones que el navbar emite -------------- */
 function toggleProfileDropdown() {
-  store.showProfileDropdown = !store.showProfileDropdown
+  userStore.showProfileDropdown = !userStore.showProfileDropdown
 }
-function openModal(modal) {
-  store.openModal(modal)
+function openModal(modal: string) {
+  userStore.openModal(modal as any)
 }
 /* si decides implementar logout en el store: */
 // function logout() { store.logout() }
@@ -29,8 +29,10 @@ function openModal(modal) {
       @toggleProfileDropdown="toggleProfileDropdown"
   />
 
-  <!-- Contenido desplazado 64 px (altura del navbar) -->
-  <div class="pt-16">
-    <RouterView />
-  </div>
+  <!-- Contenido principal de la aplicación -->
+  <main class="bg-gray-50 min-h-screen">
+    <div class="pt-16">
+      <RouterView />
+    </div>
+  </main>
 </template>

@@ -1,13 +1,6 @@
 <script setup lang="ts">
-/**
- * @file src/components/AppNavbar.vue
- * @description Navbar principal de la aplicación. Es un componente inteligente y
- * responsivo que gestiona la navegación principal, el menú de usuario, las
- * notificaciones y se adapta a diferentes tamaños de pantalla.
- */
-
 // --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useUserStore } from '@/store/useUserStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -15,92 +8,54 @@ import LucideIcon from '@/components/ui/LucideIcon.vue';
 import NotificationPanel from '@/components/NotificationPanel.vue';
 
 // --- SECCIÓN DE STORES Y ROUTER ---
-/**
- * @docstring
- * Instancia del store de usuario para acceder a los datos del perfil
- * y a las acciones de la UI (modales, notificaciones).
- */
 const userStore = useUserStore();
-
-/**
- * @docstring
- * Instancia del store de autenticación, usado específicamente para la
- * acción de cerrar sesión.
- */
 const authStore = useAuthStore();
-
-/**
- * @docstring
- * Instancia del enrutador de Vue para la redirección programática.
- */
 const router = useRouter();
 
-
 // --- SECCIÓN DE ESTADO LOCAL ---
-/**
- * @docstring
- * Controla la visibilidad del menú de navegación en dispositivos móviles (hamburguesa).
- * @type {ref<boolean>}
- */
 const isMobileMenuOpen = ref(false);
-
-/**
- * @docstring
- * Controla la visibilidad del menú desplegable del perfil de usuario en desktop.
- * @type {ref<boolean>}
- */
-const isUserMenuOpen = ref(false);
-
+const userMenuButton = ref<HTMLElement | null>(null);
+const userMenuDropdown = ref<HTMLElement | null>(null);
 
 // --- SECCIÓN DE PROPIEDADES COMPUTADAS ---
-/**
- * @docstring
- * Obtiene el nombre del usuario para mostrarlo en la UI. Provee un valor
- * por defecto ('Usuario') si el perfil aún no se ha cargado.
- * @returns {string}
- */
-const userName = computed((): string => userStore.user?.name || 'Usuario');
-
-/**
- * @docstring
- * Obtiene la URL de la foto de perfil del usuario.
- * @returns {string | undefined}
- */
-const userPhoto = computed((): string | undefined => userStore.user?.profile_photo_url);
-
+const userName = computed((): string => authStore.currentUser?.u_name || 'Usuario');
+const userPhoto = computed((): string | undefined => authStore.currentUser?.u_profile_photo_url || undefined);
+const isUserMenuOpen = computed(() => userStore.showProfileDropdown);
 
 // --- SECCIÓN DE FUNCIONES ---
-/**
- * @docstring
- * Cierra la sesión del usuario llamando a la acción del authStore,
- * cierra todos los modales/paneles y redirige a la página de Login.
- * @returns {void}
- */
 function handleLogout(): void {
   authStore.logout();
-  userStore.closeAllModals(); // Cierra modales y panel de notificaciones
+  userStore.closeAllModals();
   router.push({ name: 'Login' });
 }
 
-/**
- * @docstring
- * Función de ayuda para abrir un modal y cerrar el menú desde el que se llamó,
- * ya sea el menú de usuario de escritorio o el menú móvil.
- * @param {'viewProfile' | 'security'} modalName - El nombre del modal a abrir.
- * @param {'desktop' | 'mobile'} menuType - El tipo de menú que invoca la acción.
- * @returns {void}
- */
 function handleOpenModalAndCloseMenu(
   modalName: 'viewProfile' | 'security',
   menuType: 'desktop' | 'mobile'
 ): void {
   userStore.openModal(modalName);
   if (menuType === 'desktop') {
-    isUserMenuOpen.value = false;
+    userStore.toggleProfileDropdown(); // Cierra el menú usando la acción del store
   } else {
     isMobileMenuOpen.value = false;
   }
 }
+
+function handleClickOutside(event: MouseEvent) {
+  if (isUserMenuOpen.value && userMenuDropdown.value && userMenuButton.value &&
+      !userMenuDropdown.value.contains(event.target as Node) &&
+      !userMenuButton.value.contains(event.target as Node)) {
+    userStore.toggleProfileDropdown(); // Cierra el menú usando la acción del store
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <template>
@@ -110,14 +65,14 @@ function handleOpenModalAndCloseMenu(
         
         <div class="flex items-center">
           <RouterLink :to="{ name: 'Home' }" class="flex-shrink-0 flex items-center gap-2">
-            <LucideIcon name="book" :size="28" class="text-accent" />
+            <img src="@/assets/stroke_logo.svg" alt="Logo Alianza UTP" class="h-8 w-auto">
             <span class="text-xl font-bold">Alianza UTP</span>
           </RouterLink>
           
           <div class="hidden md:block md:ml-10">
             <div class="flex items-baseline space-x-4">
               <RouterLink :to="{ name: 'Home' }" class="nav-link" active-class="nav-link-active">Inicio</RouterLink>
-              <RouterLink :to="{ name: 'GroupList' }" class="nav-link" active-class="nav-link-active">Grupos</RouterLink>
+              <RouterLink :to="{ name: 'ClubList' }" class="nav-link" active-class="nav-link-active">Clubs</RouterLink>
               <RouterLink :to="{ name: 'ActivityList' }" class="nav-link" active-class="nav-link-active">Actividades</RouterLink>
             </div>
           </div>
@@ -143,7 +98,7 @@ function handleOpenModalAndCloseMenu(
             </div>
 
             <div class="relative">
-              <button @click="isUserMenuOpen = !isUserMenuOpen" class="flex items-center gap-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary focus:ring-white">
+              <button ref="userMenuButton" @click="userStore.toggleProfileDropdown()" class="flex items-center gap-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary focus:ring-white">
                 <span class="sr-only">Abrir menú de usuario</span>
                 <img v-if="userPhoto" class="h-8 w-8 rounded-full object-cover" :src="userPhoto" alt="Foto de perfil">
                 <div v-else class="h-8 w-8 rounded-full bg-accent flex items-center justify-center font-bold text-primary">{{ userName.charAt(0) }}</div>
@@ -159,10 +114,22 @@ function handleOpenModalAndCloseMenu(
                 leave-from-class="transform opacity-100 scale-100"
                 leave-to-class="transform opacity-0 scale-95"
               >
-                <div v-if="isUserMenuOpen" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-card ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <a href="#" @click.prevent="handleOpenModalAndCloseMenu('viewProfile', 'desktop')" class="user-menu-item">Mi Perfil</a>
-                  <a href="#" @click.prevent="handleOpenModalAndCloseMenu('security', 'desktop')" class="user-menu-item">Seguridad</a>
-                  <a href="#" @click.prevent="handleLogout" class="user-menu-item">Cerrar Sesión</a>
+                <div ref="userMenuDropdown" v-if="isUserMenuOpen" @click.stop class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-card ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <div class="px-4 py-3 border-b border-gray-200">
+                    <div class="flex items-center gap-3">
+                      <img v-if="userPhoto" class="h-10 w-10 rounded-full object-cover" :src="userPhoto" alt="Foto de perfil">
+                      <div v-else class="h-10 w-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary text-lg">{{ userName.charAt(0) }}</div>
+                      <div>
+                        <p class="text-sm font-semibold text-darkText">{{ userName }}</p>
+                        <p class="text-xs text-gray-500">{{ authStore.currentUser?.u_email }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="py-1">
+                    <a href="#" @click.prevent="handleOpenModalAndCloseMenu('viewProfile', 'desktop')" class="user-menu-item">Mi Perfil</a>
+                    <a href="#" @click.prevent="handleOpenModalAndCloseMenu('security', 'desktop')" class="user-menu-item">Seguridad</a>
+                    <a href="#" @click.prevent="handleLogout" class="user-menu-item">Cerrar Sesión</a>
+                  </div>
                 </div>
               </transition>
             </div>
@@ -181,7 +148,7 @@ function handleOpenModalAndCloseMenu(
     <div v-if="isMobileMenuOpen" class="md:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
         <RouterLink :to="{ name: 'Home' }" @click="isMobileMenuOpen = false" class="mobile-nav-link" active-class="mobile-nav-link-active">Inicio</RouterLink>
-        <RouterLink :to="{ name: 'GroupList' }" @click="isMobileMenuOpen = false" class="mobile-nav-link" active-class="mobile-nav-link-active">Grupos</RouterLink>
+        <RouterLink :to="{ name: 'ClubList' }" @click="isMobileMenuOpen = false" class="mobile-nav-link" active-class="mobile-nav-link-active">Clubs</RouterLink>
         <RouterLink :to="{ name: 'ActivityList' }" @click="isMobileMenuOpen = false" class="mobile-nav-link" active-class="mobile-nav-link-active">Actividades</RouterLink>
       </div>
       <div class="pt-4 pb-3 border-t border-primary-dark">
@@ -192,7 +159,7 @@ function handleOpenModalAndCloseMenu(
           </div>
           <div class="ml-3">
             <div class="text-base font-medium">{{ userName }}</div>
-            <div class="text-sm font-medium text-gray-300">{{ userStore.user?.email }}</div>
+            <div class="text-sm font-medium text-gray-300">{{ authStore.currentUser?.u_email }}</div>
           </div>
            <button @click="userStore.toggleNotificationPanel(); isMobileMenuOpen = false" class="relative ml-auto flex-shrink-0 p-1 rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-white" aria-label="Ver notificaciones">
             <LucideIcon name="bell" :size="24" />

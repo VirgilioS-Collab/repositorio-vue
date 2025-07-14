@@ -6,8 +6,9 @@
  * inexistentes (`loading`, `error`, etc.).
  */
 import { defineStore } from 'pinia';
-import UserDao from '@/services/dao/UserDao';
+import AuthDao from '@/services/dao/AuthDao';
 import type { UserDTO, UserUpdateDTO } from '@/services/dao/models/User';
+import { useAuthStore } from '@/store/useAuthStore'; // Importar useAuthStore
 
 export const useUserStore = defineStore('user', {
   /**
@@ -16,13 +17,13 @@ export const useUserStore = defineStore('user', {
    * para asegurar la correcta inferencia de tipos y reactividad de Pinia.
    */
   state: () => ({
-    user: null as UserDTO | null,
+    // El usuario principal ahora se gestiona en useAuthStore. Este store se enfoca en la UI.
     modals: {
         viewProfile: false,
         editProfile: false,
         security: false,
         createActivity: false,
-        joinGroup: false,
+        joinClub: false,
         searchEvents: false,
     },
     showNotificationPanel: false,
@@ -31,60 +32,50 @@ export const useUserStore = defineStore('user', {
       message: '', 
       type: 'success' as 'success' | 'error' | 'warning' 
     },
-    showAllGroups: false,
+    showAllClubs: false,
+    showProfileDropdown: false, // Added for navbar dropdown
     loading: false,
     error: null as string | null
   }),
 
   getters: {
     /**
-     * @getter filteredGroups
-     * @description Devuelve una lista de los grupos del usuario para el dashboard.
+     * @getter filteredClubs
+     * @description Devuelve una lista de los clubs del usuario para el dashboard.
      */
-    filteredGroups: (state) => {
-        if (!state.user || !state.user.groups) return [];
-        return state.showAllGroups ? state.user.groups : state.user.groups.slice(0, 3);
+    filteredClubs: (state) => {
+        const authStore = useAuthStore();
+        if (!authStore.currentUser || !authStore.currentUser.clubs) return [];
+        return state.showAllClubs ? authStore.currentUser.clubs : authStore.currentUser.clubs.slice(0, 3);
     },
     /**
      * @getter isAnyModalOpen
      * @description Devuelve true si algún modal o panel está activo.
      */
     isAnyModalOpen(state): boolean {
-      return Object.values(state.modals).some(isOpen => isOpen) || state.showNotificationPanel;
+      return Object.values(state.modals).some(isOpen => isOpen);
     }
   },
     
   actions: {
-    /**
-     * @action fetchProfile
-     * @description Busca los datos del perfil del usuario desde la API.
-     */
-    async fetchProfile() {
-        this.loading = true;
-        this.error = null;
-        try {
-            this.user = await UserDao.fetchProfile();
-        } catch (err: any) {
-            this.error = err.message;
-        } finally {
-            this.loading = false;
-        }
-    },
-
     /**
      * @action updateProfile
      * @description Envía los datos actualizados del perfil del usuario a la API.
      * @param {UserUpdateDTO} payload - Objeto con los campos a actualizar.
      */
     async updateProfile(payload: UserUpdateDTO) {
-        if (!this.user) return;
+        const authStore = useAuthStore();
+        if (!authStore.currentUser) return;
         this.loading = true;
         this.error = null;
         try {
-            const updatedUser = await UserDao.updateProfile(this.user.user_id, payload);
-            this.user = updatedUser;
+            const updatedUser = await AuthDao.updateProfile(payload);
+            // Actualizar el usuario en el store de autenticación
+            authStore.user = updatedUser;
+            this.showToast('Perfil actualizado exitosamente!', 'success');
         } catch (err: any) {
             this.error = err.message;
+            this.showToast('Error al actualizar el perfil.', 'error');
         } finally {
             this.loading = false;
         }
@@ -98,8 +89,16 @@ export const useUserStore = defineStore('user', {
     openModal(modalName: keyof typeof this.modals) {
       this.modals[modalName] = true;
     },
-    closeAllModals() { /* ... */ },
-    toggleNotificationPanel() { /* ... */ },
-    toggleGroupsView() { this.showAllGroups = !this.showAllGroups; },
+    closeAllModals() {
+      for (const modal in this.modals) {
+        this.modals[modal as keyof typeof this.modals] = false;
+      }
+      this.showProfileDropdown = false; // Cierra el menú desplegable
+    },
+    toggleNotificationPanel() {
+      this.showNotificationPanel = !this.showNotificationPanel;
+    },
+    toggleClubsView() { this.showAllClubs = !this.showAllClubs; },
+    toggleProfileDropdown() { this.showProfileDropdown = !this.showProfileDropdown; }, // Acción para el menú
   }
 });

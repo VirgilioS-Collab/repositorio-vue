@@ -13,6 +13,7 @@
  * pantalla de ajustes generales del club.
  */
 export interface ClubSettingsDTO {
+    name?: string;
     logo_url?: string;
     description?: string;
     social_links?: {
@@ -80,6 +81,8 @@ export interface FinanceSummaryDTO {
     income: number;
     expenses: number;
     balance: number;
+    historical_dates?: string[];
+    historical_balances?: number[];
 }
 
 /**
