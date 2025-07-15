@@ -81,7 +81,7 @@ class ClubService:
             
         except Exception as e:
             print(f"Error updating club settings: {e}")
-            return False
+            return (str(e), False)
 
     @staticmethod   
     def get_user_related_groups(user_id:int) -> Optional[list[Dict]]:
@@ -108,3 +108,107 @@ class ClubService:
                 cursor.close()
             if conn:
                 conn.close()
+
+#Administracion
+
+    @staticmethod
+    def get_administration_member_status(club_id: int) -> list:
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc('public.fn_adm_get_member_status', (club_id, ))
+
+            result = cursor.fetchone()[0]
+
+            return result
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    
+    @staticmethod
+    def get_adm_weekly_activity_heatmap(club_id: int) -> list:
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc('public.fn_adm_weekly_activity_heatmap', (club_id, ))
+
+            result = cursor.fetchone()[0]
+
+            return result
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    @staticmethod
+    def get_adm_activity_enrollment_stats(club_id: int) -> list:
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc('public.fn_adm_activity_enrollment_stats', (club_id, ))
+
+            result = cursor.fetchone()[0]
+
+            return result
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    @staticmethod
+    def get_club_members(club_id: int) -> list[Dict[str, Any]]:
+        """
+        Obtiene la lista de miembros de un club por su ID
+        """
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+            
+            cursor.callproc('public.fn_adm_get_club_members', (club_id,))
+            members = cursor.fetchall()
+
+            result = []
+            for member in members:
+                result.append({
+                    'username': member[0],
+                    'first_name': member[1],
+                    'last_name': member[2],
+                    'role_name': member[3],
+                    'status_name': member[4]
+                })
+            
+            cursor.close()
+            connection.close()
+            return result
+
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
