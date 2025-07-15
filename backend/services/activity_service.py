@@ -198,7 +198,8 @@ class ActivityService:
                 activity_data.get('activity_description'),
                 activity_data.get('max_participants'),
                 activity_data.get('activity_type'),
-                activity_data.get('activity_datetime'),
+                activity_data.get('start_date'),
+                activity_data.get('end_time'),
                 activity_data.get('location')
             ))
             
