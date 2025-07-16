@@ -48,6 +48,10 @@ def change_password():
         "token_cleanup": cleanup_msg
     }), 200
 
+
+def update_user_information():
+    pass
+
 @jwts.token_required('access')
 def upload_user_pfp():
     image = request.files['image']
