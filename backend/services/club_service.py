@@ -108,7 +108,30 @@ class ClubService:
                 cursor.close()
             if conn:
                 conn.close()
+    
+    @staticmethod
+    def request_group_join_db(user_id: int, club_id:int):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
 
+            cursor.callproc("public.fn_request_group_join", (user_id, club_id))
+
+            conn.commit()
+            message, success = cursor.fetchone()
+
+            return (message, success)
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    
 #Administracion
 
     @staticmethod
@@ -212,3 +235,56 @@ class ClubService:
                 cursor.close()
             if connection:
                 connection.close()
+
+    @staticmethod
+    def get_club_pending_approvals(club_id: int):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc('public.fn_adm_pending_approval_requests', (club_id, ))
+
+            result = cursor.fetchone()[0]
+
+            return result
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    @staticmethod
+    def update_pending_request(club_id: int, request_id:int, approval_user_id: int, action: str):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc('public.fn_adm_update_pending_request', (club_id, request_id, approval_user_id, action))
+            conn.commit()
+
+            message, success, was_approved, approved_user_data = cursor.fetchone()
+
+            return {
+            'message': message,
+            'success': success,
+            'was_approved': was_approved,
+            'user_data': approved_user_data}
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return {
+                'message': str(e),
+                'success': False,
+                'was_approved': None,
+                'approved_user_data': None}
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()

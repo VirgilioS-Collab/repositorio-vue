@@ -1,4 +1,4 @@
-from utils.db import get_connection
+from utils.db import get_connection, null_parse
 from utils.security import hash_password, validate_password
 from .auth_service import verify_auth_refresh
 
@@ -93,3 +93,63 @@ def deactivate_user_tokens(user_id: int) -> tuple:
     finally:
         cursor.close()
         conn.close()
+
+def update_user_personal_info(user_id: int, user_data: dict) -> tuple:
+    """
+    Actualizar la informacion personal del usuario
+    """
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        p_name = null_parse(user_data.get('name'))
+        p_last_name = null_parse(user_data.get('last_name'))
+        p_email = null_parse(user_data.get('email'))
+        p_phone = null_parse(user_data.get('phone'))
+        p_about_me = null_parse(user_data.get('about_me'))
+        career = null_parse(user_data.get('career'))
+
+        cursor.callproc("public.fn_update_user_personal_info", (
+            user_id,
+            p_name,
+            p_last_name,
+            p_email,
+            p_phone,
+            p_about_me,
+            career
+        ))
+        conn.commit()
+        success = cursor.fetchone()[0]
+        message = 'Datos actualizados correctamente.' if success else 'No se han podido actualizar los datos.'
+
+        return (message, success)
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(str(e))
+        return (str(e), False)
+
+    finally:
+        cursor.close()
+        conn.close()
+
+def get_user_notifications_db(user_id: int):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc('public.fn_sys_get_notifications', (user_id, ))
+
+            result = cursor.fetchone()[0]
+
+            return result
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()

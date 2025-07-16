@@ -7,7 +7,7 @@ from emails.email_types import welcome
 
 #Constantes
 REFRESH_TOKEN_EXPIRES = 604800 #7 dias
-ACCESS_TOKEN_EXPIRES = 300 #5 minutos
+ACCESS_TOKEN_EXPIRES = 3000 #5 minutos
 RESET_PASS_TOKEN_EXPIRES = 600 #10 minutos
 COOKIES_CONFIG = auth_service.cookies_config() #Configuracion de cookies
 
@@ -74,27 +74,36 @@ def login_user() -> tuple:
     
 @jwts.token_required("access")
 def get_user_information():
-    """Obtener la informacion principal de usuario"""
-    if request.method == 'GET':
+    """Obtener la información principal del usuario autenticado"""
+    try:
         user_id = request.current_user.get("user_id")
 
         user_info = auth_service.get_user_info_db(user_id=user_id)
+
+        if not user_info:
+            return jsonify({"message": "No se encontró información del usuario.", "success": False}), 404
+
         user_dto = {
             "username": user_info.get("username"),
             "email": user_info.get("email"),
             "name": user_info.get("name"),
             "last_name": user_info.get("last_name"),
-            "phone": user_info.get("phone"),             
-            "about_me": user_info.get("about_me"),       
+            "phone": user_info.get("phone"),
+            "about_me": user_info.get("about_me"),
             "profile_photo_url": user_info.get("profile_photo_url"),
             "user_type": user_info.get("user_type"),
             "user_status": user_info.get("user_status"),
-            "career": user_info.get("career")                             
+            "career": user_info.get("career")
         }
-    
-    elif request.method == 'PUT':
-        return jsonify({'message':'debug'})
-    return jsonify(user_dto)
+
+        return jsonify(user_dto), 200
+
+    except Exception as e:
+        return jsonify({
+            "message": f"Ocurrió un error al obtener la información del usuario: {str(e)}",
+            "success": False
+        }), 500
+
 
 @jwts.token_required("refresh")
 def user_refresh_token():

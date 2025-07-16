@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 style="font-size: 24px; color: #f59e0b; margin-bottom: 20px;">
+  {{ LIGHTBULB }} Hola, {{ fullname }}
+</h2>
+
+<p style="font-size: 16px; color: #374151; line-height: 1.6;">
+  Gracias por tu interés en unirte al grupo <strong>{{ group_name }}</strong>.
+</p>
+
+<p style="font-size: 16px; color: #4b5563; margin-top: 16px;">
+  En esta ocasión tu solicitud no ha sido aprobada, pero no te desanimes. ¡Puedes volver a intentarlo en otro momento!
+</p>
+
+<div style="margin: 30px 24px; text-align: center;">
+  <span style="padding: 12px 24px; background-color: #fbbf24; color: #ffffff; font-size: 16px; font-weight: bold; border-radius: 8px;">
+    {{ RETRY }} ¡Las puertas siguen abiertas!
+  </span>
+</div>
+
+<p style="font-size: 14px; color: #6b7280;">
+  Si tienes alguna duda, puedes contactar al administrador del grupo.
+</p>
+{% endblock %}
