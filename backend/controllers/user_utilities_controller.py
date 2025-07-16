@@ -48,9 +48,37 @@ def change_password():
         "token_cleanup": cleanup_msg
     }), 200
 
-
+@jwts.token_required('access')
 def update_user_information():
-    pass
+    try:
+        user_id = request.current_user.get('user_id')
+        user_data = request.get_json()
+
+        message, success = uus.update_user_personal_info(user_id, user_data)
+
+        status_code = 200 if success else 400
+        
+        return jsonify({
+            'success': success,
+            'message': message
+        }), status_code
+
+    except Exception as e:
+        print(f"[ERROR] update_user_information: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error interno del servidor.'
+        }), 500
+
+@jwts.token_required('access')
+def get_user_notifications():
+    try:
+        user_id = request.current_user.get('user_id')
+        result = uus.get_user_notifications_db(user_id=user_id)
+        return jsonify({'notifications':result}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Error interno del servidor'}), 500
 
 @jwts.token_required('access')
 def upload_user_pfp():

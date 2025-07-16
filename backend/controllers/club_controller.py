@@ -2,9 +2,11 @@
 Club Controller
 Maneja las peticiones HTTP para los clubs/grupos
 """
+import json
 from flask import request, jsonify
 from services.club_service import ClubService
 from services.jwt_service import JWTService as jwts
+from emails.email_types import group_member_approved, group_member_rejected
 
 @jwts.token_required('access')
 def get_club_details(club_id):
@@ -38,6 +40,25 @@ def get_club_by_user():
 @jwts.token_required('access')
 def create_club():
     pass
+
+@jwts.token_required('access')
+def request_join_group(club_id: int):
+    try:
+        user_id = request.current_user.get('user_id')
+        message, success = ClubService.request_group_join_db(user_id, club_id)
+
+        status_code = 200 if success else 400
+        return jsonify({
+            'success': success,
+            'message': message
+        }), status_code
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': 'Error del servidor al procesar la solicitud',
+            'error': str(e)
+        }), 500
 
 #Administracion
 
@@ -93,3 +114,48 @@ def get_club_members(club_id:int):
     except Exception as e:
         print(e)
         return jsonify({'error': 'Error interno del servidor'}), 500
+
+@jwts.token_required('access')
+def club_pending_approval_request(club_id: int):
+    try:
+        result = ClubService.get_club_pending_approvals(club_id=club_id)
+        return jsonify({'requests_data':result}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Error interno del servidor'}), 500
+    
+@jwts.token_required('access')
+def update_pending_join_request(club_id: int, request_id: int):
+    try:
+        user_id = request.current_user.get('user_id')
+        data = request.get_json()
+        action = data.get('action')
+
+        result = ClubService.update_pending_request(
+            club_id=club_id,
+            request_id=request_id,
+            approval_user_id=user_id,
+            action=action
+        )
+        status_code = 200 if result.get('success') else 400
+
+        user_data = result.get('user_data') or {}
+
+        if status_code == 200:
+            if result.get('was_approved'):
+                group_member_approved.send_group_member_approval_email(
+                    recipient=user_data.get('email', ''),
+                    fullname=user_data.get('fullname', ''),
+                    group_name=user_data.get('group_name', '')
+                )
+            else:
+                group_member_rejected.send_group_rejection_email(
+                    recipient=user_data.get('email', ''),
+                    fullname=user_data.get('fullname', ''),
+                    group_name=user_data.get('group_name', '')
+                )
+
+        return jsonify({'message': result.get('message'), 'success': result.get('success')}), status_code
+
+    except Exception as e:
+        return jsonify({'message': str(e), 'success': False}), 500

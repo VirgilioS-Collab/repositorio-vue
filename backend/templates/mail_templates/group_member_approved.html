@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 style="font-size: 24px; color: #1e3a8a; margin-bottom: 20px;">
+  {{ CHECK }} ¡Felicidades, {{ fullname }}!
+</h2>
+
+<p style="font-size: 16px; color: #1f2937; line-height: 1.6;">
+  Tu solicitud para unirte al grupo <strong>{{ group_name }}</strong> ha sido <strong>aprobada</strong>.
+</p>
+
+<p style="font-size: 16px; color: #4b5563; margin-top: 20px;">
+  Ya eres miembro activo del grupo y puedes participar en sus actividades, eventos y demás.
+</p>
+
+<div style="margin: 30px 0; text-align: center;">
+  <span style="padding: 14px 28px; background-color: #1e3a8a; color: #ffffff; font-size: 18px; font-weight: bold; border-radius: 8px;">
+    {{ PARTY }} ¡Bienvenido al grupo!
+  </span>
+</div>
+
+<p style="font-size: 14px; color: #6b7280;">
+  Si tienes alguna duda, no dudes en contactar con el administrador del grupo.
+</p>
+{% endblock %}
