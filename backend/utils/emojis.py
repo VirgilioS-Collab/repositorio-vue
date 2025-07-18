@@ -12,5 +12,9 @@ class emojis:
     MAGNIFY = "\U0001F50D"  # 🔎
     LOCK = "\U0001F512"     # 🔐
     RETRY = "\U0001F504"     # 🔄
-    LIGHTBULB = "💡"
-    SAD = "😔"
+    LIGHTBULB = "\U0001F4A1"    # 💡
+    SAD = "\U0001F614"          # 😔
+    CALENDAR = "\U0001F5D3"     # 🗓️
+    LOCATION = "\U0001F4CD"     # 📍
+    TIME = "\U000023F0"         # ⏰
+

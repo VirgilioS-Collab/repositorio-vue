@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 style="font-size: 24px; color: #f59e0b; margin-bottom: 20px;">
+  {{ HAND_WAVE }} Hola, {{ fullname }}
+</h2>
+
+<p style="font-size: 16px; color: #374151; line-height: 1.6;">
+  Te recordamos que tienes una actividad programada muy pronto:
+</p>
+
+<p style="font-size: 18px; color: #1f2937; font-weight: bold; margin: 16px 0;">
+  {{ CALENDAR }} {{ activity_name }}
+</p>
+
+{% if activity_time %}
+<p style="font-size: 16px; color: #4b5563; margin-top: 8px;">
+  {{ TIME }} <strong>{{ activity_time }}</strong>
+</p>
+{% endif %}
+
+{% if location %}
+<p style="font-size: 16px; color: #4b5563; margin-top: 8px;">
+  {{ PLACE }} <strong>{{ location }}</strong>
+</p>
+{% endif %}
+
+<div style="margin: 30px 24px; text-align: center;">
+  <span style="padding: 12px 24px; background-color: #10b981; color: #ffffff; font-size: 16px; font-weight: bold; border-radius: 8px;">
+    {{ LIGHTBULB }} ¡Te esperamos con entusiasmo!
+  </span>
+</div>
+
+<p style="font-size: 14px; color: #6b7280;">
+  Si tienes alguna duda, por favor comunícate con el equipo organizador.
+</p>
+{% endblock %}
