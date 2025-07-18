@@ -12,4 +12,4 @@ auth_bp.route("/api/auth/forgot-password", methods=['POST'])(user_forgot_passwor
 auth_bp.route("/api/auth/verifyPassResetCode", methods=['POST'])(verify_pass_reset_code)
 auth_bp.route("/api/auth/submitPasswordReset", methods=['POST'])(reset_password_via_code)
 auth_bp.route("/api/auth/logout", methods=['POST'])(logout)
-auth_bp.route("/api/auth/me", methods=['PUT','GET'])(get_user_information)
+auth_bp.route("/api/auth/me", methods=['GET'])(get_user_information)

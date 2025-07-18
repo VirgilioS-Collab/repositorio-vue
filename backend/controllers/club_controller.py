@@ -8,6 +8,8 @@ from services.club_service import ClubService
 from services.jwt_service import JWTService as jwts
 from emails.email_types import group_member_approved, group_member_rejected
 
+MAX_GROUPS_PER_USER = 4
+
 @jwts.token_required('access')
 def get_club_details(club_id):
     """
@@ -39,7 +41,42 @@ def get_club_by_user():
 
 @jwts.token_required('access')
 def create_club():
-    pass
+    try:
+        user_id = request.current_user.get('user_id')
+        data = request.get_json()
+
+        group_name = data.get('group_name')
+        group_category = data.get('group_category')
+        group_desc = data.get('group_description')
+        contact_info = data.get('contact_info', [])
+
+        if not contact_info:
+            contact_info = None
+        else:
+            contact_info = json.dumps(contact_info)
+
+        message, success = ClubService.create_club_db(
+            group_name=group_name,
+            group_desc=group_desc,
+            owner_id=user_id,
+            group_category=group_category,
+            max_group_per_user=MAX_GROUPS_PER_USER,
+            contact_info=contact_info
+        )
+
+        if success:
+            return jsonify({'message': message, 'success': success}), 201
+        else:
+            return jsonify({'message': message, 'success': success}), 400
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': 'Error del servidor al procesar la solicitud',
+            'error': str(e)
+        }), 500
+
+
 
 @jwts.token_required('access')
 def request_join_group(club_id: int):

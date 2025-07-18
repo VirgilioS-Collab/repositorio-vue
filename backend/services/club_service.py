@@ -131,6 +131,30 @@ class ClubService:
                 cursor.close()
             if conn:
                 conn.close()
+            
+    @staticmethod
+    def create_club_db (group_name:str, group_desc:str, owner_id:int, group_category: str, max_group_per_user:int, contact_info:list):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            print(type(contact_info))
+            print(null_parse(contact_info))
+            cursor.callproc("public.fn_create_group", (group_name, group_desc, owner_id, group_category, max_group_per_user, null_parse(contact_info)))
+
+            conn.commit()
+            message, success = cursor.fetchone()
+
+            return (message, success)
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
     
 #Administracion
 
