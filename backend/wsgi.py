@@ -3,6 +3,7 @@ Este archivo permite que Gunicorn inicie correctamente el worker asociado a la a
 """
 
 from app import app
+from listener import start_listener
+import threading
 
-if __name__ == "__main__":
-    app.run()
+threading.Thread(target=start_listener, daemon=True).start()

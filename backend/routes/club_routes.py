@@ -13,7 +13,8 @@ from controllers.club_controller import (
     get_club_members,
     request_join_group,
     club_pending_approval_request,
-    update_pending_join_request
+    update_pending_join_request,
+    create_club
 )
 
 # Crear blueprint
@@ -23,6 +24,7 @@ club_bp = Blueprint("club_bp", __name__)
 club_bp.route("/api/groups/<int:club_id>", methods=['GET'])(get_club_details)
 club_bp.route("/api/users/me/groups", methods=['GET'])(get_club_by_user)
 club_bp.route("/api/groups/<int:club_id>/join", methods=['POST'])(request_join_group)
+club_bp.route("/api/groups", methods= ['POST'])(create_club)
 #Administración
 club_bp.route("/api/admin/clubs/<int:club_id>/members/stats", methods=['GET'])(get_member_stats)
 club_bp.route("/api/admin/clubs/<int:club_id>/activities/weekly-heatmap", methods=['GET'])(get_weekly_activity_heatmap)

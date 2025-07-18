@@ -12,3 +12,5 @@ class emojis:
     MAGNIFY = "\U0001F50D"  # 🔎
     LOCK = "\U0001F512"     # 🔐
     RETRY = "\U0001F504"     # 🔄
+    LIGHTBULB = "💡"
+    SAD = "😔"
