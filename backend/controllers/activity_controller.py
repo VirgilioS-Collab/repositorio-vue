@@ -5,6 +5,8 @@ Maneja las peticiones HTTP para las actividades
 from flask import request, jsonify
 from services.activity_service import ActivityService
 from services.jwt_service import JWTService as jwts
+from emails.email_types.joined_activity import send_activity_join_email
+from emails.email_types.left_activity import send_activity_left_email
 
 
 @jwts.token_required('access')
@@ -18,20 +20,6 @@ def get_all_activities():
         return jsonify(activities), 200
     except Exception as e:
         return jsonify({'error': 'Error interno del servidor'}), 500
-
-@jwts.token_required('access')
-def get_activities_by_user():
-    """
-    Devuelve todas las actividades por usuario para el proceso de login
-    """
-    payload = request.current_user
-    user_id = payload.get('user_id')
-    try:
-        activities = ActivityService.get_user_related_activities(user_id=user_id)
-    except Exception as e:
-        return jsonify({"error": "Error al consultar actividades"}), 500
-    
-    return jsonify({'activities_list':activities}), 200
 
 @jwts.token_required('access')
 def get_activity_by_id(activity_id):
@@ -100,41 +88,25 @@ def create_activity(club_id):
     except Exception as e:
         return jsonify({'error': 'Error interno del servidor'}), 500
 
-def update_activity(activity_id):
+@jwts.token_required('access')
+def update_activity_details(activity_id):
     """
     PUT /api/admin/activities/{activity_id}
     Actualiza una actividad existente
     Requiere autenticación
     """
     try:
-        # Verificar token de autenticación
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({'error': 'Token de acceso requerido'}), 401
-        
-        token = auth_header.split(' ')[1]
-        payload = jwts.decode_token(token)
-        
-        if not payload:
-            return jsonify({'error': 'Token inválido'}), 401
-        
-        # Verificar que la actividad existe
-        existing_activity = ActivityService.get_activity_by_id(activity_id)
-        if not existing_activity:
-            return jsonify({'error': 'Actividad no encontrada'}), 404
-        
-        # Obtener datos de actualización
+        user_id = request.current_user.get('user_id')
         data = request.get_json()
-        
-        # Actualizar la actividad
-        updated_activity = ActivityService.update_activity(activity_id, data)
-        
-        if not updated_activity:
-            return jsonify({'error': 'Error al actualizar la actividad'}), 500
-        
-        return jsonify(updated_activity), 200
+
+        success, message = ActivityService.update_activity(activity_id, user_id, data)
+
+        status_code = 200 if success else 409
+        return jsonify({'success': success, 'message': message}), status_code
+
     except Exception as e:
-        return jsonify({'error': 'Error interno del servidor'}), 500
+        return jsonify({'success': False, 'message': 'Error interno del servidor'}), 500
+
 
 @jwts.token_required('access')
 def delete_activity(activity_id):
@@ -154,3 +126,43 @@ def delete_activity(activity_id):
         return jsonify({'message': success[1], 'success':success[0]}), 200
     except Exception as e:
         return jsonify({'error': 'Error interno del servidor'}), 500
+
+@jwts.token_required('access')
+def join_activity(activity_id):
+    try:
+        user_id = request.current_user.get('user_id')
+
+        success, message, data = ActivityService.join_activity(activity_id, user_id)
+
+        status_code = 200 if success else 409
+
+        if success:
+            email = data.get('email')
+            
+            send_activity_join_email(recipient=email, data=data)
+
+        return jsonify({'message': message, 'success':success}), status_code
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({f'error': 'Error interno del servidor'}), 500
+
+
+@jwts.token_required('access')
+def leave_activity(activity_id):
+    try:
+        user_id = request.current_user.get('user_id')
+
+        success, message, data = ActivityService.leave_activity(activity_id, user_id)
+
+        status_code = 200 if success else 409
+
+        if success:
+            email = data.get('email')
+            send_activity_left_email(recipient=email, data=data)
+
+        return jsonify({'message': message, 'success':success}), status_code
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({f'error': 'Error interno del servidor'}), 500

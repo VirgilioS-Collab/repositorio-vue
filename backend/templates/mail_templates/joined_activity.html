@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 style="font-size: 24px; color: #f59e0b; margin-bottom: 20px;">
+  {{ WELCOME }} Hola, {{ user_name }}
+</h2>
+
+<p style="font-size: 16px; color: #374151; line-height: 1.6;">
+  Te confirmamos que te has inscrito correctamente en la siguiente actividad:
+</p>
+
+<ul style="font-size: 16px; color: #374151; line-height: 1.6; list-style-type: none; padding-left: 0; margin-left: 0;">
+  <li><strong>{{ PIN }} Actividad:</strong> {{ activity_name }}</li>
+  <li><strong>{{ NOTES }} Descripción:</strong> {{ activity_description }}</li>
+  <li><strong>{{ CALENDAR }} Fecha:</strong> {{ activity_time }}</li>
+  <li><strong>{{ LOCATION }} Lugar:</strong> {{ location }}</li>
+</ul>
+
+<p style="font-size: 16px; color: #1f2937; margin-top: 20px;">
+  Te invitamos a revisar los detalles en la plataforma y participar si estás interesado.
+</p>
+
+<p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+   Este correo es solo informativo. Para más detalles, entra a tu cuenta.
+</p>
+
+{% endblock %}
+

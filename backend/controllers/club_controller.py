@@ -3,11 +3,12 @@ Club Controller
 Maneja las peticiones HTTP para los clubs/grupos
 """
 import json
-from flask import request, jsonify
+from flask import request, jsonify, make_response
 from services.club_service import ClubService
 from services.jwt_service import JWTService as jwts
 from emails.email_types import group_member_approved, group_member_rejected
-
+from controllers.images_controller import ImageUploader
+import pandas as pd
 MAX_GROUPS_PER_USER = 4
 
 @jwts.token_required('access')
@@ -96,6 +97,42 @@ def request_join_group(club_id: int):
             'message': 'Error del servidor al procesar la solicitud',
             'error': str(e)
         }), 500
+
+
+@jwts.token_required('access')
+def upload_group_pfp(club_id):
+    try:
+        image = request.files.get('image')
+        if not image:
+            return jsonify({"error": "No se recibió el archivo de imagen", "success": False}), 400
+
+        payload = request.current_user
+        user_id = payload['user_id']
+
+        response = ImageUploader(image).run()
+
+        print(response)
+
+        if response.get("status") == 200:
+            link = response["data"]["link"]
+
+            message, success = ClubService.update_group_photo_in_db(club_id, user_id, link)
+
+            if not success:
+                return jsonify({
+                        "message": message,
+                        "success": False
+                    }), 500
+        
+            return jsonify({
+                "profile_photo_url": link,
+                "success": True
+            }), 200
+
+        return jsonify({"error": "Error al subir la imagen.", "success": False}), 500
+    
+    except Exception as e:
+        return jsonify({"message":"ha ocurrido un error en proceso de subida.", "success":False}), 500
 
 #Administracion
 
@@ -196,3 +233,30 @@ def update_pending_join_request(club_id: int, request_id: int):
 
     except Exception as e:
         return jsonify({'message': str(e), 'success': False}), 500
+    
+@jwts.token_required('access')
+def export_club_members(club_id):
+    """
+    Exporta los miembros del club en formato CSV
+    Requiere autenticación
+    """
+    try:
+        members_data = ClubService.get_club_members(club_id=club_id)
+
+        # Validar que se obtuvo data
+        if not members_data:
+            return jsonify({"success": False, "message": "No hay datos de miembros para exportar."}), 404
+
+        # Convertir a DataFrame y a CSV
+        df = pd.DataFrame(members_data)
+        csv_data = df.to_csv(index=False, encoding='utf-8-sig')
+
+        # Preparar respuesta HTTP con archivo CSV
+        response = make_response(csv_data)
+        response.headers["Content-Disposition"] = "attachment; filename=members.csv"
+        response.headers["Content-type"] = "text/csv"
+        return response
+
+    except Exception as e:
+        print("Error exporting CSV:", e)
+        return jsonify({"success": False, "message": "Error interno del servidor"}), 500

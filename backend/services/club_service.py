@@ -137,8 +137,7 @@ class ClubService:
         try:
             conn = get_connection()
             cursor = conn.cursor()
-            print(type(contact_info))
-            print(null_parse(contact_info))
+
             cursor.callproc("public.fn_create_group", (group_name, group_desc, owner_id, group_category, max_group_per_user, null_parse(contact_info)))
 
             conn.commit()
@@ -156,6 +155,30 @@ class ClubService:
             if conn:
                 conn.close()
     
+    @staticmethod
+    def update_group_photo_in_db(group_id: int, user_id:int, pfp_url: str):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_update_group_profile_photo", (user_id, group_id, pfp_url))
+
+            conn.commit()
+            message, success = cursor.fetchone()
+
+            return (message, success)
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+
 #Administracion
 
     @staticmethod

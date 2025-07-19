@@ -17,4 +17,6 @@ class emojis:
     CALENDAR = "\U0001F5D3"     # 🗓️
     LOCATION = "\U0001F4CD"     # 📍
     TIME = "\U000023F0"         # ⏰
-
+    ANNOUNCE = "\U0001F4E3"  # 📣
+    PIN = "\U0001F4CC"        # 📌
+    NOTE = "\U0001F4DD"       # 📝

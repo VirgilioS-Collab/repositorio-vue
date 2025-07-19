@@ -2,11 +2,10 @@ from flask import request, jsonify
 import requests
 from services import user_utilities_service as uus
 from services.jwt_service import JWTService as jwts
-from dotenv import load_dotenv
-from PIL import Image
-import io
-import os
-load_dotenv()
+from controllers.images_controller import ImageUploader
+from emails.email_types.joined_activity import send_activity_join_email
+from emails.email_types.left_activity import send_activity_left_email
+
 
 @jwts.token_required("refresh")
 def change_password():
@@ -49,6 +48,21 @@ def change_password():
     }), 200
 
 @jwts.token_required('access')
+def get_activities_by_user():
+    """
+    Devuelve todas las actividades por usuario para el proceso de login
+    """
+    payload = request.current_user
+    user_id = payload.get('user_id')
+    try:
+        activities = uus.get_user_related_activities(user_id=user_id)
+    except Exception as e:
+        return jsonify({"error": "Error al consultar actividades"}), 500
+    
+    return jsonify({'activities_list':activities}), 200
+    
+
+@jwts.token_required('access')
 def update_user_information():
     try:
         user_id = request.current_user.get('user_id')
@@ -70,6 +84,48 @@ def update_user_information():
             'message': 'Error interno del servidor.'
         }), 500
 
+
+
+@jwts.token_required('access')
+def join_activity(activity_id):
+    try:
+        user_id = request.current_user.get('user_id')
+
+        success, message, data = uus.join_activity(activity_id, user_id)
+
+        status_code = 200 if success else 409
+
+        if success:
+            email = data.get('email')
+            
+            send_activity_join_email(recipient=email, data=data)
+
+        return jsonify({'message': message, 'success':success}), status_code
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({f'error': 'Error interno del servidor'}), 500
+    
+
+@jwts.token_required('access')
+def leave_activity(activity_id):
+    try:
+        user_id = request.current_user.get('user_id')
+
+        success, message, data = uus.leave_activity(activity_id, user_id)
+
+        status_code = 200 if success else 409
+
+        if success:
+            email = data.get('email')
+            send_activity_left_email(recipient=email, data=data)
+
+        return jsonify({'message': message, 'success':success}), status_code
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({f'error': 'Error interno del servidor'}), 500
+
 @jwts.token_required('access')
 def get_user_notifications():
     try:
@@ -79,60 +135,79 @@ def get_user_notifications():
     except Exception as e:
         print(e)
         return jsonify({'error': 'Error interno del servidor'}), 500
+    
+@jwts.token_required('access')
+def update_user_notifications():
+    try:
+        user_id = request.current_user.get('user_id')
+        data = request.get_json()
+
+        notification_ids = data.get("notification_ids")
+
+        if not isinstance(notification_ids, list):
+            return jsonify({
+                'error': 'El campo notification_ids debe ser una lista.',
+                'success': False
+            }), 400
+
+        # Si la lista esta vacia, no se hace nada
+        if not notification_ids:
+            return jsonify({
+                'message': 'No se proporcionaron notificaciones para actualizar.',
+                'success': True
+            }), 200
+
+        result = uus.update_user_notifications_bd(user_id=user_id, notification_ids=notification_ids)
+
+        return jsonify({
+            'message': 'Se han actualizado las notificaciones correctamente.',
+            'success': result
+        }), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Error interno del servidor', 'success': False}), 500
 
 @jwts.token_required('access')
 def upload_user_pfp():
-    image = request.files['image']
-    payload = request.current_user
-    user_id = payload['user_id']
-
-    # Tamaño predeterminado para las imágenes cuadradas
-    size = int(os.getenv('IMGUR_IMAGE_SQUARE_SIZE'))
-
     try:
-        # Procesamiento de imagen
-        img = Image.open(image)
-        width, height = img.size
+        image = request.files.get('profileImage')
+        if not image:
+            return jsonify({"error": "No se recibió el archivo de imagen", "success": False}), 400
 
-        #Redimensionar las imagenes cuando no tienen lados iguales
-        if width != height:
-            #el lado mas corto de la imagen
-            min_dim = min(width, height)
-            #Obtener la diferencia de tamaño de cada lado
-            left, top = (width - min_dim)/2, (height - min_dim)/2,
-            right, bottom = (width + min_dim)/2, (height + min_dim)/2
-            img = img.crop((left, top, right, bottom))
+        payload = request.current_user
+        user_id = payload['user_id']
 
-        img = img.resize((size, size), Image.Resampling.LANCZOS)
-        img_byte_arr = io.BytesIO()
-        img.save(img_byte_arr, format='JPEG')
-        img_byte_arr.seek(0)
+        response = ImageUploader(image).run()
 
-    except Exception as e:
-        return jsonify({"error": f"Error procesando la imagen: {str(e)}", 'success': False}), 400
+        if response.get("status") == 200:
+            link = response["data"]["link"]
 
-    # Subir a Imgur
-    headers = {'Authorization': f"Client-ID {os.getenv('IMGUR_CLIENT_ID')}"}
-    files = {'image': ('image.jpg', img_byte_arr, 'image/jpeg')}
-    response = requests.post(os.getenv('IMGUR_ENDPOINT'), headers=headers, files=files)
+            message, success = uus.update_user_photo_in_db(user_id, link)
 
-    img.close()
-    img_byte_arr.close()
+            if not success:
+                return jsonify({
+                        "profile_photo_url": link,
+                        "message": message,
+                        "success": False
+                    }), 500
 
-    if response.status_code == 200:
-        link = response.json()['data']['link']
-        try:
-            uus.update_user_photo_in_db(user_id, link)
-        except Exception as db_error:
             return jsonify({
                 "profile_photo_url": link,
-                "message": "Imagen subida pero no se pudo guardar en la base de datos",
-                "success": False
-            }), 500
+                "success": True
+            }), 200
 
-        return jsonify({
-            "profile_photo_url": link,
-            "success": True
-        }), 200
-    else:
-        return jsonify({"error": "Error al subir la imagen", 'success': False}), 500
+        return jsonify({"error": "Error al subir la imagen.", "success": False}), 500
+    
+    except Exception as e:
+        return jsonify({"message":"ha ocurrido un error en proceso de subida.", "success":False}), 500
+
+@jwts.token_required('access')  
+def upcoming_user_events():
+    try:
+        user_id = request.current_user.get('user_id')
+        result = uus.get_upcoming_events(user_id=user_id)
+        return jsonify({'upcoming_events':result}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Error interno del servidor'}), 500

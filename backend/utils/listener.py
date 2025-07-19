@@ -25,6 +25,7 @@ def start_listener():
                 notify = conn.notifies.pop(0)
                 try:
                     data = json.loads(notify.payload)
+                    print(data)
                     context = data.get('event')
                     ProcessNotifications(context, data).run()
                 except Exception as e:
