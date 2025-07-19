@@ -2,7 +2,7 @@
 Activity Service
 Maneja la lógica de negocio para las actividades
 """
-from utils.db import get_connection
+from utils.db import get_connection, null_parse
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
@@ -44,34 +44,6 @@ class ActivityService:
         except Exception as e:
             print(f"Error getting all activities: {e}")
             return []
-
-        
-    @staticmethod
-    def get_user_related_activities(user_id:int) -> List[Dict]:
-        """Obtiene las actividades relacionadas al usuario por user_id"""
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-
-            cursor.callproc("public.fn_get_user_related_activities", (user_id, ))
-
-            result = cursor.fetchall()
-
-            columns = [desc[0] for desc in cursor.description]
-            activities = [dict(zip(columns, row)) for row in result]
-
-            return activities
-        
-        except Exception as e:
-            if conn:
-                conn.rollback()
-            return (str(e), False)
-        
-        finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
     
     @staticmethod
     def get_activity_by_id(activity_id: int) -> Optional[Dict[str, Any]]:
@@ -217,44 +189,42 @@ class ActivityService:
             return None
     
     @staticmethod
-    def update_activity(activity_id: int, activity_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def update_activity(activity_id: int, user_id:int, activity_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
         Actualiza una actividad existente
         """
         try:
             connection = get_connection()
             cursor = connection.cursor()
-            
-            # Construir query dinámicamente solo con campos proporcionados
-            update_fields = []
-            values = []
-            
-            for field in ['activity_name', 'activity_description', 'max_participants', 
-                         'activity_type_id', 'activity_status_id', 'group_id', 
-                         'activity_datetime', 'location']:
-                if field in activity_data:
-                    update_fields.append(f"{field} = %s")
-                    values.append(activity_data[field])
-            
-            if not update_fields:
-                return ActivityService.get_activity_by_id(activity_id)
-            
-            values.append(activity_id)
-            
-            query = f"UPDATE activities SET {', '.join(update_fields)} WHERE activity_id = %s"
-            
-            cursor.execute(query, values)
+
+            name = null_parse(activity_data.get('name'))
+            description = null_parse(activity_data.get('description'))
+            max_participants = null_parse(activity_data.get('max_participants'))
+            activity_type = null_parse(activity_data.get('activity_type'))
+            start_datetime = null_parse(activity_data.get('start_datetime'))
+            end_datetime = null_parse(activity_data.get('end_datetime'))
+            location = null_parse(activity_data.get('location'))
+
+            cursor.callproc('public.fn_update_activity',(activity_id, 
+                                                        user_id,
+                                                        name,
+                                                        description,
+                                                        max_participants,
+                                                        activity_type,
+                                                        start_datetime,
+                                                        end_datetime,
+                                                        location))
+              
             connection.commit()
-            
+            success, message = cursor.fetchone()
             cursor.close()
             connection.close()
-            
-            # Retornar la actividad actualizada
-            return ActivityService.get_activity_by_id(activity_id)
-            
+
+            return success, message
+
         except Exception as e:
             print(f"Error updating activity: {e}")
-            return None
+            return False, 'Se ha producido un error en la actualizacion.'
     
     @staticmethod
     def delete_activity(activity_id: int, user_id: int) -> Optional[Dict[str, Any]]:
@@ -281,3 +251,4 @@ class ActivityService:
         except Exception as e:
             print(f"Error deleting activity: {e}")
             return False
+    

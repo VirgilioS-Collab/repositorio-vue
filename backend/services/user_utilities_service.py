@@ -26,7 +26,7 @@ def update_user_photo_in_db(user_id: int, pfp_url: str):
         conn = get_connection()
         cursor = conn.cursor()
 
-        cursor.callproc("public.fn_update_profile_photo", (user_id, pfp_url))
+        cursor.callproc("public.fn_update_user_profile_photo", (user_id, pfp_url))
         conn.commit()
         result = cursor.fetchone()
         return result
@@ -140,6 +140,118 @@ def get_user_notifications_db(user_id: int):
 
             cursor.callproc('public.fn_sys_get_notifications', (user_id, ))
 
+            result = cursor.fetchone()[0]
+
+            return result
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+def update_user_notifications_bd(user_id: int, notification_ids:list):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc('public.fn_sys_update_notifications', (user_id, notification_ids))
+            conn.commit()
+            result = cursor.fetchone()[0]
+
+            return result
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+def get_user_related_activities(user_id:int):
+        """Obtiene las actividades relacionadas al usuario por user_id"""
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_get_user_related_activities", (user_id, ))
+
+            result = cursor.fetchall()
+
+            columns = [desc[0] for desc in cursor.description]
+            activities = [dict(zip(columns, row)) for row in result]
+
+            return activities
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+def join_activity(activity_id:int, user_id: int):
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+
+            cursor.callproc('public.fn_join_activity',(
+                activity_id,
+                user_id
+            ))
+
+            connection.commit()
+            success, message, data = cursor.fetchone()
+            
+            cursor.close()
+            connection.close()
+            
+            return (success, message, data)
+            
+        except Exception as e:
+            print(f"Error joining to an activity: {e}")
+            return 'Error', False
+    
+def leave_activity(activity_id:int, user_id: int):
+            try:
+                connection = get_connection()
+                cursor = connection.cursor()
+
+                cursor.callproc('public.fn_leave_activity',(
+                    activity_id,
+                    user_id
+                ))
+
+                connection.commit()
+                success, message, data = cursor.fetchone()
+                
+                cursor.close()
+                connection.close()
+                
+                return (success, message, data)
+                
+            except Exception as e:
+                print(f"Error joining to an activity: {e}")
+                return 'Error', False, ''
+            
+def get_upcoming_events(user_id: int):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc('public.fn_user_upcoming_events', (user_id, ))
+            conn.commit()
             result = cursor.fetchone()[0]
 
             return result

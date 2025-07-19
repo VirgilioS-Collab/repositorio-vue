@@ -1,5 +1,6 @@
 from emails.email_types.activity_cancelled import send_activity_cancel_email
 from emails.email_types.activity_reminder import send_activity_reminder_email
+from emails.email_types.activity_created import send_activity_created_email
 from app import app
 from flask import current_app
 
@@ -47,4 +48,19 @@ class ProcessNotifications:
                     activity_name=activity_name,
                     activity_time=activity_time,
                     location=location
+                )
+    
+    def _handle_activity_created(self):
+        group_name = self.data.get('group_name')
+        activity_name = self.data.get('activity_name')
+        user_data = self.data.get('user_data')
+        for user in user_data:
+            email = user.get('email')
+            fullname = user.get('name')
+            if email and fullname:
+                send_activity_created_email(
+                    recipient=email,
+                    fullname=fullname,
+                    activity_name=activity_name,
+                    group_name=group_name
                 )

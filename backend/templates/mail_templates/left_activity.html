@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 style="font-size: 24px; color: #f59e0b; margin-bottom: 20px;">
+  {{ WELCOME }} Hola, {{ user_name }}
+</h2>
+
+<p style="font-size: 16px; color: #374151; line-height: 1.6;">
+  {{ ANNOUNCE }} Te confirmamos que has salido correctamente de la actividad "{{ activity_name }}".
+</p>
+
+<p style="font-size: 16px; color: #374151; line-height: 1.6; margin-top: 20px;">
+  ¡No te detengas! Explora otros grupos y actividades disponibles para seguir participando y aprendiendo.
+</p>
+
+<p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+  Este correo es solo informativo. Para más detalles, entra a tu cuenta.
+</p>
+
+{% endblock %}
+
