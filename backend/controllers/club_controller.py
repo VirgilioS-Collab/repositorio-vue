@@ -150,9 +150,10 @@ def update_club_settings(club_id):
     """
     Actualiza los ajustes generales de un club.
     """
-    try:  
+    try:
+        user_id = request.current_user.get('user_id')
         data = request.get_json()
-        success = ClubService.update_club_settings(club_id, data)
+        success = ClubService.update_club_settings(club_id, user_id, data)
         return jsonify({'message':success[0], 'success': success[1]}), 200
     
     except Exception as e:
