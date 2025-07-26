@@ -1,4 +1,4 @@
-![Logo provisional](./frontend/src/assets/logo.svg)
+[![Logo provisional](./frontend/src/assets/logo.svg)
 # Alianza UTP
 **_Tu plataforma estudiantil para reunir, planear y crecer._**
 
@@ -204,4 +204,4 @@ Este proyecto está bajo la licencia MIT.
 
 ¡Gracias por tu interés en Alianza UTP!  
 Esperamos que esta herramienta te ayude a potenciar tu experiencia académica y colaborativa.  
-¡Juntos construimos una comunidad universitaria más conectada y eficiente!
+¡Juntos construimos una comunidad universitaria más conectada y eficiente!](https://github-readme-stats.vercel.app/api?username=carroyo5&show_icons=true&theme=default&title_color=5da0d7&text_color=936daa&icon_color=cd9af9&bg_color=f2f2f2)
