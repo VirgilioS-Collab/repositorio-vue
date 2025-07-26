@@ -70,8 +70,18 @@ class JWTService:
             401: Si el token no es válido o no se proporciona.
         """
         def decorator(f):
+            """ Decorador interno que verifica el token y añade los datos del usuario a la solicitud.
+            Args:
+                f (function): La función a decorar."""
             @wraps(f)
             def decorator_function(*args, **kwargs):
+                """
+                Función interna que verifica el token y añade los datos del usuario a la solicitud.
+                Args:
+                    *args: Argumentos posicionales.
+                    **kwargs: Argumentos nombrados.
+                    Returns:
+                        function: La función original con los datos del usuario añadidos a la solicitud."""
                 token = None
                 auth_header = request.headers.get('Authorization')
                 if auth_header and auth_header.startswith('Bearer ') and expected_type != 'refresh':
