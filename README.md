@@ -6,21 +6,24 @@
 
 ## Tabla de Contenido
 
-1. [Descripción General](#descripción-general)
-2. [Funcionalidades Principales](#funcionalidades-principales)
-3. [Estructura del Proyecto](#estructura-del-proyecto)
-4. [Tecnologías Usadas](#tecnologías-usadas)
-5. [Requisitos de Entorno](#requisitos-de-entorno)
-6. [Instalación](#instalación)
-   - [Clonar el repositorio](#1-clonar-el-repositorio)
-   - [Configuración de servicios externos](#2-configuración-de-servicios-externos)
-     - [Servidor SMTP y DNS](#servidor-smtp-y-dns)
-     - [API de Imgur](#api-de-imgur)
-7. [Modo de Uso](#modo-de-uso)
-8. [Validación Inicial](#validación-inicial)
-9. [Contribuciones](#contribuciones)
-10. [Autores](#autores)
-11. [Licencia](#licencia)
+1. [Descripción General](#descripción-general)  
+2. [Funcionalidades Principales](#funcionalidades-principales)  
+3. [Estructura del Proyecto](#estructura-del-proyecto)  
+4. [Tecnologías Usadas](#tecnologías-usadas)  
+5. [Requisitos de Entorno](#requisitos-de-entorno)  
+6. [Instalación](#instalación)  
+   - [1. Clonar el repositorio](#1-clonar-el-repositorio)  
+   - [2. Instalación de dependencias](#2-instalación-de-dependencias)  
+     - [2.1 Frontend (Vue + Vite)](#2.1-frontend-(vue+vite))  
+     - [2.2 Backend (Flask)](#2.2-backend(Flask))  
+   - [3. Configuración de servicios externos](#3-configuración-de-servicios-externos)  
+     - [Servidor SMTP y DNS](#servidor-smtp-y-dns)  
+     - [API de Imgur](#api-de-imgur)  
+7. [Modo de Uso](#modo-de-uso)  
+8. [Validación Inicial](#validación-inicial)  
+9. [Contribuciones](#contribuciones)  
+10. [Autores](#autores)  
+11. [Licencia](#licencia)  
 12. [Notas Adicionales](#notas-adicionales)
 
 ---
@@ -122,7 +125,25 @@ repositorio-vue/
 git clone https://github.com/VirgilioS-Collab/repositorio-vue.git
 cd gestor_academico
 ```
-### 2. Configuración de servicios externos
+### 2. Instalación de dependencias
+   #### 2.1 Frontend (Vue + Vite)
+   ```bash
+   cd frontend
+   pnpm install
+   ```
+   > _Nota: Si no tienes pnpm instalado puedes hacerlo con:_
+   ```bash
+   npm install -g pnpm
+   ```
+   #### 2.2 Backend (Flask)
+   ```bash
+   cd ../backend
+   python -m venv venv
+   source venv/bin/activate   # En Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+### 3. Configuración de servicios externos
 
 Para habilitar el envío de correos electrónicos y la gestión de imágenes, es necesario configurar los siguientes servicios:
 
@@ -141,13 +162,60 @@ Para habilitar el envío de correos electrónicos y la gestión de imágenes, es
 
 ## Modo de Uso
 
-- Inicia el backend y frontend como se indica en la sección de instalación.
-- Accede a la aplicación en [http://localhost:5173](http://localhost:5173).
-- Utiliza la interfaz web para explorar las funcionalidades principales (gestión de actividades, grupos y notificaciones).
-- Si necesitas probar endpoints del backend, consulta la documentación interna de la API o utiliza herramientas como Postman para realizar solicitudes a los endpoints disponibles.
-- No se incluye una API de ejemplo; asegúrate de configurar correctamente el entorno y la base de datos antes de realizar pruebas.
+Para ejecutar la aplicación en tu entorno local, sigue estos pasos:
+
+### 1. Iniciar el backend (Flask)
+
+1. Abre una terminal.
+2. Navega a la carpeta del backend:
+
+```bash
+cd backend
+```
+
+3. Activa el entorno virtual:
+
+```bash
+source venv/bin/activate     # En Windows: venv\Scripts\activate
+```
+
+4. Ejecuta la aplicación:
+
+```bash
+python app.py
+```
+
+> 📌 El backend se iniciará en [http://localhost:3000](http://localhost:3000) por defecto.
 
 ---
+
+### 2. Iniciar el frontend (Vue + Vite)
+
+1. Abre una **nueva terminal** (sin cerrar la del backend).
+2. Navega a la carpeta del frontend:
+
+```bash
+cd frontend
+```
+
+3. Ejecuta la aplicación en modo desarrollo:
+
+```bash
+pnpm run dev
+```
+
+> 🌐 El frontend estará disponible en [http://localhost:5173](http://localhost:5173).
+
+---
+
+### 3. Acceder y probar la aplicación
+
+- Abre tu navegador y visita: [http://localhost:5173](http://localhost:5173)
+- Usa la interfaz web para gestionar actividades, grupos y recibir notificaciones.
+- Si deseas probar los endpoints de la API backend, puedes utilizar herramientas como **Postman** o **Insomnia** para hacer solicitudes HTTP a [http://localhost:5000](http://localhost:5000).
+- Asegúrate de que la base de datos esté correctamente configurada y que el archivo `.env` contenga las variables necesarias.
+
+> ⚠️ **Nota:** No se incluye una API pública de demostración. La aplicación está diseñada para ejecutarse en un entorno local o privado.
 
 ## Validación Inicial
 
@@ -204,4 +272,4 @@ Este proyecto está bajo la licencia MIT.
 
 ¡Gracias por tu interés en Alianza UTP!  
 Esperamos que esta herramienta te ayude a potenciar tu experiencia académica y colaborativa.  
-¡Juntos construimos una comunidad universitaria más conectada y eficiente!](https://github-readme-stats.vercel.app/api?username=carroyo5&show_icons=true&theme=default&title_color=5da0d7&text_color=936daa&icon_color=cd9af9&bg_color=f2f2f2)
+¡Juntos construimos una comunidad universitaria más conectada y eficiente!
