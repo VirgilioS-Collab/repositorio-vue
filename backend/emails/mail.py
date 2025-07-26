@@ -1,3 +1,8 @@
+""""
+Módulo de correo electrónico para la configuración de Flask-Mail.
+Este módulo provee la funcionalidad para inicializar Flask-Mail con la aplicación Flask.
+"""
+
 from flask_mail import Mail
 
 mail = Mail()

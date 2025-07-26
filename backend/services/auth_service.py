@@ -1,5 +1,5 @@
 from utils.db import get_connection, null_parse
-from utils.security import hash_password, validate_password, gen_random_fp_code, cookies_config
+from utils.security import hash_password, validate_password, gen_random_fp_code, cookies_config, auth_token_ttl, refresh_token_ttl, reset_token_ttl
 
 def login_user_db(username:str = None, email:str = None) -> tuple:
     """Autentica un usuario en la base de datos usando nombre de usuario o email."""
@@ -68,7 +68,7 @@ def verify_auth_refresh(auth_jti:dict) -> bool:
         cursor.close()
         conn.close()
 
-def create_user_db(enroll_data: dict) -> tuple:
+def create_user_db(enroll_data: dict) -> tuple[str, bool]:
     """Registro del usuario a nivel de Base de Datos."""
     try:
         conn = get_connection()
@@ -101,7 +101,7 @@ def create_user_db(enroll_data: dict) -> tuple:
         cursor.close()
         conn.close()
 
-def create_user_refresh_token_db(user_data:dict):
+def create_user_refresh_token_db(user_data:dict) -> tuple[str, bool]:
     """Registrar un nuevo Refresh token asociado 
     al usuario a nivel de base de datos"""
     try:

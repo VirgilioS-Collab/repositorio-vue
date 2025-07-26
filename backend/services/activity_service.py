@@ -10,7 +10,7 @@ class ActivityService:
     @staticmethod
     def get_all_activities() -> List[Dict[str, Any]]:
         """
-        Obtiene todas las actividades disponibles para estudiantes desde una función almacenada
+        Obtiene todas las actividades disponibles en la base de datos.
         """
         try:
             connection = get_connection()
@@ -44,11 +44,16 @@ class ActivityService:
         except Exception as e:
             print(f"Error getting all activities: {e}")
             return []
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
     
     @staticmethod
     def get_activity_by_id(activity_id: int) -> Optional[Dict[str, Any]]:
         """
-        Obtiene una actividad específica por su ID
+        Obtiene los detalles de una actividad específica por su ID
         """
         try:
             connection = get_connection()
@@ -83,6 +88,11 @@ class ActivityService:
         except Exception as e:
             print(f"Error getting activity by id: {e}")
             return None
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
     
     @staticmethod
     def get_activities_by_group(group_id: int) -> List[Dict[str, Any]]:
@@ -115,16 +125,19 @@ class ActivityService:
             cursor.close()
             connection.close()
             return result
-
-            
         except Exception as e:
             print(f"Error getting activities by group: {e}")
             return []
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
     
     @staticmethod
     def get_activities_by_club_admin(club_id: int) -> List[Dict[str, Any]]:
         """
-        Obtiene todas las actividades de un club para el panel de administración
+        Obtiene todas las actividades de un club específico para los panales de administración
         """
         try:
             connection = get_connection()
@@ -154,11 +167,16 @@ class ActivityService:
         except Exception as e:
             print(f"Error getting activities by club admin: {e}")
             return []
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
     
     @staticmethod
     def create_activity(club_id: int, activity_data: Dict[str, Any], creator_id: int) -> Optional[Dict[str, Any]]:
         """
-        Crea una nueva actividad para un club
+        Crea una nueva actividad
         """
         try:
             connection = get_connection()
@@ -185,13 +203,17 @@ class ActivityService:
             return (message,  success)
             
         except Exception as e:
-            print(f"Error creating activity: {e}")
             return None
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
     
     @staticmethod
     def update_activity(activity_id: int, user_id:int, activity_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
-        Actualiza una actividad existente
+        Actualiza los detalles de una actividad existente
         """
         try:
             connection = get_connection()
@@ -223,13 +245,17 @@ class ActivityService:
             return success, message
 
         except Exception as e:
-            print(f"Error updating activity: {e}")
-            return False, 'Se ha producido un error en la actualizacion.'
+            return (False, 'Se ha producido un error en la actualizacion.')
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
     
     @staticmethod
-    def delete_activity(activity_id: int, user_id: int) -> Optional[Dict[str, Any]]:
+    def delete_activity(activity_id: int, user_id: int) -> tuple[bool, str]:
         """
-        Elimina una actividad
+        Elimina una actividad existente
         """
         try:
             connection = get_connection()
@@ -249,6 +275,9 @@ class ActivityService:
             return (success, message)
             
         except Exception as e:
-            print(f"Error deleting activity: {e}")
-            return False
-    
+            return (False, 'Se ha producido un error al eliminar la actividad.')
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()

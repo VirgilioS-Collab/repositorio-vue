@@ -1,4 +1,9 @@
 class emojis:
+    """Clase que contiene emojis para ser utilizados en correos electrónicos.
+    Esta clase define una serie de emojis que pueden ser utilizados para mejorar la comunicación visual en los correos electrónicos.
+    Los emojis pueden ser utilizados para resaltar información importante, expresar emociones o simplemente hacer que los correos electrónicos sean más atractivos.
+    Los emojis están definidos como constantes de clase y pueden ser accedidos directamente a través de la clase.
+    """
     CONFETTI = "\U0001F389"          # 🎉
     LOCK = "\U0001F512"             # 🔐
     INFO = "\U0001F4AC"             # 💬

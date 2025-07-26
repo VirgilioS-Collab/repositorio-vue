@@ -9,6 +9,11 @@ class ImageUploader:
     Módulo que encapsula la lógica de procesamiento y subida de imágenes a Imgur mediante su API.
     '''
     def __init__(self, files:dict):
+        """
+        Inicializa el uploader con los archivos a procesar. 
+        Args:
+            files (dict): Diccionario que contiene los archivos a subir, con la clave 'image'.
+        """
         self.__files = files
         load_dotenv()
         self.__headers = {'Authorization': f"Client-ID {os.getenv('IMGUR_CLIENT_ID', '')}"}
@@ -17,6 +22,8 @@ class ImageUploader:
 
     
     def run(self):
+        """ Ejecuta el proceso de subida de la imagen.
+        Retorna un diccionario con el resultado de la operación."""
         processed_image = self.__process_image()
         if not processed_image:
             return {"success": False, "error": "No se pudo procesar la imagen"}
@@ -25,6 +32,8 @@ class ImageUploader:
         return self.__imgur_uploader(files)
 
     def __process_image(self):
+        """ Procesa la imagen para que sea cuadrada y del tamaño adecuado.
+        Retorna un objeto BytesIO con la imagen procesada."""
         try:
             img = Image.open(self.__files)
             width, height = img.size
@@ -53,6 +62,9 @@ class ImageUploader:
             return None
 
     def __imgur_uploader(self, files):
+        """ Realiza la subida de la imagen a Imgur.
+       Args:
+            files (dict): Diccionario con la imagen a subir."""
         try:
             response = requests.post(self.__endpoint, headers=self.__headers, files=files)
             response.raise_for_status()

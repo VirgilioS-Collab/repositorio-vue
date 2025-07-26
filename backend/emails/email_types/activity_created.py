@@ -1,8 +1,12 @@
+"""Módulo de correo electrónico para enviar notificaciones de creación de actividades.
+Este módulo provee la funcionalidad para enviar una notificación por correo cuando una actividad es creada
+Utiliza un renderizador para crear el contenido del correo y un remitente para enviar el correo."""
 from emails.renderer import EmailRenderer as er
 from emails.sender import EmailSender
 from utils.emojis import emojis as em
 
 def send_activity_created_email(recipient: str, fullname: str, activity_name: str, group_name:str,subject="Nueva actividad en tu grupo") -> bool:
+    """Envía un correo electrónico notificando la creación de una actividad."""
     try:
         context = {
             "fullname": fullname,

@@ -1,6 +1,6 @@
 """
-Club Routes
-Define las rutas para los clubs/grupos
+Blueprint para las rutas relacionadas con clubes o grupos en una aplicación Flask.
+Este módulo define las rutas para gestionar clubes o grupos, incluyendo visualización, creación, actualización y eliminación de los mismos.
 """
 from flask import Blueprint
 from controllers.club_controller import (

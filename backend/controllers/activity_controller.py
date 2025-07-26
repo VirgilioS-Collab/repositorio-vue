@@ -12,7 +12,6 @@ from emails.email_types.left_activity import send_activity_left_email
 @jwts.token_required('access')
 def get_all_activities():
     """
-    GET /api/activities
     Obtiene todas las actividades disponibles para estudiantes
     """
     try:
@@ -24,7 +23,6 @@ def get_all_activities():
 @jwts.token_required('access')
 def get_activity_by_id(activity_id):
     """
-    GET /api/activities/{activity_id}
     Obtiene una actividad específica por ID
     """
     try:
@@ -39,7 +37,6 @@ def get_activity_by_id(activity_id):
 @jwts.token_required('access')
 def get_activities_by_group(group_id):
     """
-    GET /api/groups/{group_id}/activities
     Obtiene todas las actividades de un grupo específico
     """
     try:
@@ -53,7 +50,6 @@ def get_activities_by_group(group_id):
 @jwts.token_required('access')
 def get_activities_by_club_admin(club_id):
     """
-    GET /api/admin/clubs/{club_id}/activities
     Obtiene todas las actividades de un club para administración
     Requiere autenticación
     """
@@ -70,7 +66,6 @@ def get_activities_by_club_admin(club_id):
 @jwts.token_required('access')
 def create_activity(club_id):
     """
-    POST /api/admin/clubs/{club_id}/activities
     Crea una nueva actividad para un club
     Requiere autenticación
     """
@@ -83,7 +78,7 @@ def create_activity(club_id):
         
         if not activity:
             return jsonify({'error': 'Error al crear la actividad'}), 500
-        
+
         return jsonify({'message': activity[0], 'success': activity[1]}), 201
     except Exception as e:
         return jsonify({'error': 'Error interno del servidor'}), 500
@@ -91,7 +86,6 @@ def create_activity(club_id):
 @jwts.token_required('access')
 def update_activity_details(activity_id):
     """
-    PUT /api/admin/activities/{activity_id}
     Actualiza una actividad existente
     Requiere autenticación
     """
@@ -111,7 +105,6 @@ def update_activity_details(activity_id):
 @jwts.token_required('access')
 def delete_activity(activity_id):
     """
-    DELETE /api/admin/activities/{activity_id}
     Elimina una actividad
     Requiere autenticación
     """
@@ -129,6 +122,7 @@ def delete_activity(activity_id):
 
 @jwts.token_required('access')
 def join_activity(activity_id):
+    """ Permite a un usuario unirse a una actividad"""
     try:
         user_id = request.current_user.get('user_id')
 
@@ -144,12 +138,12 @@ def join_activity(activity_id):
         return jsonify({'message': message, 'success':success}), status_code
 
     except Exception as e:
-        print(str(e))
         return jsonify({f'error': 'Error interno del servidor'}), 500
 
 
 @jwts.token_required('access')
 def leave_activity(activity_id):
+    """ Permite a un usuario abandonar una actividad"""
     try:
         user_id = request.current_user.get('user_id')
 
@@ -164,5 +158,4 @@ def leave_activity(activity_id):
         return jsonify({'message': message, 'success':success}), status_code
 
     except Exception as e:
-        print(str(e))
         return jsonify({f'error': 'Error interno del servidor'}), 500

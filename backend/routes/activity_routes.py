@@ -1,6 +1,6 @@
 """
-Activity Routes
-Define las rutas para las actividades
+Blueprint para las rutas relacionadas con actividades en una aplicación Flask.
+Este módulo define las rutas para gestionar actividades, incluyendo visualización, creación, actualización y eliminación de actividades.
 """
 from flask import Blueprint
 from controllers.activity_controller import (

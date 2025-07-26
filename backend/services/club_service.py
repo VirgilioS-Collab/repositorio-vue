@@ -4,8 +4,6 @@ Maneja la lógica de negocio para los clubs/grupos
 """
 from utils.db import get_connection, null_parse
 from typing import Dict, Any, Optional
-import json
-
 class ClubService:
     
     @staticmethod
@@ -45,10 +43,14 @@ class ClubService:
         except Exception as e:
             print(f"Error getting club details: {e}")
             return None
-
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
     
     @staticmethod
-    def update_club_settings(club_id: int, settings_data: Dict[str, Any]) -> bool:
+    def update_club_settings(club_id: int, settings_data: Dict[str, Any]) -> tuple[str, bool]:
         """
         Actualiza los ajustes generales de un club
         """
@@ -80,11 +82,15 @@ class ClubService:
             return (message, success)
             
         except Exception as e:
-            print(f"Error updating club settings: {e}")
             return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
 
     @staticmethod   
-    def get_user_related_groups(user_id:int) -> Optional[list[Dict]]:
+    def get_user_related_groups(user_id:int) -> Optional[list[Dict[str, Any]]]:
         """Obtiene los grupos relacionados al usuario por user_id"""
         try:
             conn = get_connection()
@@ -110,7 +116,7 @@ class ClubService:
                 conn.close()
     
     @staticmethod
-    def request_group_join_db(user_id: int, club_id:int):
+    def request_group_join_db(user_id: int, club_id:int) -> tuple[str, bool]:
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -133,7 +139,10 @@ class ClubService:
                 conn.close()
             
     @staticmethod
-    def create_club_db (group_name:str, group_desc:str, owner_id:int, group_category: str, max_group_per_user:int, contact_info:list):
+    def create_club_db (group_name:str, group_desc:str, owner_id:int, group_category: str, max_group_per_user:int, contact_info:list) -> tuple[str, bool]:
+        """
+        Crea un nuevo club/grupo en la base de datos
+        """
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -156,7 +165,10 @@ class ClubService:
                 conn.close()
     
     @staticmethod
-    def update_group_photo_in_db(group_id: int, user_id:int, pfp_url: str):
+    def update_group_photo_in_db(group_id: int, user_id:int, pfp_url: str) -> tuple[str, bool]:
+        """
+        Actualiza la foto de perfil del grupo en la base de datos
+        """
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -182,7 +194,10 @@ class ClubService:
 #Administracion
 
     @staticmethod
-    def get_administration_member_status(club_id: int) -> list:
+    def get_administration_member_status(club_id: int) -> tuple[str, bool]:
+        """
+        Obtiene el estado de los miembros de un club para la administración
+        """
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -204,7 +219,10 @@ class ClubService:
                 conn.close()
     
     @staticmethod
-    def get_adm_weekly_activity_heatmap(club_id: int) -> list:
+    def get_adm_weekly_activity_heatmap(club_id: int) -> tuple[str, bool]:
+        """
+        Obtiene un mapa de calor semanal de actividades del club para la administración
+        """
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -226,7 +244,10 @@ class ClubService:
                 conn.close()
 
     @staticmethod
-    def get_adm_activity_enrollment_stats(club_id: int) -> list:
+    def get_adm_activity_enrollment_stats(club_id: int) -> tuple[str, bool]:
+        """
+        Obtiene estadísticas de inscripción en actividades del club para la administración
+        """
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -248,7 +269,7 @@ class ClubService:
                 conn.close()
 
     @staticmethod
-    def get_club_members(club_id: int) -> list[Dict[str, Any]]:
+    def get_club_members(club_id: int) -> tuple[str, bool]:
         """
         Obtiene la lista de miembros de un club por su ID
         """
@@ -284,7 +305,8 @@ class ClubService:
                 connection.close()
 
     @staticmethod
-    def get_club_pending_approvals(club_id: int):
+    def get_club_pending_approvals(club_id: int) -> tuple[str, bool]:
+        """Obtiene las solicitudes de aprobación pendientes para un club específico"""
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -306,7 +328,10 @@ class ClubService:
                 conn.close()
 
     @staticmethod
-    def update_pending_request(club_id: int, request_id:int, approval_user_id: int, action: str):
+    def update_pending_request(club_id: int, request_id:int, approval_user_id: int, action: str) -> dict[str, Any]:
+        """
+        Actualiza el estado de una solicitud de unión pendiente a un club.
+        """
         try:
             conn = get_connection()
             cursor = conn.cursor()
