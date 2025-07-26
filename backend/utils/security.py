@@ -20,3 +20,18 @@ def cookies_config() -> dict:
     return({'SESSION_COOKIE_HTTPONLY': os.getenv('SESSION_COOKIE_HTTPONLY'),
             'SESSION_COOKIE_SECURE': os.getenv('SESSION_COOKIE_SECURE'),
             'SESSION_COOKIE_SAMESITE': os.getenv('SESSION_COOKIE_SAMESITE')})
+
+def auth_token_ttl():
+    """Tiempo de vida del token de acceso
+    Devuelve el tiempo de vida del token de acceso en segundos."""
+    return os.getenv('ACCESS_TOKEN_EXPIRES', 900) #default 15 minutos
+
+def reset_token_ttl():
+    """Tiempo de vida del token de restablecimiento de contraseña
+    Devuelve el tiempo de vida del token de restablecimiento de contraseña en segundos."""
+    return os.getenv('RESET_PASS_TOKEN_EXPIRES', 600) #default 10 minutos
+
+def refresh_token_ttl():
+    """Tiempo de vida del token de actualización
+    Devuelve el tiempo de vida del token de actualización en segundos."""
+    return os.getenv('REFRESH_TOKEN_EXPIRES', 604800) #default 7 dias

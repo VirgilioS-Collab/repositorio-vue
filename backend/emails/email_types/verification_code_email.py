@@ -1,3 +1,6 @@
+"""Módulo de correo electrónico para enviar códigos de verificación.
+Este módulo provee la funcionalidad para enviar un correo con un código de verificación.
+Utiliza un renderizador para crear el contenido del correo y un remitente para enviar el correo."""
 from emails.renderer import EmailRenderer as er
 from emails.sender import EmailSender
 from utils.emojis import emojis as em

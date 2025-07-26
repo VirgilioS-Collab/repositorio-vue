@@ -2,7 +2,7 @@ from utils.db import get_connection, null_parse
 from utils.security import hash_password, validate_password
 from .auth_service import verify_auth_refresh
 
-def get_user_encrypted_password(user_id:int) -> str:
+def get_user_encrypted_password(user_id:int) -> tuple[str | None, bool]:
     """Obtener la contraseña para comparar si es correcta antes de actualizar"""
     try:
         conn = get_connection()
@@ -20,7 +20,7 @@ def get_user_encrypted_password(user_id:int) -> str:
         cursor.close()
         conn.close()
 
-def update_user_photo_in_db(user_id: int, pfp_url: str):
+def update_user_photo_in_db(user_id: int, pfp_url: str) -> tuple[str, bool]:
     """Actualizar la foto de perfil de usuario en la base de datos."""
     try:
         conn = get_connection()
@@ -38,7 +38,7 @@ def update_user_photo_in_db(user_id: int, pfp_url: str):
         cursor.close()
         conn.close()
 
-def update_user_password(user_id: int, hashed_password: str) -> tuple:
+def update_user_password(user_id: int, hashed_password: str) -> tuple[str, bool]:
     """
     Actualizar la contraseña del usuario.
     """
@@ -65,7 +65,7 @@ def update_user_password(user_id: int, hashed_password: str) -> tuple:
             cursor.close()
             conn.close()
 
-def deactivate_user_tokens(user_id: int) -> tuple:
+def deactivate_user_tokens(user_id: int) -> tuple[str, bool]:
     """
     Desactivar los refresh tokens activos
     """
@@ -94,7 +94,7 @@ def deactivate_user_tokens(user_id: int) -> tuple:
         cursor.close()
         conn.close()
 
-def update_user_personal_info(user_id: int, user_data: dict) -> tuple:
+def update_user_personal_info(user_id: int, user_data: dict) -> tuple[str, bool]:
     """
     Actualizar la informacion personal del usuario
     """
@@ -133,7 +133,8 @@ def update_user_personal_info(user_id: int, user_data: dict) -> tuple:
         cursor.close()
         conn.close()
 
-def get_user_notifications_db(user_id: int):
+def get_user_notifications_db(user_id: int) -> dict[list[str]] | tuple[str | None, bool]:
+        """Obtiene las notificaciones del usuario por user_id."""
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -154,7 +155,8 @@ def get_user_notifications_db(user_id: int):
             if conn:
                 conn.close()
 
-def update_user_notifications_bd(user_id: int, notification_ids:list):
+def update_user_notifications_bd(user_id: int, notification_ids:list) -> tuple[str | None, bool]:
+        """Actualiza las notificaciones del usuario por user_id."""
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -175,7 +177,7 @@ def update_user_notifications_bd(user_id: int, notification_ids:list):
             if conn:
                 conn.close()
 
-def get_user_related_activities(user_id:int):
+def get_user_related_activities(user_id:int) -> dict[list[str]] | tuple[str | None, bool]:
         """Obtiene las actividades relacionadas al usuario por user_id"""
         try:
             conn = get_connection()
@@ -201,7 +203,8 @@ def get_user_related_activities(user_id:int):
             if conn:
                 conn.close()
 
-def join_activity(activity_id:int, user_id: int):
+def join_activity(activity_id:int, user_id: int) -> tuple[bool, str, str]:
+        """ Permite a un usuario unirse a una actividad específica."""
         try:
             connection = get_connection()
             cursor = connection.cursor()
@@ -220,10 +223,15 @@ def join_activity(activity_id:int, user_id: int):
             return (success, message, data)
             
         except Exception as e:
-            print(f"Error joining to an activity: {e}")
-            return 'Error', False
+            return (False, 'Error al unirse a la actividad', '')
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close() 
     
-def leave_activity(activity_id:int, user_id: int):
+def leave_activity(activity_id:int, user_id: int) -> tuple[bool, str, str]:
+            """ Permite a un usuario abandonar una actividad específica."""
             try:
                 connection = get_connection()
                 cursor = connection.cursor()
@@ -242,10 +250,15 @@ def leave_activity(activity_id:int, user_id: int):
                 return (success, message, data)
                 
             except Exception as e:
-                print(f"Error joining to an activity: {e}")
-                return 'Error', False, ''
+                return (False, 'Error al abandonar la actividad', '')
+            finally:
+                if cursor:
+                    cursor.close()
+                if connection:
+                    connection.close()
             
-def get_upcoming_events(user_id: int):
+def get_upcoming_events(user_id: int) -> dict[list[str]] | tuple[str | None, bool]:
+        """Obtiene los eventos próximos del usuario por user_id."""
         try:
             conn = get_connection()
             cursor = conn.cursor()

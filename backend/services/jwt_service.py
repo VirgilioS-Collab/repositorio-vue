@@ -5,7 +5,9 @@ from functools import wraps
 from flask import request, jsonify
 
 class JWTService:
-    """ Servicio para manejar operaciones relacionadas con JWT"""
+    """Servicio para manejar la creación, verificación y protección de rutas con JWT (JSON Web Tokens).
+    Permite la creación de tokens JWT para autenticación y autorización, así como la verificación de su validez.
+    """
     SECRET_KEY = os.getenv("JWT_SECRET_KEY") 
     ALGORITHM = "HS256"
     DEFAULT_EXPIRE_SECONDS = 300
@@ -14,7 +16,18 @@ class JWTService:
 
     @classmethod
     def create_token(cls, user_data : dict, expires_in=None, type="access", jti:str = None):
-        """Creacion del JWT con los datos del usuario que inicio sesion"""
+        """
+        Crea un JWT con los datos del usuario y un tiempo de expiración opcional.
+
+        Args:
+            user_data (dict): Datos del usuario que se incluirán en el token.
+            expires_in (int, optional): Tiempo en segundos para que expire. Si es None, se usa un valor por defecto.
+            type (str): Tipo de token ('access', 'refresh', 'reset_pass').
+            jti (str, optional): ID único del token, usado para refresh tokens.
+
+        Returns:
+            str: El JWT generado.
+        """
         expires_seconds = expires_in if expires_in is not None else cls.DEFAULT_EXPIRE_SECONDS
 
         payload = {
@@ -32,7 +45,11 @@ class JWTService:
     @classmethod
     def verify_token(cls, token):
         """
-        Verificar y decoficar un JWT
+        Verifica la validez de un JWT y devuelve los datos decodificados.
+        Args:
+            token (str): El JWT a verificar.
+        Returns:
+            dict: Los datos decodificados del token si es válido, None si no lo es
         """
         try:
             return jwt.decode(token, cls.SECRET_KEY, algorithms=[cls.ALGORITHM])
@@ -44,8 +61,13 @@ class JWTService:
     @staticmethod
     def token_required(expected_type):
         """
-        Decorador para proteger rutas que requieren autenticación vía JWT.
-        Permite especificar el tipo de token esperado (access, refresh, reset_pass).
+        Decorador para proteger rutas que requieren un token JWT válido.
+        Args:
+            expected_type (str): Tipo de token esperado ('access', 'refresh').
+        Returns:
+            function: Decorador que verifica el token y añade los datos del usuario a la solicitud.
+        Raises:
+            401: Si el token no es válido o no se proporciona.
         """
         def decorator(f):
             @wraps(f)

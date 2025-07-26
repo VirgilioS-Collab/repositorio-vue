@@ -6,9 +6,9 @@ from emails.email_types import verification_code_email as vce
 from emails.email_types import welcome
 
 #Constantes
-REFRESH_TOKEN_EXPIRES = 604800 #7 dias
-ACCESS_TOKEN_EXPIRES = 3000 #5 minutos
-RESET_PASS_TOKEN_EXPIRES = 600 #10 minutos
+REFRESH_TOKEN_EXPIRES = auth_service.refresh_token_ttl()
+ACCESS_TOKEN_EXPIRES = auth_service.auth_token_ttl()
+RESET_PASS_TOKEN_EXPIRES = auth_service.reset_token_ttl() 
 COOKIES_CONFIG = auth_service.cookies_config() #Configuracion de cookies
 
 def login_user() -> tuple:

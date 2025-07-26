@@ -64,6 +64,8 @@ def get_activities_by_user():
 
 @jwts.token_required('access')
 def update_user_information():
+    """ Actualiza la información personal del usuario autenticado.
+     Utiliza el token JWT para identificar al usuario y actualiza los datos proporcionados en la solicitud."""
     try:
         user_id = request.current_user.get('user_id')
         user_data = request.get_json()
@@ -78,7 +80,6 @@ def update_user_information():
         }), status_code
 
     except Exception as e:
-        print(f"[ERROR] update_user_information: {e}")
         return jsonify({
             'success': False,
             'message': 'Error interno del servidor.'
@@ -88,6 +89,8 @@ def update_user_information():
 
 @jwts.token_required('access')
 def join_activity(activity_id):
+    """ Permite a un usuario unirse a una actividad específica.
+     Utiliza el token JWT para identificar al usuario y realiza la operación de unión a la actividad."""
     try:
         user_id = request.current_user.get('user_id')
 
@@ -109,6 +112,8 @@ def join_activity(activity_id):
 
 @jwts.token_required('access')
 def leave_activity(activity_id):
+    """ Permite a un usuario abandonar una actividad específica.
+     Utiliza el token JWT para identificar al usuario y realiza la operación de abandono de la actividad."""
     try:
         user_id = request.current_user.get('user_id')
 
@@ -128,6 +133,9 @@ def leave_activity(activity_id):
 
 @jwts.token_required('access')
 def get_user_notifications():
+    """ Obtiene las notificaciones del usuario autenticado.
+     Utiliza el token JWT para identificar al usuario y devuelve las notificaciones almacenadas en la base de datos.
+    """
     try:
         user_id = request.current_user.get('user_id')
         result = uus.get_user_notifications_db(user_id=user_id)
@@ -138,6 +146,9 @@ def get_user_notifications():
     
 @jwts.token_required('access')
 def update_user_notifications():
+    """ Actualiza las notificaciones del usuario autenticado.
+     Utiliza el token JWT para identificar al usuario y actualiza las notificaciones según los IDs proporcionados en la solicitud.
+     """
     try:
         user_id = request.current_user.get('user_id')
         data = request.get_json()
@@ -165,11 +176,12 @@ def update_user_notifications():
         }), 200
 
     except Exception as e:
-        print(e)
         return jsonify({'error': 'Error interno del servidor', 'success': False}), 500
 
 @jwts.token_required('access')
 def upload_user_pfp():
+    """ Permite al usuario autenticado subir una imagen de perfil.
+     Utiliza el token JWT para identificar al usuario y procesa la imagen recibida en la solicitud."""
     try:
         image = request.files.get('profileImage')
         if not image:
@@ -204,6 +216,8 @@ def upload_user_pfp():
 
 @jwts.token_required('access')  
 def upcoming_user_events():
+    """Obtiene los eventos próximos del usuario autenticado.
+     Utiliza el token JWT para identificar al usuario y devuelve los eventos almacenados en la base de datos."""
     try:
         user_id = request.current_user.get('user_id')
         result = uus.get_upcoming_events(user_id=user_id)

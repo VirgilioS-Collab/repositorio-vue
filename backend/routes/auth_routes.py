@@ -1,3 +1,6 @@
+"""Blueprint  para las rutas de autenticación en una aplicación Flask.
+Este módulo define las rutas para la autenticación de usuarios, incluyendo inicio de sesión, registro, etc."""
+
 from flask import Blueprint
 from controllers.auth_controller import login_user, create_user, user_refresh_token, user_forgot_password 
 from controllers.auth_controller import verify_pass_reset_code,reset_password_via_code, logout, get_user_information

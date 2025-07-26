@@ -1,3 +1,7 @@
+"""Blueprint para las rutas de utilidades de usuario en una aplicación Flask.
+Este módulo define las rutas para gestionar las utilidades del usuario, incluyendo cambio de contraseña, subida de foto de perfil, actualización de información del usuario, notificaciones y actividades del usuario.
+"""
+
 from flask import Blueprint
 from controllers.user_utilities_controller import (change_password, 
                                                    upload_user_pfp, 

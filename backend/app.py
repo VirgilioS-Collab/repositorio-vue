@@ -1,3 +1,12 @@
+"""
+
+Este archivo configura la aplicación Flask, incluyendo las rutas, CORS y el correo electrónico.
+Se utiliza para inicializar la aplicación y registrar los blueprints necesarios.
+Se carga la configuración desde un archivo .env y se inicializa Flask-Mail.
+Se configura CORS para permitir solicitudes desde el frontend.
+Los blueprints registrados incluyen autenticación, utilidades de usuario, actividades y clubes.
+La aplicación se ejecuta en modo de depuración en el puerto 3000.
+Este archivo es el punto de entrada de la aplicación Flask."""
 import os
 from flask import Flask
 from flask_cors import CORS
@@ -5,7 +14,6 @@ from routes.auth_routes import auth_bp
 from routes.user_utilities_routes import users_bp
 from routes.activity_routes import activity_bp
 from routes.club_routes import club_bp
-from routes.finance_routes import finance_bp
 from emails.mail import init_mail
 from dotenv import load_dotenv
 #Cargar variables de entorno
@@ -36,7 +44,6 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(users_bp)
 app.register_blueprint(activity_bp)
 app.register_blueprint(club_bp)
-app.register_blueprint(finance_bp)
 
 if __name__ == "__main__":
     app.run(debug=True, port=3000)
