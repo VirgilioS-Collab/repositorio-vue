@@ -1,4 +1,4 @@
-[![Logo provisional](./frontend/src/assets/logo.svg)
+![Logo provisional](./frontend/src/assets/logo.svg)
 # Alianza UTP
 **_Tu plataforma estudiantil para reunir, planear y crecer._**
 
