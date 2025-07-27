@@ -144,6 +144,39 @@ def upload_group_pfp(club_id):
         return jsonify({"message":"ha ocurrido un error en proceso de subida.", "success":False}), 500
 
 #Administracion
+@jwts.token_required('access')
+def delete_club(club_id):
+    """
+    Elimina un club/grupo.
+    """
+    try:
+        user_id = request.current_user.get('user_id')
+        message, success = ClubService.delete_club_db(club_id, user_id)
+
+        if not success:
+            return jsonify({'message': message, 'success': success}), 400
+        
+        return jsonify({'message': message, 'success': success}), 200
+
+    except Exception as e:
+        return jsonify({'error': 'Error interno del servidor'}), 500
+
+@jwts.token_required('access')
+def reactivate_club(club_id):
+    """
+    Reactiva un club/grupo eliminado.
+    """
+    try:
+        user_id = request.current_user.get('user_id')
+        message, success = ClubService.reactivate_club_db(club_id, user_id)
+
+        if not success:
+            return jsonify({'message': message, 'success': success}), 400
+
+        return jsonify({'message': message, 'success': success}), 200
+
+    except Exception as e:
+        return jsonify({'error': 'Error interno del servidor'}), 500
 
 @jwts.token_required('access')
 def update_club_settings(club_id):
