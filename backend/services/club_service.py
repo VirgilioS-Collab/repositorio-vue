@@ -50,7 +50,7 @@ class ClubService:
                 connection.close()
     
     @staticmethod
-    def update_club_settings(club_id: int, settings_data: Dict[str, Any]) -> tuple[str, bool]:
+    def update_club_settings(club_id: int, user_id:int, settings_data: Dict[str, Any]) -> tuple[str, bool]:
         """
         Actualiza los ajustes generales de un club
         """
@@ -67,12 +67,13 @@ class ClubService:
             # Llamar a la función
             cursor.callproc(
                 'public.fn_update_club_settings',
-                (club_id, 
-                 name,
-                 description,
-                 status_id, 
-                 category, 
-                 logo_url))
+                (user_id,
+                club_id, 
+                name,
+                description,
+                status_id, 
+                category, 
+                logo_url))
 
             connection.commit()
             message, success = cursor.fetchall()[0]
