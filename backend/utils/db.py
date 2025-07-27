@@ -14,3 +14,16 @@ def get_connection():
             'host':os.getenv('DB_HOST'),
             'port':os.getenv('DB_PORT')}
     return psycopg2.connect(**conn)
+
+def null_parse(value):
+    """
+    Convierte valores 'nulos' representados como texto a None de Python
+    """
+    if value is None:
+        return None
+
+    if isinstance(value, str):
+        if value.strip().lower() in ('null', 'none', ''):
+            return None
+
+    return value

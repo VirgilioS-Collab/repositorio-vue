@@ -9,10 +9,8 @@ def get_user_encrypted_password(user_id:int) -> str:
         cursor = conn.cursor()
 
         cursor.callproc("public.vw_get_user_password", (user_id,)) 
-
         result = cursor.fetchone()
-        cursor.close()
-        conn.close()
+
         return result
 
     except Exception as e:
@@ -21,7 +19,25 @@ def get_user_encrypted_password(user_id:int) -> str:
     finally:
         cursor.close()
         conn.close()
-    
+
+def update_user_photo_in_db(user_id: int, pfp_url: str):
+    """Actualizar la foto de perfil de usuario en la base de datos."""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.callproc("public.fn_update_profile_photo", (user_id, pfp_url))
+        conn.commit()
+        result = cursor.fetchone()
+        return result
+
+    except Exception as e:
+        conn.rollback()
+        return (str(e), False)
+    finally:
+        cursor.close()
+        conn.close()
+
 def update_user_password(user_id: int, hashed_password: str) -> tuple:
     """
     Actualizar la contraseña del usuario.
