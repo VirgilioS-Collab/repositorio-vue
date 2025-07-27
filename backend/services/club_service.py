@@ -193,6 +193,31 @@ class ClubService:
 
 
 #Administracion
+    @staticmethod
+    def reactivate_club_db(club_id: int, user_id: int) -> tuple[str, bool]:
+        """
+        Reactiva un club/grupo eliminado
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_adm_activate_group", (user_id, club_id))
+
+            conn.commit()
+            message, success = cursor.fetchone()
+
+            return (message, success)
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
     @staticmethod
     def get_administration_member_status(club_id: int) -> tuple[str, bool]:
@@ -356,6 +381,32 @@ class ClubService:
                 'success': False,
                 'was_approved': None,
                 'approved_user_data': None}
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    
+    @staticmethod
+    def delete_club_db(club_id: int, user_id: int) -> tuple[str, bool]:
+        """
+        Elimina un club/grupo de la base de datos
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_adm_delete_group", (user_id, club_id))
+
+            conn.commit()
+            message, success = cursor.fetchone()
+
+            return (message, success)
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
         finally:
             if cursor:
                 cursor.close()

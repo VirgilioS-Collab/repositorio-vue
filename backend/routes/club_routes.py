@@ -16,7 +16,9 @@ from controllers.club_controller import (
     update_pending_join_request,
     create_club,
     upload_group_pfp,
-    export_club_members
+    export_club_members,
+    delete_club,
+    reactivate_club
 )
 
 # Crear blueprint
@@ -37,3 +39,5 @@ club_bp.route("/api/admin/clubs/<int:club_id>/settings", methods=['PUT'])(update
 club_bp.route("/api/admin/clubs/<int:club_id>/join-requests", methods=['GET'])(club_pending_approval_request)
 club_bp.route("/api/admin/clubs/<int:club_id>/join-requests/<request_id>", methods=['PUT'])(update_pending_join_request)
 club_bp.route('/api/admin/clubs/<int:club_id>/members/export', methods=['GET'])(export_club_members)
+club_bp.route('/api/admin/clubs/<int:club_id>/delete', methods=['PUT'])(delete_club)
+club_bp.route('/api/admin/clubs/<int:club_id>/reactivate', methods=['PUT'])(reactivate_club)
