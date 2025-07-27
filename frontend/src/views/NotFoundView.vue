@@ -1,28 +1,21 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
+import { NAME_HOME } from '@/constants/routes';
 </script>
 
 <template>
-  <div class="min-h-screen bg-soft flex items-center justify-center p-4">
-    <div class="bg-card rounded-xl shadow-2xl p-8 text-center max-w-md w-full">
-      <LucideIcon name="frown" :size="80" class="text-accent mx-auto mb-6" />
-      <h1 class="text-5xl font-extrabold text-darkText mb-4">404</h1>
-      <h2 class="text-2xl font-semibold text-primary mb-3">Página No Encontrada</h2>
-      <p class="text-gray-600 mb-6">
-        Lo sentimos, la página que buscas no existe o ha sido movida.
-      </p>
-      <RouterLink 
-        :to="{ name: 'Home' }" 
-        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-primary hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-      >
-        <LucideIcon name="home" :size="20" class="mr-2" />
-        Volver al Inicio
-      </RouterLink>
-    </div>
+  <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-gray-800 p-4">
+    <LucideIcon name="frown" :size="96" class="text-primary mb-6" />
+    <h1 class="text-6xl font-bold mb-4">404</h1>
+    <p class="text-xl text-center mb-8">¡Oops! La página que buscas no se pudo encontrar.</p>
+    <RouterLink :to="{ name: NAME_HOME }" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+      <LucideIcon name="home" :size="20" class="mr-2" />
+      Volver al Inicio
+    </RouterLink>
   </div>
 </template>
 
 <style scoped>
-/* No se necesitan estilos adicionales, Tailwind CSS maneja la mayoría */
+/* Puedes añadir estilos específicos aquí si es necesario */
 </style>

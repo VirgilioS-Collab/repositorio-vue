@@ -1,11 +1,12 @@
 <script setup lang="ts">
 // --- SECCIÓN DE LIBRERÍAS/IMPORTS ---
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { RouterLink, useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/store/useUserStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import NotificationPanel from '@/components/NotificationPanel.vue';
+import { NAME_LOGIN, NAME_HOME, NAME_CLUB_LIST, NAME_ACTIVITY_LIST, NAME_ACTIVITY_DETAIL, NAME_CLUB_DETAIL } from '@/constants/routes';
 
 // --- SECCIÓN DE STORES Y ROUTER ---
 const userStore = useUserStore();
@@ -16,17 +17,20 @@ const router = useRouter();
 const isMobileMenuOpen = ref(false);
 const userMenuButton = ref<HTMLElement | null>(null);
 const userMenuDropdown = ref<HTMLElement | null>(null);
+const notificationButton = ref<HTMLElement | null>(null);
+const notificationPanelDropdown = ref<HTMLElement | null>(null);
 
 // --- SECCIÓN DE PROPIEDADES COMPUTADAS ---
 const userName = computed((): string => authStore.currentUser?.u_name || 'Usuario');
 const userPhoto = computed((): string | undefined => authStore.currentUser?.u_profile_photo_url || undefined);
 const isUserMenuOpen = computed(() => userStore.showProfileDropdown);
+const isNotificationPanelOpen = computed(() => userStore.showNotificationPanel);
 
 // --- SECCIÓN DE FUNCIONES ---
 function handleLogout(): void {
   authStore.logout();
   userStore.closeAllModals();
-  router.push({ name: 'Login' });
+  router.push({ name: NAME_LOGIN });
 }
 
 function handleOpenModalAndCloseMenu(
@@ -42,11 +46,32 @@ function handleOpenModalAndCloseMenu(
 }
 
 function handleClickOutside(event: MouseEvent) {
+  // Lógica para cerrar el menú de usuario
   if (isUserMenuOpen.value && userMenuDropdown.value && userMenuButton.value &&
       !userMenuDropdown.value.contains(event.target as Node) &&
       !userMenuButton.value.contains(event.target as Node)) {
-    userStore.toggleProfileDropdown(); // Cierra el menú usando la acción del store
+    userStore.toggleProfileDropdown();
   }
+
+  // Lógica para cerrar el panel de notificaciones
+  if (isNotificationPanelOpen.value && notificationPanelDropdown.value && notificationButton.value) {
+    const clickedElement = event.target as Node;
+    const panelElement = (notificationPanelDropdown.value as any).rootElement.value;
+
+    if (panelElement && !panelElement.contains(clickedElement) && !notificationButton.value.contains(clickedElement)) {
+      userStore.toggleNotificationPanel();
+    }
+  }
+}
+
+function handleNotificationClick(notification: any) {
+  userStore.toggleNotificationPanel(); // Cierra el panel al hacer clic en una notificación
+  if (notification.type === 'activity_reminder') {
+    router.push({ name: NAME_ACTIVITY_DETAIL, params: { id: notification.targetId } });
+  } else if (notification.type === 'club_approval') {
+    router.push({ name: NAME_CLUB_DETAIL, params: { id: notification.targetId } });
+  }
+  // Puedes añadir más lógica para otros tipos de notificación aquí
 }
 
 onMounted(() => {
@@ -56,6 +81,12 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
+
+watch(router.currentRoute, (newRoute, oldRoute) => {
+  if (newRoute.fullPath !== oldRoute.fullPath) {
+    userStore.closeNotificationPanel();
+  }
+});
 </script>
 
 <template>
@@ -64,16 +95,16 @@ onUnmounted(() => {
       <div class="flex items-center justify-between h-16">
         
         <div class="flex items-center">
-          <RouterLink :to="{ name: 'Home' }" class="flex-shrink-0 flex items-center gap-2">
+          <RouterLink :to="{ name: NAME_HOME }" class="flex-shrink-0 flex items-center gap-2">
             <img src="@/assets/stroke_logo.svg" alt="Logo Alianza UTP" class="h-8 w-auto">
             <span class="text-xl font-bold">Alianza UTP</span>
           </RouterLink>
           
           <div class="hidden md:block md:ml-10">
             <div class="flex items-baseline space-x-4">
-              <RouterLink :to="{ name: 'Home' }" class="nav-link" active-class="nav-link-active">Inicio</RouterLink>
-              <RouterLink :to="{ name: 'ClubList' }" class="nav-link" active-class="nav-link-active">Clubs</RouterLink>
-              <RouterLink :to="{ name: 'ActivityList' }" class="nav-link" active-class="nav-link-active">Actividades</RouterLink>
+              <RouterLink :to="{ name: NAME_HOME }" class="nav-link" exact-active-class="nav-link-active">Inicio</RouterLink>
+              <RouterLink :to="{ name: NAME_CLUB_LIST }" class="nav-link" exact-active-class="nav-link-active">Clubs</RouterLink>
+              <RouterLink :to="{ name: NAME_ACTIVITY_LIST }" class="nav-link" exact-active-class="nav-link-active">Actividades</RouterLink>
             </div>
           </div>
         </div>
@@ -81,7 +112,7 @@ onUnmounted(() => {
         <div class="hidden md:block">
           <div class="ml-4 flex items-center md:ml-6 gap-4">
             <div class="relative">
-              <button @click="userStore.toggleNotificationPanel()" class="relative p-1 rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-white" aria-label="Ver notificaciones">
+              <button ref="notificationButton" @click="userStore.toggleNotificationPanel()" class="relative p-1 rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-white" aria-label="Ver notificaciones">
                 <LucideIcon name="bell" :size="24" />
                 <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-primary"></span>
               </button>
@@ -93,7 +124,7 @@ onUnmounted(() => {
                 leave-from-class="transform opacity-100 scale-100"
                 leave-to-class="transform opacity-0 scale-95"
               >
-                <NotificationPanel v-if="userStore.showNotificationPanel" />
+                <NotificationPanel ref="notificationPanelDropdown" v-if="userStore.showNotificationPanel" @notification-clicked="handleNotificationClick" />
               </transition>
             </div>
 
@@ -102,7 +133,6 @@ onUnmounted(() => {
                 <span class="sr-only">Abrir menú de usuario</span>
                 <img v-if="userPhoto" class="h-8 w-8 rounded-full object-cover" :src="userPhoto" alt="Foto de perfil">
                 <div v-else class="h-8 w-8 rounded-full bg-accent flex items-center justify-center font-bold text-primary">{{ userName.charAt(0) }}</div>
-                <span class="hidden lg:block">{{ userName }}</span>
                 <LucideIcon name="chevron-down" :size="16" class="hidden lg:block transition-transform" :class="{ 'rotate-180': isUserMenuOpen }" />
               </button>
               
@@ -147,9 +177,9 @@ onUnmounted(() => {
 
     <div v-if="isMobileMenuOpen" class="md:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <RouterLink :to="{ name: 'Home' }" @click="isMobileMenuOpen = false" class="mobile-nav-link" active-class="mobile-nav-link-active">Inicio</RouterLink>
-        <RouterLink :to="{ name: 'ClubList' }" @click="isMobileMenuOpen = false" class="mobile-nav-link" active-class="mobile-nav-link-active">Clubs</RouterLink>
-        <RouterLink :to="{ name: 'ActivityList' }" @click="isMobileMenuOpen = false" class="mobile-nav-link" active-class="mobile-nav-link-active">Actividades</RouterLink>
+        <RouterLink :to="{ name: NAME_HOME }" @click="isMobileMenuOpen = false" class="mobile-nav-link" exact-active-class="mobile-nav-link-active">Inicio</RouterLink>
+        <RouterLink :to="{ name: NAME_CLUB_LIST }" @click="isMobileMenuOpen = false" class="mobile-nav-link" exact-active-class="mobile-nav-link-active">Clubs</RouterLink>
+        <RouterLink :to="{ name: NAME_ACTIVITY_LIST }" @click="isMobileMenuOpen = false" class="mobile-nav-link" exact-active-class="mobile-nav-link-active">Actividades</RouterLink>
       </div>
       <div class="pt-4 pb-3 border-t border-primary-dark">
         <div class="flex items-center px-5">

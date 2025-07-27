@@ -2,16 +2,15 @@
 /**
  * @file: src/views/club/Activities.vue
  * @description: Vista para la gestión de actividades (eventos) de un club.
- * - INTEGRA: El diseño de UI completo con la arquitectura de stores correcta.
+ * - REFACTORIZADO: Se reemplaza FullCalendar por ECharts.
  */
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useActivityStore } from '@/store/useActivityStore';
 import { storeToRefs } from 'pinia';
-import FullCalendar from '@fullcalendar/vue3';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
+import BaseChart from '@/components/ui/BaseChart.vue';
 import type { ActivityDTO } from '@/services/dao/models/Activity';
 
 // --- STORES Y ESTADO ---
@@ -41,25 +40,40 @@ const filteredActivities = computed(() => {
   });
 });
 
-const calendarEvents = computed(() => {
-    return filteredActivities.value.map(act => ({
-        id: String(act.activity_id),
-        title: act.ga_activity_name,
-        start: act.schedules?.[0]?.start_date,
-        backgroundColor: act.ga_activity_status === 'Programada' ? '#00205B' : '#6b7280',
-        borderColor: act.ga_activity_status === 'Programada' ? '#00205B' : '#6b7280',
-    }));
+const calendarChartData = computed(() => {
+  const activityCountsByDate: { [key: string]: number } = {};
+  filteredActivities.value.forEach(activity => {
+    const date = activity.schedules?.[0]?.start_date.split('T')[0];
+    if (date) {
+      activityCountsByDate[date] = (activityCountsByDate[date] || 0) + 1;
+    }
+  });
+  return Object.entries(activityCountsByDate).map(([date, count]) => [date, count]);
 });
 
 const calendarOptions = computed(() => ({
-    plugins: [dayGridPlugin, interactionPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
-    events: calendarEvents.value,
-    locale: 'es',
-    buttonText: { today: 'Hoy', month: 'Mes' },
-    aspectRatio: 1.75,
-    height: 'auto'
+  tooltip: { formatter: '{c} actividad(es) en {b}' },
+  visualMap: {
+    min: 0,
+    max: Math.max(...calendarChartData.value.map(d => d[1] as number), 1),
+    calculable: true,
+    orient: 'horizontal',
+    left: 'center',
+    top: 'top',
+    inRange: { color: ['#D4E3FF', '#00205B'] },
+  },
+  calendar: {
+    range: new Date().getFullYear().toString(),
+    cellSize: ['auto', 20],
+    dayLabel: { nameMap: 'es' },
+    monthLabel: { nameMap: 'es' },
+    top: 70,
+  },
+  series: {
+    type: 'heatmap',
+    coordinateSystem: 'calendar',
+    data: calendarChartData.value,
+  },
 }));
 
 // --- MÉTODOS ---
@@ -102,15 +116,17 @@ onMounted(() => {
     <div class="flex justify-between items-center flex-wrap gap-4">
         <h2 class="text-2xl font-bold text-darkText">Gestión de Actividades</h2>
         <div class="flex-shrink-0">
-            <button @click="openCreateModal" class="btn-primary-admin flex items-center gap-2">
-                <LucideIcon name="plus" :size="18"/>
+            <BaseButton @click="openCreateModal">
+                <template #icon>
+                    <LucideIcon name="plus" :size="18"/>
+                </template>
                 Crear Actividad
-            </button>
+            </BaseButton>
         </div>
     </div>
 
-    <div class="bg-white p-4 rounded-xl shadow-sm border">
-        <FullCalendar :options="calendarOptions" />
+    <div class="bg-white p-4 rounded-xl shadow-sm border" style="height: 350px;">
+        <BaseChart :option="calendarOptions" />
     </div>
 
     <div class="bg-white p-6 rounded-xl shadow-sm border">
@@ -165,8 +181,8 @@ onMounted(() => {
                 </div>
             </div>
             <div class="bg-gray-50 p-4 flex justify-end gap-3">
-                <button @click="showActivityModal = false" class="btn-secondary-admin">Cancelar</button>
-                <button @click="saveActivity" class="btn-primary-admin">Guardar</button>
+                <BaseButton @click="showActivityModal = false" variant="secondary">Cancelar</BaseButton>
+                <BaseButton @click="saveActivity">Guardar</BaseButton>
             </div>
         </div>
     </div>

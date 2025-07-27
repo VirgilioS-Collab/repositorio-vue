@@ -1,14 +1,12 @@
 <script setup lang="ts">
 /**
  * @file src/components/ui/ProfilePictureUpload.vue
- * @description Componente para cambiar la foto de perfil del usuario.
- * Sube la imagen al backend que usa IMGUR y actualiza el estado.
+ * @description Componente para mostrar la foto de perfil del usuario y permitir su cambio
+ * a través de un modal dedicado. Ahora es un componente de visualización y activación.
  */
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useUserStore } from '@/store/useUserStore';
-import { useImageValidation } from '@/composables/useImageValidation';
-import ImageDao from '@/services/dao/ImageDao';
+import { useUserStore } from '@/store/useUserStore'; // Para abrir el modal
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 
 // Props
@@ -25,19 +23,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Stores
 const authStore = useAuthStore();
-const userStore = useUserStore();
-
-// Composables
-const { validateImageFile, fileToBase64, compressImage } = useImageValidation();
-
-// Estado local
-const isUploading = ref(false);
-const previewUrl = ref<string | null>(null);
-const fileInput = ref<HTMLInputElement | null>(null);
+const userStore = useUserStore(); // Para abrir el modal
 
 // Computed
 const displayUrl = computed(() => {
-  return previewUrl.value || props.currentImageUrl || authStore.currentUser?.u_profile_photo_url || null;
+  return props.currentImageUrl || authStore.currentUser?.u_profile_photo_url || null;
 });
 
 const avatarSize = computed(() => {
@@ -50,58 +40,13 @@ const avatarSize = computed(() => {
 });
 
 const defaultAvatar = computed(() => {
-  const userId = authStore.user?.user_id || 1;
+  const userId = authStore.currentUser?.user_id || 1;
   return `https://i.pravatar.cc/150?u=${userId}`;
 });
 
 // Métodos
-async function handleFileSelect(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  
-  if (!file) return;
-
-  // Validar archivo
-  const validation = validateImageFile(file);
-  if (!validation.valid) {
-    userStore.showToast(validation.message, 'error');
-    return;
-  }
-
-  try {
-    // Mostrar vista previa
-    previewUrl.value = await fileToBase64(file);
-    
-    // Comprimir imagen antes de subirla
-    const compressedFile = await compressImage(file, 0.8);
-    
-    // Subir imagen
-    isUploading.value = true;
-    const response = await ImageDao.updateProfilePhoto(compressedFile);
-    
-    // Actualizar stores
-    authStore.updateUserProfilePicture(response.imageUrl);
-    authStore.currentUser!.u_profile_photo_url = response.imageUrl;
-    
-    userStore.showToast('Foto de perfil actualizada exitosamente', 'success');
-    previewUrl.value = null; // Reset preview
-    
-  } catch (error: any) {
-    console.error('Error al subir imagen:', error);
-    userStore.showToast(
-      error.response?.data?.error || 'Error al actualizar la foto de perfil', 
-      'error'
-    );
-    previewUrl.value = null; // Reset preview on error
-  } finally {
-    isUploading.value = false;
-    // Reset file input
-    if (target) target.value = '';
-  }
-}
-
-function triggerFileSelect() {
-  fileInput.value?.click();
+function openProfilePictureUploadModal() {
+  userStore.openModal('profilePictureUpload'); // Asumiendo que añadiremos este modal al userStore
 }
 </script>
 
@@ -112,41 +57,26 @@ function triggerFileSelect() {
       <img 
         v-if="displayUrl"
         :src="displayUrl" 
-        :alt="authStore.user?.u_name || 'Usuario'"
+        :alt="authStore.currentUser?.u_name || 'Usuario'"
         class="w-full h-full object-cover"
         @error="(e) => (e.target as HTMLImageElement).src = defaultAvatar"
       />
       <img 
         v-else
         :src="defaultAvatar" 
-        :alt="authStore.user?.u_name || 'Usuario'"
+        :alt="authStore.currentUser?.u_name || 'Usuario'"
         class="w-full h-full object-cover"
       />
-      
-      <!-- Loading Overlay -->
-      <div v-if="isUploading" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <LucideIcon name="loader" class="text-white animate-spin" :size="20" />
-      </div>
     </div>
 
     <!-- Upload Button -->
     <button 
       v-if="showUploadButton"
-      @click="triggerFileSelect"
-      :disabled="isUploading"
-      class="absolute -bottom-1 -right-1 bg-primary text-white p-2 rounded-full hover:bg-primary-dark transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+      @click="openProfilePictureUploadModal"
+      class="absolute -bottom-1 -right-1 bg-primary text-white p-2 rounded-full hover:bg-primary-dark transition-colors shadow-lg"
       title="Cambiar foto de perfil"
     >
       <LucideIcon name="camera" :size="16" />
     </button>
-
-    <!-- Hidden File Input -->
-    <input
-      ref="fileInput"
-      type="file"
-      accept="image/jpeg,image/png,image/gif,image/webp"
-      @change="handleFileSelect"
-      class="hidden"
-    />
   </div>
 </template>

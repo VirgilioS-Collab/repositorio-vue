@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router';
 import { useClubStore } from '@/store/useClubStore';
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
 import type { ClubSettingsDTO } from '@/services/dao/models/Admin';
 import type { ClubUpdateRequestDTO } from '@/services/dao/models/Club';
 
@@ -114,10 +115,9 @@ onMounted(() => { clubStore.fetchDetails(clubId); });
     </div>
     
     <div class="flex justify-end">
-        <button @click="saveChanges" class="btn-primary-admin" :disabled="loading">
-            <LucideIcon v-if="loading" name="loader" class="animate-spin mr-2" :size="18"/>
+        <BaseButton @click="saveChanges" :loading="loading" :disabled="loading">
             Guardar Cambios
-        </button>
+        </BaseButton>
     </div>
 
     <div class="bg-white p-6 rounded-xl shadow-sm border">
@@ -135,15 +135,15 @@ onMounted(() => { clubStore.fetchDetails(clubId); });
         <div class="mt-4 space-y-4">
             <div class="flex justify-between items-center">
                 <div><h4 class="font-semibold">Transferir Liderazgo</h4><p class="text-sm text-red-600">Asigna a otro miembro como administrador.</p></div>
-                <button @click="openDangerModal('transfer')" class="btn-danger">Transferir</button>
+                <BaseButton @click="openDangerModal('transfer')" variant="danger">Transferir</BaseButton>
             </div>
             <div class="flex justify-between items-center">
                 <div><h4 class="font-semibold">Archivar Club</h4><p class="text-sm text-red-600">El club no será visible públicamente.</p></div>
-                <button @click="openDangerModal('archive')" class="btn-danger">Archivar</button>
+                <BaseButton @click="openDangerModal('archive')" variant="danger">Archivar</BaseButton>
             </div>
             <div class="flex justify-between items-center">
                 <div><h4 class="font-semibold">Eliminar Club</h4><p class="text-sm text-red-600">Esta acción no se puede deshacer.</p></div>
-                <button @click="openDangerModal('delete')" class="btn-danger bg-red-600 text-white hover:bg-red-700">Eliminar</button>
+                <BaseButton @click="openDangerModal('delete')" variant="danger">Eliminar</BaseButton>
             </div>
         </div>
     </div>
@@ -157,8 +157,8 @@ onMounted(() => { clubStore.fetchDetails(clubId); });
             <input v-model="confirmationText" type="text" class="input-focus-effect w-full mt-2" />
           </div>
           <div class="bg-gray-50 p-4 flex justify-end gap-3">
-            <button @click="closeDangerModal" class="btn-secondary-admin">Cancelar</button>
-            <button @click="executeDangerAction" :disabled="confirmationText !== clubDetails?.g_group_name" class="btn-danger bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300">Confirmar</button>
+            <BaseButton @click="closeDangerModal" variant="secondary">Cancelar</BaseButton>
+            <BaseButton @click="executeDangerAction" :disabled="confirmationText !== clubDetails?.g_group_name" variant="danger">Confirmar</BaseButton>
           </div>
       </div>
     </div>

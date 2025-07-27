@@ -57,3 +57,22 @@ export interface UserUpdateDTO {
   u_about_me?:         string;
   u_profile_photo_url?: string | null;
 }
+
+/**
+ * DTO para notificaciones del usuario
+ */
+export interface NotificationDTO {
+    id: number;
+    message: string;
+    read: boolean;
+    created_at: string;
+    type?: string;
+    data?: any;
+}
+
+/**
+ * DTO para marcar notificaciones como leídas
+ */
+export interface MarkNotificationsReadDTO {
+    notification_ids: number[];
+}

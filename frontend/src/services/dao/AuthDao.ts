@@ -11,6 +11,7 @@
  */
 
 import http from '@/services/http'; // Importa la instancia de Axios configurada
+import { API_AUTH_LOGIN, API_AUTH_REFRESH, API_AUTH_ENROLL, API_AUTH_FORGOT_PASSWORD, API_AUTH_SUBMIT_PASSWORD_RESET, API_AUTH_ME, API_AUTH_LOGOUT, API_AUTH_VERIFY_PASS_RESET_CODE, API_USERS_CHANGE_PASSWORD } from '@/constants/api';
 import type { 
   LoginDTO, 
   UserEnrollDTO, 
@@ -41,7 +42,7 @@ class AuthDao {
      * @effects Envía una petición POST al endpoint '/api/auth/login'.
      */
     static async login(payload: LoginDTO): Promise<LoginResponseDTO> {
-        const { data } = await http.post<LoginResponseDTO>('/api/auth/login', payload);
+        const { data } = await http.post<LoginResponseDTO>(API_AUTH_LOGIN, payload);
         return data; // Devuelve correctamente el objeto con la propiedad `token`
     }
   
@@ -55,7 +56,7 @@ class AuthDao {
      * @effects Envía una petición POST al endpoint '/api/auth/refresh'.
      */
     static async refresh(): Promise<RefreshResponseDTO> {
-        const { data } = await http.post<RefreshResponseDTO>('/api/auth/refresh');
+        const { data } = await http.post<RefreshResponseDTO>(API_AUTH_REFRESH);
         return data; // Devuelve correctamente el objeto con la propiedad `token`
     }
   
@@ -69,7 +70,7 @@ class AuthDao {
      * @effects Envía una petición POST al endpoint '/api/auth/enroll'.
      */
     static async register(p: UserEnrollDTO): Promise<void> {
-      await http.post('/api/auth/enroll', p);
+      await http.post(API_AUTH_ENROLL, p);
     }
 
     /**
@@ -82,7 +83,7 @@ class AuthDao {
      * @effects Envía una petición POST al endpoint '/api/auth/forgot-password'.
      */
     static async forgotPassword(p: ForgotPasswordDTO): Promise<ForgotPasswordResponseDTO> {
-      const { data } = await http.post<ForgotPasswordResponseDTO>('/api/auth/forgot-password', p);
+      const { data } = await http.post<ForgotPasswordResponseDTO>(API_AUTH_FORGOT_PASSWORD, p);
       return data;
     }
 
@@ -97,7 +98,7 @@ class AuthDao {
      * @effects Envía una petición POST al endpoint '/api/auth/submitPasswordReset'.
      */
     static async resetPassword(p: PasswordResetPayload): Promise<void> {
-      await http.post('/api/auth/submitPasswordReset', p);
+      await http.post(API_AUTH_SUBMIT_PASSWORD_RESET, p);
     }
 
     /**
@@ -109,7 +110,7 @@ class AuthDao {
      * @effects Envía una petición GET al endpoint '/api/auth/me'.
      */
     static async me(): Promise<UserDTO> { 
-      const { data } = await http.get<UserDTO>('/api/auth/me'); 
+      const { data } = await http.get<UserDTO>(API_AUTH_ME); 
       return data; 
     }
 
@@ -121,7 +122,7 @@ class AuthDao {
      * @effects Envía una petición POST al endpoint '/api/auth/logout'.
      */
     static async logout(): Promise<void> { 
-      await http.post('/api/auth/logout'); 
+      await http.post(API_AUTH_LOGOUT); 
     }
 
     /**
@@ -133,7 +134,7 @@ class AuthDao {
      * @effects Envía una petición POST al endpoint '/api/auth/verifyPassResetCode'.
      */
     static async verifyResetCode(p: VerifyCodeDTO): Promise<SuccessResponseDTO> {
-        const { data } = await http.post<SuccessResponseDTO>('/api/auth/verifyPassResetCode', p);
+        const { data } = await http.post<SuccessResponseDTO>(API_AUTH_VERIFY_PASS_RESET_CODE, p);
         return data;
     }
 
@@ -146,7 +147,7 @@ class AuthDao {
      * @effects Envía una petición POST al endpoint '/api/users/me/change-password'.
      */
     static async changePassword(p: ChangePasswordDTO): Promise<SuccessResponseDTO> {
-        const { data } = await http.post<SuccessResponseDTO>('/api/users/me/change-password', p);
+        const { data } = await http.post<SuccessResponseDTO>(API_USERS_CHANGE_PASSWORD, p);
         return data;
     }
 
@@ -159,7 +160,7 @@ class AuthDao {
      * @effects Envía una petición PUT al endpoint '/api/auth/me'.
      */
     static async updateProfile(p: Partial<UserDTO>): Promise<UserDTO> {
-        const { data } = await http.put<UserDTO>('/api/auth/me', p);
+        const { data } = await http.put<UserDTO>(API_AUTH_ME, p);
         return data;
     }
 }

@@ -6,7 +6,7 @@
  * inexistentes (`loading`, `error`, etc.).
  */
 import { defineStore } from 'pinia';
-import AuthDao from '@/services/dao/AuthDao';
+import UserDao from '@/services/dao/UserDao';
 import type { UserDTO, UserUpdateDTO } from '@/services/dao/models/User';
 import { useAuthStore } from '@/store/useAuthStore'; // Importar useAuthStore
 
@@ -25,6 +25,7 @@ export const useUserStore = defineStore('user', {
         createActivity: false,
         joinClub: false,
         searchEvents: false,
+        profilePictureUpload: false, // Nuevo modal para subir foto de perfil
     },
     showNotificationPanel: false,
     toast: { 
@@ -69,7 +70,7 @@ export const useUserStore = defineStore('user', {
         this.loading = true;
         this.error = null;
         try {
-            const updatedUser = await AuthDao.updateProfile(payload);
+            const updatedUser = await UserDao.updateProfile(payload);
             // Actualizar el usuario en el store de autenticación
             authStore.user = updatedUser;
             this.showToast('Perfil actualizado exitosamente!', 'success');
@@ -97,6 +98,9 @@ export const useUserStore = defineStore('user', {
     },
     toggleNotificationPanel() {
       this.showNotificationPanel = !this.showNotificationPanel;
+    },
+    closeNotificationPanel() {
+      this.showNotificationPanel = false;
     },
     toggleClubsView() { this.showAllClubs = !this.showAllClubs; },
     toggleProfileDropdown() { this.showProfileDropdown = !this.showProfileDropdown; }, // Acción para el menú

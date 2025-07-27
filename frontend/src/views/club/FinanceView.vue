@@ -9,6 +9,7 @@ import { useFinanceStore } from '@/store/useFinanceStore';
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import BaseChart from '@/components/ui/BaseChart.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
 import type { TransactionDTO } from '@/services/dao/models/Admin';
 
 const route = useRoute();
@@ -100,14 +101,18 @@ onMounted(() => {
     <header class="flex justify-between items-center flex-wrap gap-4">
       <h2 class="text-2xl font-bold text-darkText">Gestión Financiera</h2>
       <div class="flex gap-2">
-        <button @click="exportTransactionsToCSV" class="btn-secondary-admin flex items-center gap-2">
-          <LucideIcon name="download" :size="18"/>
+        <BaseButton @click="exportTransactionsToCSV" variant="secondary">
+          <template #icon>
+            <LucideIcon name="download" :size="18"/>
+          </template>
           Exportar CSV
-        </button>
-        <button @click="openCreateModal" class="btn-primary-admin flex items-center gap-2">
-          <LucideIcon name="plus" :size="18"/>
+        </BaseButton>
+        <BaseButton @click="openCreateModal">
+          <template #icon>
+            <LucideIcon name="plus" :size="18"/>
+          </template>
           Agregar Transacción
-        </button>
+        </BaseButton>
       </div>
     </header>
 
@@ -209,8 +214,8 @@ onMounted(() => {
           </div>
         </div>
         <div class="bg-gray-50 p-4 flex justify-end gap-3">
-          <button @click="showTransactionModal = false" class="btn-secondary-admin">Cancelar</button>
-          <button @click="saveTransaction" class="btn-primary-admin">Guardar</button>
+          <BaseButton @click="showTransactionModal = false" variant="secondary">Cancelar</BaseButton>
+          <BaseButton @click="saveTransaction">Guardar</BaseButton>
         </div>
       </div>
     </div>

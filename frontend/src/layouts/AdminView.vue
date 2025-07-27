@@ -12,6 +12,7 @@ import { useUserStore } from '@/store/useUserStore';
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import ToastNotification from '@/components/ui/ToastNotification.vue';
+import { NAME_LOGIN, NAME_DASHBOARD, NAME_ACTIVITIES, NAME_MEMBERS, NAME_FINANCE, NAME_SETTINGS } from '@/constants/routes';
 
 const route = useRoute();
 const router = useRouter();
@@ -25,16 +26,16 @@ const { toast } = storeToRefs(userStore);
 const isMobileMenuOpen = ref(false);
 
 const menu = [
-  { name: 'Dashboard',  label:'Dashboard',   icon:'layout-dashboard' },
-  { name: 'Activities', label:'Actividades', icon:'calendar' },
-  { name: 'Members',    label:'Miembros',    icon:'users' },
-  { name: 'Finance',    label:'Finanzas',    icon:'dollar-sign', requiresFunds: true },
-  { name: 'Settings',   label:'Ajustes',     icon:'settings' }
+  { name: NAME_DASHBOARD,  label:'Dashboard',   icon:'layout-dashboard' },
+  { name: NAME_ACTIVITIES, label:'Actividades', icon:'calendar' },
+  { name: NAME_MEMBERS,    label:'Miembros',    icon:'users' },
+  { name: NAME_FINANCE,    label:'Finanzas',    icon:'dollar-sign', requiresFunds: true },
+  { name: NAME_SETTINGS,   label:'Ajustes',     icon:'settings' }
 ];
 
 function logout () {
   authStore.logout();
-  router.push({ name:'Login' });
+  router.push({ name: NAME_LOGIN });
 }
 
 function closeMobileMenu() {

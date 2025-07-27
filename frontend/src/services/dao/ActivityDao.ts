@@ -3,6 +3,17 @@
  * @description DAO para las operaciones de la API relacionadas con las actividades.
  */
 import http from '@/services/http';
+import { 
+  API_ACTIVITIES,
+  API_ACTIVITIES_BY_ID,
+  API_GROUPS_ACTIVITIES,
+  API_ADMIN_CLUBS_ACTIVITIES,
+  API_ADMIN_ACTIVITIES_BY_ID,
+  API_USER_ME_ACTIVITIES,
+  API_USER_ME_ACTIVITY_JOIN,
+  API_USER_ME_ACTIVITY_LEAVE,
+  API_ADMIN_CLUBS_ACTIVITIES_ENROLLMENTS
+} from '@/constants/api';
 import type { 
   ActivityDTO, 
   ActivityCreateRequestDTO, 
@@ -16,7 +27,7 @@ class ActivityDao {
      * Obtiene la lista de todas las actividades públicas.
      */
     static async fetchAll(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
-        const { data } = await http.get<ActivityDTO[]>('/api/activities', options);
+        const { data } = await http.get<ActivityDTO[]>(API_ACTIVITIES, options);
         return data;
     }
 
@@ -24,52 +35,52 @@ class ActivityDao {
      * Obtiene los detalles de una actividad específica por su ID.
      */
     static async fetchById(id: number, options?: { signal?: AbortSignal }): Promise<ActivityDTO> {
-        const { data } = await http.get<ActivityDTO>(`/api/activities/${id}`, options);
+        const { data } = await http.get<ActivityDTO>(API_ACTIVITIES_BY_ID(id), options);
         return data;
     }
 
     /**
-     * Crea una nueva actividad.
+     * Crea una nueva actividad (ADMIN).
      */
     static async create(clubId: number, activityData: ActivityCreateRequestDTO): Promise<ActivityDTO> {
-        const { data } = await http.post<ActivityDTO>(`/api/clubs/${clubId}/activities`, activityData);
+        const { data } = await http.post<ActivityDTO>(API_ADMIN_CLUBS_ACTIVITIES(clubId), activityData);
         return data;
     }
 
     /**
-     * Actualiza una actividad existente.
+     * Actualiza una actividad existente (ADMIN).
      */
     static async update(id: number, activityData: ActivityUpdateRequestDTO): Promise<ActivityDTO> {
-        const { data } = await http.put<ActivityDTO>(`/api/activities/${id}`, activityData);
+        const { data } = await http.put<ActivityDTO>(API_ADMIN_ACTIVITIES_BY_ID(id), activityData);
         return data;
     }
 
     /**
-     * Elimina una actividad.
+     * Elimina una actividad (ADMIN).
      */
     static async delete(id: number): Promise<void> {
-        await http.delete(`/api/activities/${id}`);
+        await http.delete(API_ADMIN_ACTIVITIES_BY_ID(id));
     }
 
     /**
      * Se une a una actividad.
      */
     static async join(payload: JoinActivityRequestDTO): Promise<void> {
-        await http.post(`/api/activities/${payload.activity_id}/participants`, payload);
+        await http.post(API_USER_ME_ACTIVITY_JOIN(payload.activity_id), payload);
     }
 
     /**
      * Se retira de una actividad.
      */
     static async leave(activityId: number): Promise<void> {
-        await http.delete(`/api/activities/${activityId}/participants/me`);
+        await http.put(API_USER_ME_ACTIVITY_LEAVE(activityId));
     }
 
     /**
      * Obtiene las próximas actividades para el usuario autenticado.
      */
     static async getNextForMe(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
-        const { data } = await http.get<ActivityDTO[]>('/api/users/me/activities?next=true', options);
+        const { data } = await http.get<ActivityDTO[]>(`${API_USER_ME_ACTIVITIES}?next=true`, options);
         return data;
     }
 
@@ -77,15 +88,15 @@ class ActivityDao {
      * Obtiene todas las actividades del usuario autenticado.
      */
     static async getMyActivities(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
-        const { data } = await http.get<ActivityDTO[]>('/api/users/me/activities', options);
+        const { data } = await http.get<ActivityDTO[]>(API_USER_ME_ACTIVITIES, options);
         return data;
     }
 
     /**
-     * Obtiene las actividades de un club específico.
+     * Obtiene las actividades de un grupo específico.
      */
-    static async getByGroup(clubId: number, options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
-        const { data } = await http.get<ActivityDTO[]>(`/api/clubs/${clubId}/activities`, options);
+    static async getByGroup(groupId: number, options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
+        const { data } = await http.get<ActivityDTO[]>(API_GROUPS_ACTIVITIES(groupId), options);
         return data;
     }
 
@@ -93,7 +104,7 @@ class ActivityDao {
      * Obtiene estadísticas de inscripciones de actividades para un club específico.
      */
     static async fetchEnrollmentStats(clubId: number): Promise<ActivityEnrollmentStatsDTO[]> {
-        const { data } = await http.get<ActivityEnrollmentStatsDTO[]>(`/api/clubs/${clubId}/activity-enrollment-stats`);
+        const { data } = await http.get<ActivityEnrollmentStatsDTO[]>(API_ADMIN_CLUBS_ACTIVITIES_ENROLLMENTS(clubId));
         return data;
     }
 }

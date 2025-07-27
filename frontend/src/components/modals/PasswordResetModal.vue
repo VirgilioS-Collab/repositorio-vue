@@ -3,6 +3,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Card from '@/components/ui/Card.vue'; // Importa el componente Card
+import BaseButton from '@/components/ui/BaseButton.vue';
 
 const props = defineProps<{ show:boolean }>()
 const emit  = defineEmits<{ (e:'close'):void; (e:'submit', email:string):void }>()
@@ -21,11 +22,11 @@ const email = ref('') // Este `email` probablemente no sea necesario aquí, si e
         <h3 class="text-lg font-bold mb-4">Restablecer contraseña</h3>
 
         <input v-model="email" type="email" placeholder="correo@utp.ac.pa"
-               class="input-focus-effect w-full mb-6"/>
+               class="block w-full border border-gray-300 rounded-md shadow-sm p-2.5 transition-shadow duration-150 focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50 w-full mb-6"/>
 
         <div class="flex justify-end gap-3">
-          <button class="btn" @click="emit('close')">Cancelar</button>
-          <button class="btn-primary" @click="emit('submit', email)">Enviar</button>
+          <BaseButton @click="emit('close')" variant="secondary">Cancelar</BaseButton>
+          <BaseButton @click="emit('submit', email)">Enviar</BaseButton>
         </div>
       </Card>
     </div>

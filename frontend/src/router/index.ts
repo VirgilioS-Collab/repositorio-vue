@@ -10,6 +10,8 @@ import { createRouter, createWebHistory, type RouteRecordRaw, type NavigationGua
 import { useAuthStore } from '@/store/useAuthStore';
 import AdminView from '@/layouts/AdminView.vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
+import NotFoundView from '@/views/NotFoundView.vue';
+import { PATH_LOGIN, NAME_LOGIN, PATH_REGISTER, NAME_REGISTER, PATH_FORGOT_PASSWORD, NAME_FORGOT_PASSWORD, PATH_RESET_PASSWORD, NAME_RESET_PASSWORD, PATH_ROOT, NAME_HOME, PATH_CLUBS, NAME_CLUB_LIST, PATH_ACTIVITIES, NAME_ACTIVITY_LIST, PATH_CLUB_DETAIL, NAME_CLUB_DETAIL as NAME_CLUB_DETAIL_ROUTE, PATH_ACTIVITY_DETAIL, NAME_ACTIVITY_DETAIL as NAME_ACTIVITY_DETAIL_ROUTE, PATH_ADMIN_CLUB, NAME_DASHBOARD, NAME_MEMBERS, NAME_ACTIVITIES, NAME_FINANCE, NAME_SETTINGS, PATH_NOT_FOUND } from '@/constants/routes';
 
 // --- SECCIÓN DE CONSTANTES ---
 /**
@@ -18,11 +20,11 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue';
  * que se renderizarán dentro del layout AdminView.
  */
 const clubChildren: RouteRecordRaw[] = [
-  { path: '', name: 'Dashboard', component: () => import('@/views/club/Dashboard.vue') },
-  { path: 'members', name: 'Members', component: () => import('@/views/club/Members.vue') },
-  { path: 'activities', name: 'Activities', component: () => import('@/views/club/Activities.vue') },
-  { path: 'finance', name: 'Finance', component: () => import('@/views/club/FinanceView.vue') },
-  { path: 'settings', name: 'Settings', component: () => import('@/views/club/Settings.vue') }
+  { path: '', name: NAME_DASHBOARD, component: () => import('@/views/club/Dashboard.vue') },
+  { path: 'members', name: NAME_MEMBERS, component: () => import('@/views/club/Members.vue') },
+  { path: 'activities', name: NAME_ACTIVITIES, component: () => import('@/views/club/Activities.vue') },
+  { path: 'finance', name: NAME_FINANCE, component: () => import('@/views/club/FinanceView.vue') },
+  { path: 'settings', name: NAME_SETTINGS, component: () => import('@/views/club/Settings.vue') }
 ];
 
 /**
@@ -32,58 +34,58 @@ const clubChildren: RouteRecordRaw[] = [
 const routes: RouteRecordRaw[] = [
     // --- Rutas Públicas de Autenticación (Sin layout principal) ---
     {
-        path: '/login',
-        name: 'Login',
+        path: PATH_LOGIN,
+        name: NAME_LOGIN,
         component: () => import('@/views/auth/LoginView.vue')
     },
     {
-        path: '/register',
-        name: 'Register',
+        path: PATH_REGISTER,
+        name: NAME_REGISTER,
         component: () => import('@/views/auth/RegistrationView.vue')
     },
     {
-        path: '/forgot-password',
-        name: 'ForgotPassword',
+        path: PATH_FORGOT_PASSWORD,
+        name: NAME_FORGOT_PASSWORD,
         component: () => import('@/views/auth/ForgotPasswordView.vue')
     },
     {
-        path: '/reset-password/:token',
-        name: 'ResetPassword',
+        path: PATH_RESET_PASSWORD,
+        name: NAME_RESET_PASSWORD,
         component: () => import('@/views/auth/ResetPasswordView.vue'),
         props: true 
     },
     
     // --- Ruta Padre con Layout por Defecto para el Estudiante ---
     {
-        path: '/',
+        path: PATH_ROOT,
         component: DefaultLayout, // Este layout se aplicará a todas sus rutas hijas
         // false indica que no requiere autenticación, cambio a true en rutas protegidas cuando se implemente la autenticación con JWT 
         meta: { requiresAuth: false },
         children: [
             {
-                path: '', // La ruta raíz (/) renderiza HomeView dentro del DefaultLayout
-                name: 'Home',
+                path: PATH_ROOT, // La ruta raíz (/) renderiza HomeView dentro del DefaultLayout
+                name: NAME_HOME,
                 component: () => import('@/views/user/HomeView.vue'),
             },
             {
-                path: 'clubs', // Ruta para el listado de clubs (/clubs)
-                name: 'ClubList',
+                path: PATH_CLUBS, // Ruta para el listado de clubs (/clubs)
+                name: NAME_CLUB_LIST,
                 component: () => import('@/views/user/ClubListView.vue'),
             },
             {
-                path: 'activities', // Ruta para el listado de actividades (/activities)
-                name: 'ActivityList',
+                path: PATH_ACTIVITIES, // Ruta para el listado de actividades (/activities)
+                name: NAME_ACTIVITY_LIST,
                 component: () => import('@/views/user/ActivityListView.vue'),
             },
             {
-                path: 'clubs/:id', // RUTA: para el detalle de un club
-                name: 'ClubDetail',
+                path: PATH_CLUB_DETAIL, // RUTA: para el detalle de un club
+                name: NAME_CLUB_DETAIL_ROUTE,
                 component: () => import('@/views/user/ClubDetailView.vue'),
                 props: true
             },
             {
-                path: 'activities/:id', // RUTA: para el detalle de una actividad
-                name: 'ActivityDetail',
+                path: PATH_ACTIVITY_DETAIL, // RUTA: para el detalle de una actividad
+                name: NAME_ACTIVITY_DETAIL_ROUTE,
                 component: () => import('@/views/user/ActivityDetailView.vue'),
                 props: true
             }
@@ -92,16 +94,16 @@ const routes: RouteRecordRaw[] = [
 
     // --- Rutas de Administración del Club ---
     {
-    path: '/club/:id',
+    path: PATH_ADMIN_CLUB,
     component: AdminView,
     children: clubChildren,
     // CAMBIA ESTA LÍNEA TEMPORALMENTE
-    meta: { requiresAuth: false } // Originalmente era 'true'
+    meta: { requiresAuth: true } // Originalmente era 'true'
     },
     // --- Ruta Fallback (404) ---
     {
-        path: '/:pathMatch(.*)*',
-        redirect: '/'
+        path: PATH_NOT_FOUND,
+        component: NotFoundView
     }
 ];
 
@@ -120,9 +122,18 @@ export const router = createRouter({
  */
 router.beforeEach((to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => { 
     const auth = useAuthStore();
+
+    // Lógica de autenticación para PRODUCCIÓN:
+    // Si la ruta requiere autenticación y el usuario no está autenticado, redirige al login.
     if (to.meta.requiresAuth && !auth.isAuthenticated) {
-        next({ name: 'Login' });
+        next({ name: NAME_LOGIN });
     } else {
         next();
     }
+
+    // --- PARA DESARROLLO (DESCOMENTAR PARA DESHABILITAR AUTENTICACIÓN) ---
+    // Si necesitas deshabilitar temporalmente la autenticación para desarrollo,
+    // comenta el bloque 'if/else' de arriba y descomenta la siguiente línea:
+    // next();
+    // --- FIN: PARA DESARROLLO ---
 });

@@ -13,6 +13,7 @@ import { useAuthStore } from '@/store/useAuthStore'; // Importar useAuthStore
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import BaseInput from '@/components/ui/BaseInput.vue';
 import ProfilePictureUpload from '@/components/ui/ProfilePictureUpload.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
 
 const userStore = useUserStore();
 const authStore = useAuthStore(); // Obtener instancia de authStore
@@ -74,8 +75,8 @@ function saveChanges() {
     </div>
 
     <div class="p-4 border-t flex justify-end gap-3 bg-gray-50 rounded-b-lg">
-      <button @click="userStore.closeAllModals()" class="btn">Cancelar</button>
-      <button @click="saveChanges" class="btn-primary">Guardar Cambios</button>
+      <BaseButton @click="userStore.closeAllModals()" variant="secondary">Cancelar</BaseButton>
+      <BaseButton @click="saveChanges">Guardar Cambios</BaseButton>
     </div>
   </div>
 </template>

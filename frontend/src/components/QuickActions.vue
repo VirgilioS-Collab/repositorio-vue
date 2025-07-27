@@ -17,7 +17,11 @@ const userStore = useUserStore();
 const authStore = useAuthStore();
 
 // Obtenemos el nombre del usuario para el saludo.
-const userName = computed(() => authStore.currentUser?.u_name || '');
+const userName = computed(() => {
+  console.log('QuickActions - currentUser:', authStore.currentUser);
+  console.log('QuickActions - userName:', authStore.currentUser?.u_name);
+  return authStore.currentUser?.u_name || '';
+});
 
 /**
  * @docstring

@@ -77,14 +77,7 @@ async function submit(): Promise<void> {
           ¿Olvidaste tu contraseña?
         </RouterLink>
 
-        <div class="border-t border-gray-200 my-2"></div>
-
-        <RouterLink
-            :to="{ name: 'Register' }"
-            :class="{ 'opacity-50 pointer-events-none': auth.loading }"
-            class="btn-accent w-auto mx-auto block mt-4">
-          Crear cuenta nueva
-        </RouterLink>
+        
       </form>
       <p v-if="auth.error" class="text-sm text-red-500 text-center mt-4">{{ auth.error }}</p>
   </div>

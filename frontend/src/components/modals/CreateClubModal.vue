@@ -4,9 +4,11 @@ import BaseInput from '@/components/ui/BaseInput.vue';
 import ModalOverlay from '@/components/ui/ModalOverlay.vue';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import ProfilePictureUpload from '@/components/ui/ProfilePictureUpload.vue'; // Importar el componente de subida de imagen
+import BaseButton from '@/components/ui/BaseButton.vue'; // Importar el nuevo componente
 import { useClubStore } from '@/store/useClubStore';
 import ImageDao from '@/services/dao/ImageDao'; // Importar ImageDao
 import type { ClubCreateRequestDTO } from '@/services/dao/models/Club';
+import { CLUB_CATEGORIES } from '@/constants';
 
 const emit = defineEmits(['close', 'clubCreated']);
 
@@ -39,7 +41,7 @@ async function createClub() {
   try {
     // Lógica para subir la imagen primero si hay un archivo seleccionado
     if (clubLogoFile.value) {
-      const response = await ImageDao.uploadGenericImage(clubLogoFile.value);
+      const response = await ImageDao.uploadImageFromFormData(clubLogoFile.value);
       form.value.image_url = response.imageUrl;
     }
 
@@ -90,7 +92,7 @@ function close() {
           label="Tipo de Club"
           v-model="form.g_group_category"
           type="select"
-          :options="[{ value: 'academic', label: 'Académico' }, { value: 'sport', label: 'Deportivo' }, { value: 'cultural', label: 'Cultural' }, { value: 'social', label: 'Social' }]"
+          :options="CLUB_CATEGORIES"
           required
         />
         <BaseInput
@@ -117,11 +119,10 @@ function close() {
         <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
 
         <div class="flex justify-end gap-3 mt-6">
-          <button type="button" @click="close" class="btn-secondary-admin">Cancelar</button>
-          <button type="submit" class="btn-primary-admin" :disabled="isLoading">
-            <LucideIcon v-if="isLoading" name="loader" class="animate-spin mr-2" :size="18" />
+          <BaseButton type="button" @click="close" variant="secondary">Cancelar</BaseButton>
+          <BaseButton type="submit" :loading="isLoading" :disabled="isLoading">
             Crear Club
-          </button>
+          </BaseButton>
         </div>
       </form>
     </div>

@@ -12,6 +12,7 @@ import { useUserStore } from '@/store/useUserStore';
 import { useClubStore } from '@/store/useClubStore'; // Importar useClubStore
 import { storeToRefs } from 'pinia';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
 
 // --- STORES Y ESTADO ---
 const route = useRoute();
@@ -108,8 +109,14 @@ onMounted(fetchMembers);
     <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h2 class="text-2xl font-bold text-darkText">Gestión de Miembros</h2>
       <div class="flex flex-wrap items-center gap-2 w-auto">
-        <button @click="exportToCSV" class="btn-secondary-admin flex-shrink-0 inline-flex items-center justify-center px-4 py-2 text-sm"><LucideIcon name="download" :size="18"/>Exportar CSV</button>
-        <button @click="showInviteModal = true" class="btn-primary-admin flex-shrink-0 inline-flex items-center justify-center px-4 py-2 text-sm"><LucideIcon name="user-plus" :size="18"/>Invitar Miembros</button>
+        <BaseButton @click="exportToCSV" variant="secondary">
+            <template #icon><LucideIcon name="download" :size="18"/></template>
+            Exportar CSV
+        </BaseButton>
+        <BaseButton @click="showInviteModal = true">
+            <template #icon><LucideIcon name="user-plus" :size="18"/></template>
+            Invitar Miembros
+        </BaseButton>
       </div>
     </header>
 
@@ -130,10 +137,10 @@ onMounted(fetchMembers);
     <div v-if="selectedMembers.length > 0" class="mb-4 p-3 bg-primary-dark text-white rounded-lg flex items-center justify-between">
         <span class="font-semibold">{{ selectedMembers.length }} miembro(s) seleccionado(s)</span>
         <div class="flex flex-wrap items-center gap-2">
-            <button @click="applyBulkAction('activate')" class="btn-bulk-action">Activar</button>
-            <button @click="applyBulkAction('deactivate')" class="btn-bulk-action">Desactivar</button>
-            <button @click="applyBulkAction('changeRole')" class="btn-bulk-action">Cambiar Rol</button>
-            <button @click="applyBulkAction('remove')" class="btn-bulk-action bg-red-500 hover:bg-red-600">Eliminar</button>
+            <BaseButton @click="applyBulkAction('activate')" variant="accent">Activar</BaseButton>
+            <BaseButton @click="applyBulkAction('deactivate')" variant="accent">Desactivar</BaseButton>
+            <BaseButton @click="applyBulkAction('changeRole')" variant="accent">Cambiar Rol</BaseButton>
+            <BaseButton @click="applyBulkAction('remove')" variant="danger">Eliminar</BaseButton>
         </div>
     </div>
 
@@ -173,8 +180,8 @@ onMounted(fetchMembers);
     <div class="flex justify-between items-center mt-4" v-if="totalPages > 1">
         <p class="text-sm text-gray-600">Página {{ page }} de {{ totalPages }}</p>
         <div class="flex gap-2">
-            <button @click="page--" :disabled="page <= 1" class="btn-secondary-admin">Anterior</button>
-            <button @click="page++" :disabled="page >= totalPages" class="btn-secondary-admin">Siguiente</button>
+            <BaseButton @click="page--" :disabled="page <= 1" variant="secondary">Anterior</BaseButton>
+            <BaseButton @click="page++" :disabled="page >= totalPages" variant="secondary">Siguiente</BaseButton>
         </div>
     </div>
 
@@ -184,8 +191,8 @@ onMounted(fetchMembers);
         <p class="text-sm text-gray-500 mb-4">Ingresa los correos, separados por comas, punto y coma o saltos de línea.</p>
         <textarea v-model="emailsToInvite" rows="5" class="input-focus-effect w-full" placeholder="ejemplo@utp.ac.pa"></textarea>
         <div class="flex justify-end gap-3 mt-6">
-          <button @click="showInviteModal = false" class="btn-secondary-admin">Cancelar</button>
-          <button @click="handleInvite" class="btn-primary-admin">Enviar Invitaciones</button>
+          <BaseButton @click="showInviteModal = false" variant="secondary">Cancelar</BaseButton>
+          <BaseButton @click="handleInvite">Enviar Invitaciones</BaseButton>
         </div>
       </div>
     </div>
@@ -199,8 +206,8 @@ onMounted(fetchMembers);
           <option value="admin">Administrador</option>
         </select>
         <div class="flex justify-end gap-3 mt-6">
-          <button @click="showChangeRoleModal = false" class="btn-secondary-admin">Cancelar</button>
-          <button @click="handleChangeRole" class="btn-primary-admin">Confirmar Cambio</button>
+          <BaseButton @click="showChangeRoleModal = false" variant="secondary">Cancelar</BaseButton>
+          <BaseButton @click="handleChangeRole">Confirmar Cambio</BaseButton>
         </div>
       </div>
     </div>

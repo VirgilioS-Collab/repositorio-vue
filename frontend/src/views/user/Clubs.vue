@@ -4,7 +4,7 @@
     <p class="text-gray-600">Selecciona un club o navega al dashboard de administración.</p>
     <router-link
         to="/admin"
-        class="btn-primary mt-6 inline-block">
+        class="mt-6 inline-block px-4 py-2 rounded-md font-semibold transition-colors duration-200 bg-primary text-white hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
       Ir al Dashboard Admin
     </router-link>
   </div>

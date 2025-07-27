@@ -10,6 +10,7 @@ import { ref } from 'vue';
 import { useUserStore } from '@/store/useUserStore';
 import LucideIcon from '@/components/ui/LucideIcon.vue';
 import BaseInput from '@/components/ui/BaseInput.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
 
 const userStore = useUserStore();
 
@@ -48,8 +49,8 @@ function changePassword() {
     </div>
 
     <div class="p-4 border-t flex justify-end gap-3 bg-gray-50 rounded-b-lg">
-      <button @click="userStore.closeAllModals()" class="btn">Cancelar</button>
-      <button @click="changePassword" class="btn-primary">Actualizar Contraseña</button>
+      <BaseButton @click="userStore.closeAllModals()" variant="secondary">Cancelar</BaseButton>
+      <BaseButton @click="changePassword">Actualizar Contraseña</BaseButton>
     </div>
   </div>
 </template>

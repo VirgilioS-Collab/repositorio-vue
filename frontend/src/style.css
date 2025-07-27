@@ -142,209 +142,6 @@
 }
 
 /* @docstring
- * Clase base para botones secundarios o de acción "Cancelar".
- * Proporciona un estilo neutro y un efecto visual al pasar el cursor.
- * @effects Aplica padding, bordes, fondo blanco, texto gris y un sutil efecto hover.
- */
-.btn {
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgb(209 213 219);
-  background-color: rgb(255 255 255);
-  color: rgb(55 65 81);
-  transition-property: color, background-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
-}
-
-.btn:hover {
-  background-color: rgb(243 244 246);
-}
-
-/* @docstring
- * Clase para botones primarios, utilizados para acciones principales o confirmaciones.
- * @effects Aplica padding, texto blanco, fondo con el color `primary` de la paleta
- * y un efecto de opacidad al pasar el cursor para indicar interactividad.
- */
-.btn-primary {
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  color: rgb(255 255 255);
-  font-weight: 700;
-  background-color: #00205B;
-  transition-property: opacity;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-}
-
-/* @docstring
- * Clase para el botón principal de administración.
- * @effects Alinea los ítems, centra el contenido, aplica padding, fondo `primary`,
- * texto blanco, bordes redondeados, fuente semibold y un efecto hover más oscuro.
- * También gestiona la opacidad para estados deshabilitados.
- */
-.btn-primary-admin { 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  background-color: #00205B;
-  color: rgb(255 255 255);
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition-property: color, background-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-.btn-primary-admin:hover {
-  background-color: #001A4D;
-}
-
-.btn-primary-admin:disabled {
-  opacity: 0.7;
-}
-
-/* @docstring
- * Clase para botones secundarios en interfaces de administración.
- * @effects Aplica padding, fondo gris claro, texto oscuro, bordes redondeados,
- * fuente semibold y un efecto hover de fondo más oscuro.
- */
-.btn-secondary-admin { 
-  padding: 0.5rem 1rem;
-  background-color: rgb(229 231 235);
-  color: #1a202c;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-.btn-secondary-admin:hover {
-  background-color: rgb(209 213 219);
-}
-
-/* @docstring
- * Clase para botones de acción de peligro (e.g., eliminar).
- * @effects Aplica padding, fondo transparente, texto rojo, borde rojo,
- * bordes redondeados, fuente semibold y un sutil efecto hover de fondo.
- */
-.btn-danger { 
-  padding: 0.5rem 1rem;
-  background-color: transparent;
-  color: rgb(220 38 38);
-  border: 1px solid rgb(220 38 38);
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-.btn-danger:hover {
-  background-color: rgb(254 226 226);
-}
-
-/* @docstring
- * Clase para botones primarios utilizados en la gestión de miembros.
- * @effects Alinea los ítems, aplica padding, fondo `primary`, texto blanco,
- * bordes redondeados, fuente semibold y un efecto hover más oscuro.
- */
-.btn-primary-members { 
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #00205B;
-  color: rgb(255 255 255);
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition-property: color, background-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-.btn-primary-members:hover {
-  background-color: #001A4D;
-}
-
-/* @docstring
- * Clase para botones secundarios utilizados en la gestión de miembros.
- * @effects Alinea los ítems, aplica padding, fondo gris claro, texto oscuro,
- * bordes redondeados, fuente semibold, efecto hover y gestiona la opacidad
- * para estados deshabilitados.
- */
-.btn-secondary-members { 
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: rgb(229 231 235);
-  color: #1a202c;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition-property: color, background-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-.btn-secondary-members:hover {
-  background-color: rgb(209 213 219);
-}
-
-.btn-secondary-members:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* @docstring
- * Clase para botones de acción masiva (bulk actions).
- * @effects Aplica padding compacto, tamaño de fuente pequeño, fuente semibold,
- * texto blanco, fondo `accent` y un efecto hover de fondo más oscuro.
- */
-.btn-bulk-action { 
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 600;
-  color: rgb(255 255 255);
-  background-color: #E4B95B;
-  border-radius: 0.375rem;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-.btn-bulk-action:hover {
-  background-color: rgb(234 179 8);
-}
-
-/* @docstring
- * Clase para botones con el color accent como fondo.
- * Similar a btn-primary pero usando el color secundario de la paleta.
- * @effects Aplica padding, texto de color primary, fondo accent y efecto hover de opacidad.
- */
-.btn-accent {
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  color: #00205B;
-  font-weight: 700;
-  background-color: #E4B95B;
-  transition-property: opacity;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
-}
-
-.btn-accent:hover {
-  opacity: 0.9;
-}
-
-/* @docstring
  * Clase para elementos de estado/status con diferentes variantes de color.
  * Usado para mostrar estados como "Activo", "Inactivo", "Pendiente", etc.
  * @effects Aplica padding pequeño, texto pequeño, esquinas redondeadas y peso de fuente semibold.
@@ -472,4 +269,325 @@ body {
 .slide-fade-leave-to {
   transform: translateY(20px);
   opacity: 0;
+}
+
+/* @docstring
+ * Define el estado final de entrada para la transición `slide-fade`.
+ * @effects El elemento se desliza a su posición final y se vuelve completamente opaco.
+ */
+.slide-fade-enter-to {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* @docstring
+ * Define el estado inicial de salida para la transición `slide-fade`.
+ * @effects El elemento comienza su salida desde su posición normal y completamente opaco.
+ */
+.slide-fade-leave-from {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* @docstring
+ * Define la animación de rotación para un spinner de carga.
+ * @effects Gira el elemento 360 grados continuamente.
+ */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* @docstring
+ * Aplica la animación `spin` a un elemento.
+ * @effects Hace que el elemento gire indefinidamente.
+ */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* --- SECCIÓN DE VARIABLES CSS (para colores y otros valores reutilizables) --- */
+
+/* @docstring
+ * Define las variables CSS personalizadas para la paleta de colores de la aplicación.
+ * Estas variables se utilizan en todo el CSS para mantener la consistencia de la marca.
+ */
+:root {
+  --color-primary: #00205B; /* Azul oscuro */
+  --color-primary-dark: #001A4D; /* Azul oscuro más oscuro para hover/active */
+  --color-accent: #E4B95B; /* Dorado/Amarillo */
+  --color-accent-dark: #D4A94B; /* Dorado/Amarillo más oscuro */
+  --color-text-dark: #1A202C; /* Texto oscuro */
+  --color-text-light: #F7FAFC; /* Texto claro */
+  --color-background-light: #F7FAFC; /* Fondo claro */
+  --color-background-dark: #1A202C; /* Fondo oscuro */
+  --color-card-background: #FFFFFF; /* Fondo de tarjetas */
+  --color-border: #E2E8F0; /* Color de borde */
+  --color-success: #48BB78; /* Verde para éxito */
+  --color-error: #FC8181; /* Rojo para error */
+  --color-warning: #F6E05E; /* Amarillo para advertencia */
+  --color-info: #63B3ED; /* Azul para información */
+}
+
+/* @docstring
+ * Estilos para el scrollbar en navegadores basados en WebKit (Chrome, Safari).
+ * @effects Define el ancho del scrollbar y el color del pulgar y la pista.
+ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Estilos para ImageUpload.vue */
+.image-upload-component {
+  width: 100%;
+  max-width: 400px;
+}
+
+.upload-area {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f9fafb;
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-area:hover {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.upload-area.drag-over {
+  border-color: #3b82f6;
+  background-color: #dbeafe;
+  transform: scale(1.02);
+}
+
+.upload-area.has-error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.upload-area.uploading {
+  cursor: not-allowed;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upload-icon {
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.upload-text .primary-text {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.upload-subtitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.upload-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #374151;
+  font-weight: 500;
+  margin: 0;
+}
+
+.progress-bar {
+  width: 200px;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.image-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.preview-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.remove-btn {
+  background-color: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.remove-btn:hover {
+  background-color: #dc2626;
+}
+
+.file-name {
+  color: #374151;
+  font-size: 0.875rem;
+  margin: 0;
+  word-break: break-all;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.upload-btn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.upload-btn:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.upload-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn:hover {
+  background-color: #4b5563;
+}
+
+/* Estilos para CalendarWidget.vue */
+.calendar-widget-container .fc {
+  font-family: inherit;
+}
+.calendar-widget-container .fc .fc-toolbar-title {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 700;
+  color: #1a202c; /* darkText */
+}
+.calendar-widget-container .fc .fc-button {
+  background-color: transparent !important;
+  border: none !important;
+  color: #00205B !important; /* primary */
+  box-shadow: none !important;
+  padding: 0.5rem;
+}
+.calendar-widget-container .fc .fc-daygrid-day.fc-day-today {
+  background-color: rgba(228, 185, 91, 0.15); /* accent con 15% de opacidad */
+}
+.calendar-widget-container .fc .fc-daygrid-day-number {
+  padding: 0.5em;
+  font-size: 0.8em;
+}
+/* Estilo para el enlace "+X más eventos" */
+.calendar-widget-container .fc-daygrid-more-link {
+  font-size: 0.75rem;
+  font-weight: 600;
 }

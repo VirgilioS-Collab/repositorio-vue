@@ -14,7 +14,7 @@ class ImageDao {
   /**
    * Sube una imagen genérica a /api/images/upload
    */
-  static async uploadGenericImage(file: File): Promise<{ imageUrl: string }> {
+  static async uploadImageFromFormData(file: File): Promise<{ imageUrl: string }> {
     const formData = new FormData();
     formData.append('image', file);
 
@@ -24,6 +24,14 @@ class ImageDao {
       },
     });
     return response.data;
+  }
+
+  /**
+   * Sube una imagen en formato Base64 a /api/images/upload
+   */
+  static async uploadImageFromBase64(payload: ImageUploadRequestDTO): Promise<ImageUploadResponseDTO> {
+    const { data } = await Http.post<ImageUploadResponseDTO>('/api/images/upload', payload);
+    return data;
   }
 
   /**

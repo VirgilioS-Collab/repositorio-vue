@@ -4,6 +4,23 @@
  */
 
 /**
+ * DTO simplificado de actividad para User Features
+ */
+export interface SimpleActivityDTO {
+    activity_id:          number;
+    activity_name:        string;
+    activity_description?: string;
+    activity_datetime:    string; // Formato ISO 8601
+    start_time?:          string; // Formato ISO 8601
+
+    // Campos enriquecidos opcionales 
+    participants_count?:   number;
+    activity_type_name?:   string;
+    activity_status_name?: string;
+    group_name?:           string;
+}
+
+/**
  * DTO para horario de actividad
  */
 export interface ActivityScheduleDTO {

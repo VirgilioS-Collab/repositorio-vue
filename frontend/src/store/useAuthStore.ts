@@ -101,13 +101,16 @@ export const useAuthStore = defineStore('auth', {
      * Se ejecuta al iniciar la aplicación.
      */
     async tryLoadTokenFromStorage(): Promise<void> {
+      console.log('Attempting to load token from storage...');
       const token = localStorage.getItem('authToken');
       if (!token) {
+        console.log('No token found in localStorage.');
         return;
       }
 
       try {
         const decodedToken: JwtPayload = jwtDecode(token);
+        console.log('Token decoded:', decodedToken);
 
         // Verifica si el token ha expirado
         if (decodedToken.exp * 1000 < Date.now()) {
@@ -117,11 +120,13 @@ export const useAuthStore = defineStore('auth', {
         }
 
         this.setAccessToken(token);
+        console.log('Access token set from storage.');
         
         // Una vez logueado y con el token, obtener los detalles completos del usuario
         // y mapearlos a la versión "lean".
         const fullUser = await AuthDao.me();
         this.user = fullUser;
+        console.log('User data loaded from AuthDao.me():', this.user);
       } catch (error) {
         console.error('Token inválido o malformado:', error);
         this.logout();
@@ -146,15 +151,19 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       this.error = null; // Limpiar errores anteriores
       try {
+        console.log('Attempting login...');
         const { token } = await AuthDao.login(payload);
         this.setAccessToken(token);
+        console.log('Login successful, access token set.');
         // Una vez logueado y con el token, obtener los detalles del usuario
         // y mapearlos a la versión "lean".
         const fullUser = await AuthDao.me();
         this.user = fullUser;
+        console.log('User data loaded after login:', this.user);
       } catch (e: any) {
         // Capturar el error y establecer un mensaje amigable, si es posible del backend.
         this.error = e.response?.data?.message || 'Credenciales inválidas. Por favor, verifica tu correo y contraseña.';
+        console.error('Login failed:', this.error, e);
         // Es importante re-lanzar el error para que los componentes de la UI que llamen a esta
         // acción puedan manejar la notificación de error (ej. mostrar un toast).
         throw e;
@@ -195,7 +204,7 @@ export const useAuthStore = defineStore('auth', {
      */
     updateUserProfilePicture(newImageUrl: string) {
       if (this.user) {
-        this.user.avatar = newImageUrl;
+        this.user.u_profile_photo_url = newImageUrl;
       }
     },
   },

@@ -7,12 +7,12 @@ import { RouterView } from 'vue-router'
 /* -------- estado necesario para el navbar ---------- */
 const userStore = useUserStore()
 const {
-  user, showProfileDropdown
+  showProfileDropdown
 } = storeToRefs(userStore)
 
 /* -------- acciones que el navbar emite -------------- */
 function toggleProfileDropdown() {
-  userStore.showProfileDropdown = !userStore.showProfileDropdown
+  userStore.toggleProfileDropdown()
 }
 function openModal(modal: string) {
   userStore.openModal(modal as any)
@@ -24,7 +24,6 @@ function openModal(modal: string) {
 <template>
   <AppNavbar
       :showProfileDropdown="showProfileDropdown"
-      :user="user"
       @openModal="openModal"
       @toggleProfileDropdown="toggleProfileDropdown"
   />

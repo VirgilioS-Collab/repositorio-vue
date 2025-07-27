@@ -11,6 +11,7 @@ import { useRouter } from 'vue-router'
 import RegistrationForm from '@/views/auth/RegistrationForm.vue'
 import { useAuthStore } from '@/store/useAuthStore' // Aunque RegistrationForm ya no usa authStore, se mantiene si es necesario para LoadingOverlay
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
+import { NAME_LOGIN } from '@/constants/routes';
 
 // --- SECCIÓN DE CONSTANTES ---
 const router = useRouter()
@@ -25,7 +26,7 @@ const authStore = useAuthStore() // Se mantiene si `LoadingOverlay` se basa en `
  * @effects Redirige al usuario a la ruta de login.
  */
 function onRegisteredSuccessfully(): void {
-  router.push({ name: 'Login', query: { registered: 'true' } })
+  router.push({ name: NAME_LOGIN, query: { registered: 'true' } })
 }
 </script>
 

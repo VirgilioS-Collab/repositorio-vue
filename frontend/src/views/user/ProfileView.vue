@@ -6,12 +6,12 @@
       <div class="flex items-center space-x-6 mb-6">
         <div class="relative">
           <img 
-            :src="authStore.user?.avatar || defaultAvatar" 
+            :src="authStore.currentUser?.u_profile_photo_url || defaultAvatar" 
             alt="Foto de perfil" 
             class="w-24 h-24 rounded-full object-cover"
           />
           <button 
-            @click="isUploaderVisible = true"
+            @click="openProfilePictureUploadModal()"
             class="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition"
             aria-label="Cambiar foto de perfil"
           >
@@ -22,17 +22,17 @@
           </button>
         </div>
         <div>
-          <h2 class="text-xl font-semibold">{{ authStore.user?.u_name }} {{ authStore.user?.u_last_name }}</h2>
-          <p class="text-gray-500">@{{ authStore.user?.u_username }}</p>
+          <h2 class="text-xl font-semibold">{{ authStore.currentUser?.u_name }} {{ authStore.currentUser?.u_last_name }}</h2>
+          <p class="text-gray-500">@{{ authStore.currentUser?.u_username }}</p>
         </div>
       </div>
 
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-          <p class="mt-1 text-lg text-gray-900">{{ authStore.user?.u_email }}</p>
+          <p class="mt-1 text-lg text-gray-900">{{ authStore.currentUser?.u_email }}</p>
         </div>
-        <button @click="openEditModal" class="btn-primary">Editar Perfil</button>
+        <BaseButton @click="openEditModal">Editar Perfil</BaseButton>
       </div>
 
       <div class="mt-6">
@@ -47,9 +47,9 @@
       </div>
     </div>
 
-    <ImageUploader 
-      :visible="isUploaderVisible" 
-      @close="isUploaderVisible = false"
+    <ProfilePictureUploadModal 
+      :visible="userStore.modals.profilePictureUpload" 
+      @close="userStore.closeAllModals()"
       @upload-success="onUploadSuccess"
     />
     
@@ -67,21 +67,22 @@
 import { ref } from 'vue';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUserStore } from '@/store/useUserStore';
-import ImageUploader from '@/components/common/ImageUploader.vue';
+import ProfilePictureUploadModal from '@/components/modals/ProfilePictureUploadModal.vue'; // Importar el nuevo modal
 import EditProfileModal from '@/components/modals/EditProfileModal.vue';
 import ActivityHistory from '@/components/ActivityHistory.vue';
 import ClubList from '@/components/ClubList.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
 import defaultAvatar from '@/assets/vue.svg';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
-const isUploaderVisible = ref(false);
 const isEditModalVisible = ref(false);
 const emailNotifications = ref(true);
 
 const onUploadSuccess = (newImageUrl: string) => {
-  authStore.updateUserProfilePicture(newImageUrl);
-  isUploaderVisible.value = false;
+  // La actualización del store ya se maneja dentro de ProfilePictureUploadModal
+  // authStore.updateUserProfilePicture(newImageUrl); // Ya no es necesario aquí
+  userStore.closeAllModals(); // Cerrar el modal de subida
 };
 
 const openEditModal = () => {
@@ -90,5 +91,9 @@ const openEditModal = () => {
 
 const closeEditModal = () => {
   isEditModalVisible.value = false;
+};
+
+const openProfilePictureUploadModal = () => {
+  userStore.openModal('profilePictureUpload');
 };
 </script>

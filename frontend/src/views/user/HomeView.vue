@@ -30,12 +30,15 @@ import EditProfileModal from '@/components/modals/EditProfileModal.vue';
 import SecurityModal from '@/components/modals/SecurityModal.vue';
 import CreateActivityModal from '@/components/modals/CreateActivityModal.vue';
 import CreateClubModal from '@/components/modals/CreateClubModal.vue'; // Importar el nuevo modal
+import ProfilePictureUploadModal from '@/components/modals/ProfilePictureUploadModal.vue'; // Importar el nuevo modal de foto de perfil
+import JoinClubModal from '@/components/modals/JoinClubModal.vue'; // Importar el nuevo modal de unirse a club
 
 // Componente del nuevo Overlay para modales
 import ModalOverlay from '@/components/ui/ModalOverlay.vue';
 
 // Componentes de UI generales
 import ToastNotification from '@/components/ui/ToastNotification.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
 
 // AÑADIDO: Importamos los nuevos widgets que vamos a crear
 import UpcomingEventsWidget from '@/components/widgets/UpcomingEventsWidget.vue';
@@ -82,6 +85,8 @@ function closeCreateClubModal() {
     <SecurityModal    v-if="modals.security"     />
     <CreateActivityModal v-if="modals.createActivity" />
     <CreateClubModal v-if="showCreateClubModal" @close="closeCreateClubModal" @clubCreated="closeCreateClubModal" />
+    <ProfilePictureUploadModal :visible="modals.profilePictureUpload" @close="userStore.closeAllModals()" />
+    <JoinClubModal v-if="modals.joinClub" @close="userStore.closeAllModals()" />
   </ModalOverlay>
 
   <ToastNotification v-if="toast.show"
@@ -95,7 +100,7 @@ function closeCreateClubModal() {
 
         <div class="lg:col-span-2 space-y-10">
           <QuickActions />
-          <button @click="openCreateClubModal" class="btn-primary-admin mb-4">Crear Nuevo Club</button>
+          <BaseButton @click="openCreateClubModal" class="mb-4">Crear Nuevo Club</BaseButton>
           <ClubsSection
               :clubs="filteredClubs || []"
               :show-all-clubs="showAllClubs"

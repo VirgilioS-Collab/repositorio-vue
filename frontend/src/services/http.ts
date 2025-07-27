@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import AuthDao from '@/services/dao/AuthDao';
 import { router } from '@/router'; // Importa el router
+import { PATH_LOGIN } from '@/constants/routes';
 
 const http = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
@@ -77,7 +78,7 @@ http.interceptors.response.use(
                 } catch (refreshError: any) {
                     processQueue(refreshError, null); // Rechaza las peticiones en cola
                     authStore.logout(); // Cierra la sesión en el store
-                    router.push('/auth/login'); // Redirige al login
+                    router.push(PATH_LOGIN); // Redirige al login
                     reject(refreshError);
                 } finally {
                     isRefreshing = false;

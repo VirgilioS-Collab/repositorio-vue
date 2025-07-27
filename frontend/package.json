@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "dependencies": {
-    "@fullcalendar/daygrid": "^6.1.17",
-    "@fullcalendar/interaction": "^6.1.17",
-    "@fullcalendar/vue3": "^6.1.17",
+    "@fullcalendar/core": "^6.1.18",
+    "@fullcalendar/daygrid": "^6.1.18",
+    "@fullcalendar/interaction": "^6.1.18",
+    "@fullcalendar/vue3": "^6.1.18",
     "axios": "^1.4.0",
     "echarts": "^5.6.0",
     "jwt-decode": "^4.0.0",
@@ -25,13 +27,17 @@
     "@types/node": "^24.0.4",
     "@vitejs/plugin-vue": "^5.2.2",
     "@vitejs/plugin-vue-jsx": "^5.0.0",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
+    "jsdom": "^26.1.0",
     "lucide": "^0.503.0",
     "postcss": "^8.5.6",
+    "postcss-import": "^16.1.1",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.7.2",
     "vite": "^6.3.5",
+    "vitest": "^3.2.4",
     "vue-tsc": "^2.2.8"
   },
   "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"

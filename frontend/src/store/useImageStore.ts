@@ -60,7 +60,7 @@ export const useImageStore = defineStore('image', {
           }
         }, 100);
 
-        const result = await ImageDao.uploadImage(payload);
+        const result = await ImageDao.uploadImageFromBase64(payload);
 
         clearInterval(progressInterval);
         this.uploadProgress = 100;
@@ -125,28 +125,17 @@ export const useImageStore = defineStore('image', {
       this.uploadProgress = 0;
 
       try {
-        // Simular progreso de subida
-        const progressInterval = setInterval(() => {
-          if (this.uploadProgress < 90) {
-            this.uploadProgress += 10;
-          }
-        }, 100);
+        const response = await ImageDao.updateProfilePhoto(file);
 
-        const imageUrl = await userService.uploadProfilePicture(file, (progressEvent: ProgressEvent) => {
-          this.uploadProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        });
-
-        clearInterval(progressInterval);
         this.uploadProgress = 100;
 
-        this.lastUploadedUrl = imageUrl;
-        return imageUrl;
+        this.lastUploadedUrl = response.imageUrl;
+        return response.imageUrl;
       } catch (e: any) {
         this.error = e.message || 'Error al actualizar foto de perfil';
         throw e;
       } finally {
         this.uploading = false;
-        // Resetear progreso después de un momento
         setTimeout(() => {
           this.uploadProgress = 0;
         }, 1000);
