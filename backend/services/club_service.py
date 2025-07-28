@@ -90,6 +90,45 @@ class ClubService:
             if connection:
                 connection.close()
 
+    @staticmethod
+    def get_all_clubs():
+        """
+        Obtiene todos los clubes/grupos disponibles
+        """
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+            
+            cursor.callproc('public.fn_get_all_clubs')
+            clubs = cursor.fetchall()
+
+            result = []
+            for club in clubs:
+                result.append({
+                    'group_id': club[0],
+                    'group_name': club[1],
+                    'group_description': club[2],
+                    'owner_name': club[3],
+                    'creation_date': club[4].isoformat() if club[4] else None,
+                    'logo_url': club[5],
+                    'group_type_name': club[6],
+                    'group_status_name': club[7],
+                    'members_count': club[8]
+                })
+            
+            cursor.close()
+            connection.close()
+            return result
+            
+        except Exception as e:
+            print(f"Error getting all clubs: {e}")
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
     @staticmethod   
     def get_user_related_groups(user_id:int) -> Optional[list[Dict[str, Any]]]:
         """Obtiene los grupos relacionados al usuario por user_id"""
