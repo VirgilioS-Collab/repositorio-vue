@@ -18,7 +18,8 @@ from controllers.club_controller import (
     upload_group_pfp,
     export_club_members,
     delete_club,
-    reactivate_club
+    reactivate_club,
+    get_all_clubs
 )
 
 # Crear blueprint
@@ -29,6 +30,7 @@ club_bp.route("/api/groups/<int:club_id>", methods=['GET'])(get_club_details)
 club_bp.route("/api/users/me/groups", methods=['GET'])(get_club_by_user)
 club_bp.route("/api/groups/<int:club_id>/join", methods=['POST'])(request_join_group)
 club_bp.route("/api/groups", methods= ['POST'])(create_club)
+club_bp.route("/api/groups", methods=['GET'])(get_all_clubs)
 club_bp.route("/api/groups/<int:club_id>/photo", methods=['PUT'])(upload_group_pfp)
 #Administración
 club_bp.route("/api/admin/clubs/<int:club_id>/members/stats", methods=['GET'])(get_member_stats)

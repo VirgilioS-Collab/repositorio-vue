@@ -82,6 +82,19 @@ def create_club():
             'message': 'Error del servidor al procesar la solicitud'
         }), 500
 
+@jwts.token_required('access')
+def get_all_clubs():
+    """
+    Obtiene todos los clubes/grupos disponibles.
+    """
+    try:
+        clubs = ClubService.get_all_clubs()
+        if not clubs:
+            return jsonify({'message': 'No hay clubes disponibles.', 'success': True}), 404
+        
+        return jsonify({'clubs_list': clubs}), 200
+    except Exception as e:
+        return jsonify({'error': 'Error interno del servidor'}), 500
 
 
 @jwts.token_required('access')
