@@ -219,8 +219,6 @@ def upcoming_user_events():
     """Obtiene los eventos próximos del usuario autenticado.
      Utiliza el token JWT para identificar al usuario y devuelve los eventos almacenados en la base de datos."""
     try:
-        if request.method == 'OPTIONS':
-            return jsonify({'message': 'OK'}), 200
         user_id = request.current_user.get('user_id')
         result = uus.get_upcoming_events(user_id=user_id)
         return jsonify({'upcoming_events':result}), 200
