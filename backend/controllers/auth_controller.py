@@ -233,6 +233,6 @@ def reset_password_via_code():
     update_result = auth_service.reset_password(email=email, new_password=hashed_password)
 
     if not update_result:
-        return jsonify({"message": 'error al actualizar contraseña.', 'success':False})
+        return jsonify({"message": 'error al actualizar contraseña.', 'success':False}), 500
     
     return update_result
