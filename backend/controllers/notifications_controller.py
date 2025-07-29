@@ -1,6 +1,7 @@
 from emails.email_types.activity_cancelled import send_activity_cancel_email
 from emails.email_types.activity_reminder import send_activity_reminder_email
 from emails.email_types.activity_created import send_activity_created_email
+from emails.email_types.verification_code_email import send_verification_email
 from app import app
 from flask import current_app
 
@@ -31,6 +32,8 @@ class ProcessNotifications:
                     self._handle_activity_created()
                 case 'activity_reminder':
                     self._handle_activity_reminder()
+                case 'reset_pass_code':
+                    self._handle_reset_pass_code()
                 case _:
                     print(f"Contexto desconocido: {self.context}")
 
@@ -82,3 +85,13 @@ class ProcessNotifications:
                     activity_name=activity_name,
                     group_name=group_name
                 )
+    
+    def _handle_reset_pass_code(self):
+        """ Maneja el envío de correos electrónicos para el restablecimiento de contraseña.
+        Extrae los datos necesarios del contexto y envía un correo electrónico con el código de verificación."""
+        email = self.data.get('email')
+        code = self.data.get('code')
+        if email and code:
+            send_verification_email(email, code)
+
+    
