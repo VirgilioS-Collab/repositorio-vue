@@ -159,20 +159,10 @@ def create_user() -> tuple:
     message, success = auth_service.create_user_db(data)
 
     if success:
-        full_name = f'{data.get("firstName")} {data.get("lastName")}'.strip()
-        email = data.get('email', '')
-        if welcome.send_welcome_email(recipient=email, user_name=full_name):
-            return jsonify({
+        return jsonify({
                 "message": message,
                 "success": True
             }), 201
-        
-        else:
-            return jsonify({
-                "message": 'usuario creado exitosamente. Fallo en la mensajeria.',
-                "success": True
-            }), 201
-
     else:
         return jsonify({
             "success": False,
