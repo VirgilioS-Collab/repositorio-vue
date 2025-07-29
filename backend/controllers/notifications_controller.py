@@ -2,6 +2,7 @@ from emails.email_types.activity_cancelled import send_activity_cancel_email
 from emails.email_types.activity_reminder import send_activity_reminder_email
 from emails.email_types.activity_created import send_activity_created_email
 from emails.email_types.verification_code_email import send_verification_email
+from emails.email_types.welcome import send_welcome_email
 from app import app
 from flask import current_app
 
@@ -34,6 +35,8 @@ class ProcessNotifications:
                     self._handle_activity_reminder()
                 case 'reset_pass_code':
                     self._handle_reset_pass_code()
+                case 'welcome_user':
+                    self._handle_welcome_user()
                 case _:
                     print(f"Contexto desconocido: {self.context}")
 
@@ -94,4 +97,10 @@ class ProcessNotifications:
         if email and code:
             send_verification_email(email, code)
 
-    
+    def _handle_welcome_user(self):
+        """ Maneja el envío de correos electrónicos de bienvenida a nuevos usuarios.
+        Extrae los datos necesarios del contexto y envía un correo electrónico de bienvenida."""
+        email = self.data.get('email')
+        full_name = self.data.get('full_name')
+        if email and full_name:
+            send_welcome_email(email, full_name)
