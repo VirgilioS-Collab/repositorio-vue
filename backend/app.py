@@ -36,8 +36,9 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER", "no-reply@l
 init_mail(app)
 
 #CORS
-frontend_origin = os.getenv('FRONTEND_ORIGIN')
-CORS(app, resources={r"/api/*": {'origins': frontend_origin}}, supports_credentials=True)
+frontend_origins = os.getenv('FRONTEND_ORIGIN', '')
+allowed_origins = [origin.strip() for origin in frontend_origins.split(',') if origin.strip()]
+CORS(app, resources={r"/api/*": {'origins': allowed_origins}}, supports_credentials=True)
 
 #BluePrints
 app.register_blueprint(auth_bp)
