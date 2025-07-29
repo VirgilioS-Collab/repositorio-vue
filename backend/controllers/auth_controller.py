@@ -196,10 +196,7 @@ def user_forgot_password():
 
     if not inserted:
         return jsonify({'message': 'No se pudo generar el código.', 'success': False}), 500
-    
-    if not vce.send_verification_email(email, code):
-        return jsonify({'message': 'No se pudo enviar el código.', 'success': False}), 500
-    
+
     reset_token = jwts.create_token(user_data={'email': email}, expires_in=RESET_PASS_TOKEN_EXPIRES, type='reset_pass')
 
     return jsonify({'message': 'codigo enviado exitosamente.', 'token': reset_token,'success': True}), 200
