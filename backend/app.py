@@ -38,7 +38,6 @@ init_mail(app)
 #CORS
 frontend_origins = os.getenv('FRONTEND_ORIGIN', '')
 allowed_origins = [origin.strip() for origin in frontend_origins.split(',') if origin.strip()]
-print(f"Allowed origins for CORS: {allowed_origins}")
 CORS(app, resources={r"/api/*": {'origins': allowed_origins}}, supports_credentials=True)
 
 #BluePrints

@@ -20,4 +20,4 @@ users_bp.route('/api/users/me/notifications', methods=['PUT'])(update_user_notif
 users_bp.route("/api/user/me/activities", methods=['GET'])(get_activities_by_user)
 users_bp.route("/api/user/me/activity/<int:activity_id>", methods=['POST'])(join_activity)
 users_bp.route("/api/user/me/activity/<int:activity_id>", methods=['PUT'])(leave_activity)
-users_bp.route("/api/user/me/events", methods=['GET', 'OPTIONS'])(upcoming_user_events)
+users_bp.route("/api/user/me/events", methods=['GET'])(upcoming_user_events)
