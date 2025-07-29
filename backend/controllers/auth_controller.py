@@ -4,7 +4,6 @@ from services import auth_service
 from services.jwt_service import JWTService as jwts
 from emails.email_types import verification_code_email as vce
 from emails.email_types import welcome
-import threading
 
 #Constantes
 REFRESH_TOKEN_EXPIRES = auth_service.refresh_token_ttl()
@@ -153,23 +152,26 @@ def logout() ->tuple:
 
 def create_user() -> tuple:
     """
-    Creación de usuario
+    Creacion de usuario
     """
     data = request.get_json()
 
     message, success = auth_service.create_user_db(data)
 
     if success:
-        full_name = f'{data.get("firstName", "")} {data.get("lastName", "")}'.strip()
+        full_name = f'{data.get("firstName")} {data.get("lastName")}'.strip()
         email = data.get('email', '')
-
-        # Envío en segundo plano
-        threading.Thread(target=welcome.send_welcome_email, args=(email, full_name)).start()
-
-        return jsonify({
-            "message": message,
-            "success": True
-        }), 201
+        if welcome.send_welcome_email(recipient=email, user_name=full_name):
+            return jsonify({
+                "message": message,
+                "success": True
+            }), 201
+        
+        else:
+            return jsonify({
+                "message": 'usuario creado exitosamente. Fallo en la mensajeria.',
+                "success": True
+            }), 201
 
     else:
         return jsonify({
@@ -195,9 +197,10 @@ def user_forgot_password():
     if not inserted:
         return jsonify({'message': 'No se pudo generar el código.', 'success': False}), 500
     
+    if not vce.send_verification_email(email, code):
+        return jsonify({'message': 'No se pudo enviar el código.', 'success': False}), 500
+    
     reset_token = jwts.create_token(user_data={'email': email}, expires_in=RESET_PASS_TOKEN_EXPIRES, type='reset_pass')
-
-    threading.Thread(target=vce.send_verification_email, args=(email, code)).start()
 
     return jsonify({'message': 'codigo enviado exitosamente.', 'token': reset_token,'success': True}), 200
 
