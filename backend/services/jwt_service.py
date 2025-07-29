@@ -83,6 +83,10 @@ class JWTService:
                     Returns:
                         function: La función original con los datos del usuario añadidos a la solicitud."""
                 token = None
+
+                if request.method == 'OPTIONS':
+                    return jsonify({'message': 'OK'}), 200
+                
                 auth_header = request.headers.get('Authorization')
                 if auth_header and auth_header.startswith('Bearer ') and expected_type != 'refresh':
                     token = auth_header.split(' ')[1]
