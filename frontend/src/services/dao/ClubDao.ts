@@ -22,15 +22,16 @@ class ClubDao {
    * Obtiene la lista completa de todos los clubs disponibles.
    */
   static async fetchAll(): Promise<ClubDTO[]> {
-    const response = await http.get<ClubDTO[]>('/api/clubs');
-    return response.data;
+    const response = await http.get('/api/groups');
+    // El backend responde { clubs_list: [...] }
+    return response.data?.clubs_list ?? [];
   }
 
   /**
    * Obtiene los detalles de un club específico por su ID.
    */
   static async fetchDetails(clubId: number): Promise<ClubDTO> {
-    const response = await http.get<ClubDTO>(`/api/clubs/${clubId}`);
+    const response = await http.get<ClubDTO>(`/api/groups/${clubId}`);
     return response.data;
   }
 
@@ -38,7 +39,7 @@ class ClubDao {
    * Crea un nuevo club.
    */
   static async create(clubData: ClubCreateRequestDTO): Promise<ClubDTO> {
-    const response = await http.post<ClubDTO>('/api/clubs', clubData);
+    const response = await http.post<ClubDTO>('/api/groups', clubData);
     return response.data;
   }
 
@@ -46,7 +47,7 @@ class ClubDao {
    * Actualiza un club existente.
    */
   static async update(clubId: number, clubData: ClubUpdateRequestDTO): Promise<ClubDTO> {
-    const response = await http.put<ClubDTO>(`/api/clubs/${clubId}`, clubData);
+    const response = await http.put<ClubDTO>(`/api/groups/${clubId}`, clubData);
     return response.data;
   }
 
@@ -54,29 +55,35 @@ class ClubDao {
    * Elimina un club.
    */
   static async delete(clubId: number): Promise<void> {
-    await http.delete(`/api/clubs/${clubId}`);
+    await http.delete(`/api/groups/${clubId}`);
   }
 
   /**
    * Obtiene los miembros de un club.
    */
   static async getMembers(clubId: number): Promise<ClubMemberDTO[]> {
-    const response = await http.get<ClubMemberDTO[]>(`/api/clubs/${clubId}/members`);
+    const response = await http.get<ClubMemberDTO[]>(`/api/groups/${clubId}/members`);
     return response.data;
   }
 
   /**
    * Solicita unirse a un club.
    */
-  static async requestJoin(payload: JoinClubRequestDTO): Promise<void> {
-    await http.post(`/api/clubs/${payload.club_id}/join-requests`, payload);
+  static async joinClub(payload: JoinClubRequestDTO): Promise<void> {
+    // Backend endpoint: POST /api/groups/<club_id>/join
+    await http.post(`/api/groups/${payload.club_id}/join`, payload);
+  }
+
+    static async leaveClub(payload: JoinClubRequestDTO): Promise<void> {
+    // Backend endpoint: POST /api/groups/<club_id>/join
+    await http.post(`/api/groups/${payload.club_id}/leave`, payload);
   }
 
   /**
    * Obtiene las solicitudes de unión pendientes de un club.
    */
   static async getJoinRequests(clubId: number): Promise<JoinRequestDTO[]> {
-    const response = await http.get<JoinRequestDTO[]>(`/api/clubs/${clubId}/join-requests`);
+    const response = await http.get<JoinRequestDTO[]>(`/api/groups/${clubId}/join-requests`);
     return response.data;
   }
 
@@ -91,8 +98,9 @@ class ClubDao {
    * Obtiene los clubs de los que es miembro el usuario autenticado.
    */
   static async getMyClubs(): Promise<ClubDTO[]> {
-    const response = await http.get<ClubDTO[]>('/api/users/me/clubs');
-    return response.data;
+    const response = await http.get('/api/users/me/groups');
+    // El backend responde { groups_list: [...] }
+    return response.data?.groups_list ?? [];
   }
 
   /**

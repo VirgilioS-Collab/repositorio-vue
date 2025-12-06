@@ -98,13 +98,14 @@ def get_all_clubs():
 
 
 @jwts.token_required('access')
-def request_join_group(club_id: int):
+def join_group(club_id: int):
     """
-    Permite a un usuario solicitar unirse a un grupo.
+    Permite a un usuario unirse directamente a un grupo sin necesidad de aprobación.
+    El usuario se agrega automáticamente a la tabla de miembros del grupo.
     """
     try:
         user_id = request.current_user.get('user_id')
-        message, success = ClubService.request_group_join_db(user_id, club_id)
+        message, success = ClubService.join_group_direct_db(user_id, club_id)
 
         status_code = 200 if success else 400
         return jsonify({
@@ -117,6 +118,29 @@ def request_join_group(club_id: int):
             'success': False,
             'message': 'Error del servidor al procesar la solicitud'
         }), 500
+
+@jwts.token_required('access')
+def leave_group(club_id: int):
+    """
+    Permite a un usuario unirse directamente a un grupo sin necesidad de aprobación.
+    El usuario se agrega automáticamente a la tabla de miembros del grupo.
+    """
+    try:
+        user_id = request.current_user.get('user_id')
+        message, success = ClubService.leave_group_db(user_id, club_id)
+
+        status_code = 200 if success else 400
+        return jsonify({
+            'success': success,
+            'message': message
+        }), status_code
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': 'Error del servidor al procesar la solicitud'
+        }), 500
+
 
 
 @jwts.token_required('access')

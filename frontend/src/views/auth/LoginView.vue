@@ -30,7 +30,7 @@ const showForgot = ref(false)
  * @effects Redirige al usuario a `redirectPath` o a la página de inicio.
  */
 function onUserLoggedIn(): void {
-  const redirectPath = (route.query.redirect as string) || '/';
+  const redirectPath = (route.query.redirect as string) || '/home';
   router.push(redirectPath);
 }
 
@@ -70,17 +70,12 @@ function onCloseForgotPasswordModal(): void {
       <div class="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-center bg-gray-50/50">
         <LoginForm
             @logged="onUserLoggedIn"
-            @forgot="onForgotPassword"
         />
-        <p class="text-center text-sm text-gray-600 mt-6">
-          <b>Crea una página</b> para un club de estudio o comunidad.
-        </p>
       </div>
     </div>
   </main>
 
   <Teleport to="body">
-    <ForgotPasswordModal v-if="showForgot" @close="onCloseForgotPasswordModal" />
     <LoadingOverlay v-if="auth.loading" />
   </Teleport>
 </template>

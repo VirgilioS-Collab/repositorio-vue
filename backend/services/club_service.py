@@ -177,6 +177,68 @@ class ClubService:
                 cursor.close()
             if conn:
                 conn.close()
+    
+    @staticmethod
+    def join_group_direct_db(user_id: int, club_id: int) -> tuple[str, bool]:
+        """
+        Permite que un usuario se una directamente a un grupo sin aprobación
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_join_group_direct", (user_id, club_id))
+
+            conn.commit()
+            result = cursor.fetchone()
+            
+            if result is None:
+                return ("Error: No se recibió respuesta del servidor", False)
+            
+            success, message, data = result
+
+            return (message, success)
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    @staticmethod
+    def leave_group_db(user_id: int, club_id: int) -> tuple[str, bool]:
+        """
+        Permite que un usuario se salga de un grupo
+        """
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.callproc("public.fn_remove_group_member", (user_id, club_id))
+
+            conn.commit()
+            result = cursor.fetchone()
+            
+            if result is None:
+                return ("Error: No se recibió respuesta del servidor", False)
+            
+            success, message, data = result
+
+            return (message, success)
+        
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            return (str(e), False)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
             
     @staticmethod
     def create_club_db (group_name:str, group_desc:str, owner_id:int, group_category: str, max_group_per_user:int, contact_info:list) -> tuple[str, bool]:

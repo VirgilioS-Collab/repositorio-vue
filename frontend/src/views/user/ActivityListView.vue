@@ -28,8 +28,8 @@ const categoryFilter = ref('all');
 const filteredActivities = computed(() => {
   return activities.value.filter((activity: ActivityDTO) => {
     const searchMatch = searchQuery.value.trim() === '' ||
-      activity.ga_activity_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      activity.ga_group_id?.toString().toLowerCase().includes(searchQuery.value.toLowerCase()); // Asumiendo que el ID del grupo se puede buscar
+      (activity.activity_name?.toLowerCase() ?? '').includes(searchQuery.value.toLowerCase()) ||
+      activity.group_name?.toString().toLowerCase().includes(searchQuery.value.toLowerCase()); 
     
     // Asumiendo que tu DTO tiene 'ga_activity_type'
     const categoryMatch = categoryFilter.value === 'all' ||
@@ -38,6 +38,28 @@ const filteredActivities = computed(() => {
     return searchMatch && categoryMatch;
   });
 });
+
+/**
+ * Formatea la fecha de una actividad al formato "Mes Día, Año" (ej. "Noviembre 15, 2025")
+ */
+const formatActivityDate = (activityDatetime: any) => {
+  if (!activityDatetime || !Array.isArray(activityDatetime) || activityDatetime.length === 0) {
+    return 'Fecha no disponible';
+  }
+  
+  const dateString = activityDatetime[0]?.start_date;
+  if (!dateString) return 'Fecha no disponible';
+  
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return 'Fecha no disponible';
+  
+  const month = new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(date);
+  const capMonth = month.charAt(0).toUpperCase() + month.slice(1);
+  const day = date.getDate();
+  const year = date.getFullYear();
+  
+  return `${capMonth} ${day}, ${year}`;
+};
 
 // --- CICLO DE VIDA ---
 onMounted(() => {
@@ -64,15 +86,6 @@ onMounted(() => {
           />
           <LucideIcon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
-        <div class="flex gap-4 w-full md:w-auto">
-          <select v-model="categoryFilter" class="input-focus-effect rounded-full px-4 py-2.5 w-full md:w-auto">
-            <option value="all">Todas las categorías</option>
-            <option value="Taller">Taller</option>
-            <option value="Deportivo">Deportivo</option>
-            <option value="Cultural">Cultural</option>
-            <option value="Académico">Académico</option>
-          </select>
-        </div>
       </div>
 
       <div v-if="loading" class="text-center py-16">
@@ -82,10 +95,10 @@ onMounted(() => {
       <div v-else-if="filteredActivities.length > 0" class="space-y-4">
         <div v-for="activity in filteredActivities" :key="activity.activity_id" class="bg-card border border-gray-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm hover:shadow-xl transition-shadow">
           <div>
-            <span class="text-xs font-bold uppercase text-accent">{{ activity.ga_group_id }}</span>
-            <h3 class="text-xl font-bold text-primary">{{ activity.ga_activity_name }}</h3>
+            <span class="text-xs font-bold uppercase text-accent">{{ activity.group_name }}</span>
+            <h3 class="text-xl font-bold text-primary">{{ activity.activity_name }}</h3>
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600 mt-1">
-              <span class="flex items-center gap-1.5"><LucideIcon name="calendar-days" :size="16"/> {{ new Date(activity.schedules?.[0]?.start_date || '').toLocaleDateString('es-PA') }}</span>
+              <span class="flex items-center gap-1.5"><LucideIcon name="calendar-days" :size="16"/> {{ formatActivityDate(activity.activity_datetime) }}</span>
               <span class="flex items-center gap-1.5"><LucideIcon name="map-pin" :size="16"/> {{ activity.location || 'Online' }}</span>
             </div>
           </div>

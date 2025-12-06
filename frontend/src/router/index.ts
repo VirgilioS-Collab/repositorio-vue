@@ -61,7 +61,11 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: false },
         children: [
             {
-                path: '', // La ruta raíz (/) renderiza HomeView dentro del DefaultLayout
+                path: '', // La ruta raíz (/) redirige a login
+                redirect: '/login'
+            },
+            {
+                path: 'home',
                 name: 'Home',
                 component: () => import('@/views/user/HomeView.vue'),
             },

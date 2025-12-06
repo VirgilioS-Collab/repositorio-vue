@@ -55,7 +55,7 @@ class ActivityDao {
      * Se une a una actividad.
      */
     static async join(payload: JoinActivityRequestDTO): Promise<void> {
-        await http.post(`/api/activities/${payload.activity_id}/participants`, payload);
+        await http.post(`/api/user/me/activity/${payload.activity_id}`, payload);
     }
 
     /**
@@ -77,7 +77,7 @@ class ActivityDao {
      * Obtiene todas las actividades del usuario autenticado.
      */
     static async getMyActivities(options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
-        const { data } = await http.get<ActivityDTO[]>('/api/users/me/activities', options);
+        const { data } = await http.get<ActivityDTO[]>('/api/user/me/activities', options);
         return data;
     }
 
@@ -85,7 +85,7 @@ class ActivityDao {
      * Obtiene las actividades de un club específico.
      */
     static async getByGroup(clubId: number, options?: { signal?: AbortSignal }): Promise<ActivityDTO[]> {
-        const { data } = await http.get<ActivityDTO[]>(`/api/clubs/${clubId}/activities`, options);
+        const { data } = await http.get<ActivityDTO[]>(`/api/groups/${clubId}/activities`, options);
         return data;
     }
 
@@ -93,7 +93,7 @@ class ActivityDao {
      * Obtiene estadísticas de inscripciones de actividades para un club específico.
      */
     static async fetchEnrollmentStats(clubId: number): Promise<ActivityEnrollmentStatsDTO[]> {
-        const { data } = await http.get<ActivityEnrollmentStatsDTO[]>(`/api/clubs/${clubId}/activity-enrollment-stats`);
+        const { data } = await http.get<ActivityEnrollmentStatsDTO[]>(`/api/gropus/${clubId}/activity-enrollment-stats`);
         return data;
     }
 }

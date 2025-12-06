@@ -11,7 +11,8 @@ from controllers.club_controller import (
     get_weekly_activity_heatmap,
     get_activity_enrollment_stats,
     get_club_members,
-    request_join_group,
+    join_group,
+    leave_group,
     club_pending_approval_request,
     update_pending_join_request,
     create_club,
@@ -28,7 +29,8 @@ club_bp = Blueprint("club_bp", __name__)
 # Rutas para clubs/grupos
 club_bp.route("/api/groups/<int:club_id>", methods=['GET'])(get_club_details)
 club_bp.route("/api/users/me/groups", methods=['GET'])(get_club_by_user)
-club_bp.route("/api/groups/<int:club_id>/join", methods=['POST'])(request_join_group)
+club_bp.route("/api/groups/<int:club_id>/join", methods=['POST'])(join_group)
+club_bp.route("/api/groups/<int:club_id>/leave", methods=['POST'])(leave_group)
 club_bp.route("/api/groups", methods= ['POST'])(create_club)
 club_bp.route("/api/groups", methods=['GET'])(get_all_clubs)
 club_bp.route("/api/groups/<int:club_id>/photo", methods=['PUT'])(upload_group_pfp)

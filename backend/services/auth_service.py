@@ -72,20 +72,23 @@ def create_user_db(enroll_data: dict) -> tuple[str, bool]:
     """Registro del usuario a nivel de Base de Datos."""
     try:
         conn = get_connection()
+        print('me conecte jeje')
+        print(enroll_data)
+
         cursor = conn.cursor()
 
         hashed_password = hash_password(enroll_data.get('password'))
 
         cursor.callproc('public.fn_insert_user', (
-            enroll_data.get("firstName"),
-            enroll_data.get("lastName"),
+            enroll_data.get("first_name"),
+            enroll_data.get("last_name"),
             enroll_data.get("username"),
             enroll_data.get("email"),
             enroll_data.get("phone"),
             hashed_password,
-            enroll_data.get("birthDate"),
-            enroll_data.get("docNumber"),
-            enroll_data.get("docType"),
+            enroll_data.get("birth_date"),
+            enroll_data.get("doc_number"),
+            enroll_data.get("doc_type"),
             enroll_data.get("gender")))
 
         message, success = cursor.fetchone()

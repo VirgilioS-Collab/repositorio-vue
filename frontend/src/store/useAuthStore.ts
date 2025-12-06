@@ -111,15 +111,23 @@ export const useAuthStore = defineStore('auth', {
 
         // Verifica si el token ha expirado
         if (decodedToken.exp * 1000 < Date.now()) {
-          console.log('Token expirado. Se requiere nuevo inicio de sesión.');
-          this.logout();
-          return;
+          // Intentar refrescar el token usando la cookie de refresh
+          try {
+            const { token: newToken } = await AuthDao.refresh();
+            this.setAccessToken(newToken);
+            const fullUser = await AuthDao.me();
+            this.user = fullUser;
+            return;
+          } catch (refreshError) {
+            console.log('Token expirado y refresh falló. Se requiere nuevo inicio de sesión.');
+            await this.logout();
+            return;
+          }
         }
 
+        // Token aún válido: restaurarlo y obtener datos de usuario
         this.setAccessToken(token);
-        
         // Una vez logueado y con el token, obtener los detalles completos del usuario
-        // y mapearlos a la versión "lean".
         const fullUser = await AuthDao.me();
         this.user = fullUser;
       } catch (error) {

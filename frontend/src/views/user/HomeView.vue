@@ -29,7 +29,7 @@ import ViewProfileModal from '@/components/modals/ViewProfileModal.vue';
 import EditProfileModal from '@/components/modals/EditProfileModal.vue';
 import SecurityModal from '@/components/modals/SecurityModal.vue';
 import CreateActivityModal from '@/components/modals/CreateActivityModal.vue';
-import CreateClubModal from '@/components/modals/CreateClubModal.vue'; // Importar el nuevo modal
+import CreateClubModal from '@/components/modals/CreateClubModal.vue';
 
 // Componente del nuevo Overlay para modales
 import ModalOverlay from '@/components/ui/ModalOverlay.vue';
@@ -37,10 +37,9 @@ import ModalOverlay from '@/components/ui/ModalOverlay.vue';
 // Componentes de UI generales
 import ToastNotification from '@/components/ui/ToastNotification.vue';
 
-// AÑADIDO: Importamos los nuevos widgets que vamos a crear
+// Widgets
 import UpcomingEventsWidget from '@/components/widgets/UpcomingEventsWidget.vue';
 import CalendarWidget from '@/components/widgets/CalendarWidget.vue';
-import NotificationsWidget from '@/components/widgets/NotificationsWidget.vue';
 
 
 // Sección Principal (Script Setup)
@@ -49,15 +48,11 @@ import NotificationsWidget from '@/components/widgets/NotificationsWidget.vue';
 const userStore = useUserStore();
 const authStore = useAuthStore();
 
-// Desestructura las propiedades reactivas del store, incluyendo el getter `isAnyModalOpen`
-// y el estado `user` y `loading`.
 const {
-  modals, toast, filteredClubs, showAllClubs, isAnyModalOpen, loading
+  modals, toast, isAnyModalOpen
 } = storeToRefs(userStore);
 
-const { toggleClubsView } = userStore;
-
-const showCreateClubModal = ref(false); // Nuevo estado para controlar la visibilidad del modal
+const showCreateClubModal = ref(false);
 
 function openCreateClubModal() {
   showCreateClubModal.value = true;
@@ -65,13 +60,7 @@ function openCreateClubModal() {
 
 function closeCreateClubModal() {
   showCreateClubModal.value = false;
-  // Opcional: Recargar los clubes del usuario después de crear uno nuevo
-  // userStore.fetchProfile(); // Ya no es necesario, authStore.currentUser se actualiza en el login/refresh
 }
-
-// Cargar datos del usuario al montar el componente
-// La carga del perfil del usuario ya se maneja en useAuthStore.tryLoadTokenFromStorage
-// al inicio de la aplicación. No es necesario volver a llamarlo aquí.
 
 </script>
 
@@ -88,29 +77,14 @@ function closeCreateClubModal() {
                      :message="toast.message"
                      :type="toast.type" />
 
-  <main class="p-4 sm:p-6 lg:p-8">
+  <main class="p-4 sm:p-6 lg:p-8 bg-white">
     <div class="max-w-screen-xl mx-auto">
       
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         <div class="lg:col-span-2 space-y-10">
           <QuickActions />
-          <button @click="openCreateClubModal" class="btn-primary-admin mb-4">Crear Nuevo Club</button>
-          <ClubsSection
-              :clubs="filteredClubs || []"
-              :show-all-clubs="showAllClubs"
-              @toggle-clubs-view="toggleClubsView"
-          />
-          <ActivitiesSection :activities="authStore.currentUser?.activities || []" />
+          <ClubsSection />
+          <ActivitiesSection />
         </div>
-
-        <div class="lg:col-span-1 space-y-8">
-          <UpcomingEventsWidget :activities="authStore.currentUser?.activities || []" />
-          <CalendarWidget :activities="authStore.currentUser?.activities || []" />
-          <NotificationsWidget :notifications="authStore.currentUser?.notifications || []" />
-        </div>
-
-      </div>
     </div>
   </main>
 </template>

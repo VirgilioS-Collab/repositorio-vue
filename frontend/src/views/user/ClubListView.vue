@@ -17,13 +17,9 @@ const categoryFilter = ref('all');
 const filteredClubs = computed(() => {
   return clubs.value.filter(club => {
     const searchMatch = searchTerm.value.trim() === '' ||
-      club.g_group_name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      club.g_group_description?.toLowerCase().includes(searchTerm.value.toLowerCase());
-    
-    const categoryMatch = categoryFilter.value === 'all' ||
-      club.g_group_category === categoryFilter.value;
-      
-    return searchMatch && categoryMatch;
+      club.group_name?.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      club.group_description?.toLowerCase().includes(searchTerm.value.toLowerCase());
+    return searchMatch;
   });
 });
 
@@ -50,15 +46,6 @@ onMounted(() => {
           />
           <LucideIcon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
-        <div class="flex gap-4 w-full md:w-auto">
-          <select v-model="categoryFilter" class="input-focus-effect rounded-full px-4 py-2.5 w-full md:w-auto">
-            <option value="all">Todas las categorías</option>
-            <option value="Academico">Académico</option>
-            <option value="Deportivo">Deportivo</option>
-            <option value="Cultural">Cultural</option>
-            <option value="Social">Social</option>
-          </select>
-        </div>
       </div>
 
       <div v-if="loading" class="text-center py-16">
@@ -66,19 +53,19 @@ onMounted(() => {
       </div>
 
       <div v-else-if="filteredClubs.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="club in filteredClubs" :key="club.club_id" class="bg-card border border-gray-200 rounded-xl p-5 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-          <h3 class="text-xl font-bold text-primary mb-2">{{ club.g_group_name }}</h3>
-          <p class="text-sm text-gray-600 flex-grow mb-4">{{ club.g_group_description || 'Este club no ha añadido una descripción.' }}</p>
-          <RouterLink :to="{ name: 'ClubDetail', params: { id: club.club_id } }" class="mt-auto w-full py-2 text-center font-semibold bg-accent text-primary rounded-lg hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">
+        <div v-for="club in filteredClubs" :key="club.group_id" class="bg-card border border-gray-200 rounded-xl p-5 flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+          <h3 class="text-xl font-bold text-primary mb-2">{{ club.group_name }}</h3>
+          <p class="text-sm text-gray-600 flex-grow mb-4">{{ club.group_description || 'Este club no ha añadido una descripción.' }}</p>
+          <RouterLink :to="{ name: 'ClubDetail', params: { id: club.group_id } }" class="mt-auto w-full py-2 text-center font-semibold bg-accent text-primary rounded-lg hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">
             Ver Club
           </RouterLink>
         </div>
       </div>
 
-      <div v-else class="text-center py-16 bg-card rounded-xl border border-dashed">
+      <div v-if="filteredClubs.length <= 0" class="text-center py-16 bg-card rounded-xl border border-dashed">
         <LucideIcon name="search-x" :size="48" class="text-gray-400 mx-auto" />
         <h3 class="mt-4 text-xl font-semibold text-darkText">No se encontraron clubs</h3>
-        <p class="mt-1 text-gray-500">Intenta ajustar tus filtros de búsqueda.</p>
+        <p class="mt-1 text-gray-500">Intenta ajustar tu búsqueda.</p>
       </div>
 
       <!-- Tarjetas de ejemplo (placeholders) -->

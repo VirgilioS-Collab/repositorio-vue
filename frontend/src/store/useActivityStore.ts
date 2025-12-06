@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import ActivityDao from '@/services/dao/ActivityDao';
+import { useUserStore } from '@/store/useUserStore';
 import type { ActivityDTO, ActivityEnrollmentStatsDTO, ActivityCreateRequestDTO } from '@/services/dao/models/Activity';
 
 export const useActivityStore = defineStore('activity', {
@@ -76,6 +77,19 @@ export const useActivityStore = defineStore('activity', {
       }
     },
 
+    async fetchByClub(clubId: number) {
+      this.loading = true;
+      this.error = null;
+      try {
+        this.activities = await ActivityDao.getByGroup(clubId);
+      } catch (err: any) {
+        this.error = err.message;
+        this.activities = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+
     async fetchActivityDetails(id: number) {
       this.loading = true;
       this.error = null;
@@ -89,17 +103,14 @@ export const useActivityStore = defineStore('activity', {
     },
 
     async joinActivity(activityId: number) {
-      this.loading = true;
       this.error = null;
+
       try {
         await ActivityDao.join({ activity_id: activityId });
-        // Opcional: Actualizar el estado de la actividad o del usuario
-        this.showToast('Inscripción exitosa!', 'success');
+
       } catch (err: any) {
-        this.error = err.message;
-        this.showToast(`Error al inscribirse: ${err.message}`, 'error');
-      } finally {
-        this.loading = false;
+        this.error = err.response?.data?.message || err.message;
+        throw err; // ← necesario para que el componente reciba el error
       }
     },
 
@@ -108,11 +119,12 @@ export const useActivityStore = defineStore('activity', {
       this.error = null;
       try {
         await ActivityDao.leave(activityId);
-        // Opcional: Actualizar el estado de la actividad o del usuario
-        this.showToast('Te has desinscrito de la actividad.', 'success');
+        const userStore = useUserStore();
+        userStore.showToast('Te has desinscrito de la actividad.', 'success');
       } catch (err: any) {
         this.error = err.message;
-        this.showToast(`Error al desinscribirse: ${err.message}`, 'error');
+        const userStore = useUserStore();
+        userStore.showToast(`Error al desinscribirse: ${err.message}`, 'error');
       } finally {
         this.loading = false;
       }
@@ -134,10 +146,12 @@ export const useActivityStore = defineStore('activity', {
         };
         const newActivity = await ActivityDao.create(clubId, createRequest);
         this.activities.push(newActivity);
-        this.showToast('Actividad creada exitosamente!', 'success');
+        const userStore = useUserStore();
+        userStore.showToast('Actividad creada exitosamente!', 'success');
       } catch (err: any) {
         this.error = err.message;
-        this.showToast(`Error al crear actividad: ${err.message}`, 'error');
+        const userStore = useUserStore();
+        userStore.showToast(`Error al crear actividad: ${err.message}`, 'error');
       } finally {
         this.loading = false;
       }
@@ -152,10 +166,12 @@ export const useActivityStore = defineStore('activity', {
         if (index !== -1) {
           this.activities[index] = updatedActivity;
         }
-        this.showToast('Actividad actualizada exitosamente!', 'success');
+        const userStore = useUserStore();
+        userStore.showToast('Actividad actualizada exitosamente!', 'success');
       } catch (err: any) {
         this.error = err.message;
-        this.showToast(`Error al actualizar actividad: ${err.message}`, 'error');
+        const userStore = useUserStore();
+        userStore.showToast(`Error al actualizar actividad: ${err.message}`, 'error');
       } finally {
         this.loading = false;
       }
@@ -167,10 +183,12 @@ export const useActivityStore = defineStore('activity', {
       try {
         await ActivityDao.delete(activityId); // Cambiado de .remove a .delete
         this.activities = this.activities.filter(act => act.activity_id !== activityId);
-        this.showToast('Actividad eliminada exitosamente!', 'success');
+        const userStore = useUserStore();
+        userStore.showToast('Actividad eliminada exitosamente!', 'success');
       } catch (err: any) {
         this.error = err.message;
-        this.showToast(`Error al eliminar actividad: ${err.message}`, 'error');
+        const userStore = useUserStore();
+        userStore.showToast(`Error al eliminar actividad: ${err.message}`, 'error');
       } finally {
         this.loading = false;
       }
@@ -192,10 +210,6 @@ export const useActivityStore = defineStore('activity', {
       this.fetchActivities();
     },
 
-    // Pequeña utilidad para mostrar toasts, se puede mover a un store de UI global si es necesario
-    showToast(message: string, type: 'success' | 'error' | 'warning', duration: number = 3000){
-      // Esto es un placeholder. En una app real, se usaría un sistema de toasts global.
-      console.log(`TOAST (${type}): ${message}`);
-    },
+    // Nota: ahora usamos el store global de usuario para mostrar los toasts
   },
 });

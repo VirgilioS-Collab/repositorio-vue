@@ -35,8 +35,12 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER", "no-reply@l
 #Inicializacion de flask mail
 init_mail(app)
 
-#CORS
-frontend_origins = os.getenv('FRONTEND_ORIGIN', '')
+# CORS
+# Obtener orígenes desde la variable de entorno. Si no está definida,
+# usar el origen del frontend local por defecto para desarrollo.
+frontend_origins = os.getenv('FRONTEND_ORIGIN')
+if not frontend_origins:
+    frontend_origins = 'http://localhost:5173'
 allowed_origins = [origin.strip() for origin in frontend_origins.split(',') if origin.strip()]
 CORS(app, resources={r"/api/*": {'origins': allowed_origins}}, supports_credentials=True)
 

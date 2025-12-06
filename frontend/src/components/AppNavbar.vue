@@ -18,8 +18,8 @@ const userMenuButton = ref<HTMLElement | null>(null);
 const userMenuDropdown = ref<HTMLElement | null>(null);
 
 // --- SECCIÓN DE PROPIEDADES COMPUTADAS ---
-const userName = computed((): string => authStore.currentUser?.u_name || 'Usuario');
-const userPhoto = computed((): string | undefined => authStore.currentUser?.u_profile_photo_url || undefined);
+const userName = computed((): string => authStore.currentUser?.name || 'Usuario');
+const userPhoto = computed((): string | undefined => authStore.currentUser?.profile_photo_url || undefined);
 const isUserMenuOpen = computed(() => userStore.showProfileDropdown);
 
 // --- SECCIÓN DE FUNCIONES ---
@@ -80,22 +80,6 @@ onUnmounted(() => {
 
         <div class="hidden md:block">
           <div class="ml-4 flex items-center md:ml-6 gap-4">
-            <div class="relative">
-              <button @click="userStore.toggleNotificationPanel()" class="relative p-1 rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-white" aria-label="Ver notificaciones">
-                <LucideIcon name="bell" :size="24" />
-                <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-primary"></span>
-              </button>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="transform opacity-0 scale-95"
-                enter-to-class="transform opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="transform opacity-100 scale-100"
-                leave-to-class="transform opacity-0 scale-95"
-              >
-                <NotificationPanel v-if="userStore.showNotificationPanel" />
-              </transition>
-            </div>
 
             <div class="relative">
               <button ref="userMenuButton" @click="userStore.toggleProfileDropdown()" class="flex items-center gap-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary focus:ring-white">
@@ -121,13 +105,11 @@ onUnmounted(() => {
                       <div v-else class="h-10 w-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary text-lg">{{ userName.charAt(0) }}</div>
                       <div>
                         <p class="text-sm font-semibold text-darkText">{{ userName }}</p>
-                        <p class="text-xs text-gray-500">{{ authStore.currentUser?.u_email }}</p>
+                        <p class="text-xs text-gray-500">{{ authStore.currentUser?.email }}</p>
                       </div>
                     </div>
                   </div>
                   <div class="py-1">
-                    <a href="#" @click.prevent="handleOpenModalAndCloseMenu('viewProfile', 'desktop')" class="user-menu-item">Mi Perfil</a>
-                    <a href="#" @click.prevent="handleOpenModalAndCloseMenu('security', 'desktop')" class="user-menu-item">Seguridad</a>
                     <a href="#" @click.prevent="handleLogout" class="user-menu-item">Cerrar Sesión</a>
                   </div>
                 </div>
@@ -159,15 +141,10 @@ onUnmounted(() => {
           </div>
           <div class="ml-3">
             <div class="text-base font-medium">{{ userName }}</div>
-            <div class="text-sm font-medium text-gray-300">{{ authStore.currentUser?.u_email }}</div>
+            <div class="text-sm font-medium text-gray-300">{{ authStore.currentUser?.email }}</div>
           </div>
-           <button @click="userStore.toggleNotificationPanel(); isMobileMenuOpen = false" class="relative ml-auto flex-shrink-0 p-1 rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-white" aria-label="Ver notificaciones">
-            <LucideIcon name="bell" :size="24" />
-          </button>
         </div>
         <div class="mt-3 px-2 space-y-1">
-          <a href="#" @click.prevent="handleOpenModalAndCloseMenu('viewProfile', 'mobile')" class="user-menu-item-mobile">Mi Perfil</a>
-          <a href="#" @click.prevent="handleOpenModalAndCloseMenu('security', 'mobile')" class="user-menu-item-mobile">Seguridad</a>
           <a href="#" @click.prevent="handleLogout" class="user-menu-item-mobile">Cerrar Sesión</a>
         </div>
       </div>

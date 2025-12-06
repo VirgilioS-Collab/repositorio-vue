@@ -37,6 +37,7 @@ export const useClubStore = defineStore('club', {
     creatingClub: false,
     updatingClub: false,
     joiningClub: false,
+    leavingClub: false,
     weeklyActivityHeatmap: [] as WeeklyActivityHeatmapDTO[],
     error: null as string | null,
   }),
@@ -195,16 +196,29 @@ export const useClubStore = defineStore('club', {
     /**
      * Solicita unirse a un club
      */
-    async requestJoinClub(clubId: number): Promise<void> {
+    async joinClub(clubId: number): Promise<void> {
       this.joiningClub = true;
       this.error = null;
       try {
-        await ClubDao.requestJoin({ club_id: clubId });
+        await ClubDao.joinClub({ club_id: clubId });
       } catch (err: any) {
         this.error = err.response?.data?.message || err.message || 'Error al solicitar unión al club';
         throw err;
       } finally {
         this.joiningClub = false;
+      }
+    },
+
+    async leaveClub(clubId: number): Promise<void> {
+      this.leavingClub = true;
+      this.error = null;
+      try {
+        await ClubDao.leaveClub({ club_id: clubId });
+      } catch (err: any) {
+        this.error = err.response?.data?.message || err.message || 'Error al solicitar unión al club';
+        throw err;
+      } finally {
+        this.leavingClub = false;
       }
     },
 

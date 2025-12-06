@@ -23,18 +23,23 @@ export interface ClubContactInfo {
  * DTO completo del club
  */
 export interface ClubDTO {
-  club_id: number;
-  g_group_name: string;
-  g_group_description: string;
-  g_group_category: string; // academic, recreational, sports, etc.
-  g_group_status: string; // active, inactive
+  club_id?: number;
+  group_id?: number;
+  group_name?: string;
+  group_description?: string;
+  group_type_name?: string; 
+  group_status_name?: string; 
   g_group_owner_id?: number;
+  owner_name?: string;
   group_uuid?: string;
   max_members?: number;
   current_members?: number;
+  members_count?: number; 
   created_date?: string;
+  creation_date?: string; 
   leader_name?: string;
-  image_url?: string;
+  logo_url?: string; 
+  image_url?: string; 
   contact_info?: ClubContactInfo;
   has_funds?: boolean;
 }

@@ -1,42 +1,50 @@
 <script setup lang="ts">
-/**
- * @file src/views/auth/LoginForm.vue
- * @description Formulario de inicio de sesión.
- * - MODIFICADO: Utiliza los colores del tema de Tailwind (primary y accent).
- * - MODIFICADO: Los enlaces de "Olvidé mi contraseña" y "Crear cuenta"
- * ahora usan RouterLink para navegar a sus respectivas páginas dedicadas,
- * desacoplando completamente este componente de otros flujos.
- */
-import { ref, computed } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import { useAuthStore } from '@/store/useAuthStore'
+import { ref, computed, onUnmounted, onDeactivated } from 'vue';
+import { useRouter, RouterLink, onBeforeRouteLeave } from 'vue-router';
+import { useAuthStore } from '@/store/useAuthStore';
 
-// --- SECCIÓN DE EMITS ---
-const emit = defineEmits<{ (e: 'logged'): void }>()
 
-// --- SECCIÓN DE CONSTANTES Y ESTADO ---
-const email = ref('')
-const password = ref('')
-const showPwd = ref(false)
-const auth = useAuthStore()
-const router = useRouter()
+const emit = defineEmits<{ (e: 'logged'): void }>();
 
-// --- SECCIÓN DE PROPIEDADES COMPUTADAS ---
+
+const email = ref('');
+const password = ref('');
+const showPwd = ref(false);
+const auth = useAuthStore();
+const router = useRouter();
+
 const emailValid = computed(() => /.+@.+\..+/.test(email.value));
-const formOk = computed(() => !!email.value && emailValid.value && !!password.value && !auth.loading)
+const formOk = computed(() => !!email.value && emailValid.value && !!password.value && !auth.loading);
 
-// --- SECCIÓN DE FUNCIONES ---
-/**
- * @docstring
- * Envía las credenciales al store para la autenticación.
- * Si el inicio de sesión es exitoso, emite el evento 'logged'.
- */
-async function submit(): Promise<void> {
-  if (!formOk.value) return
-  await auth.login({ email: email.value, password: password.value })
-  if (auth.isAuthenticated) {
-    emit('logged')
+function resetFormAndError() {
+  email.value = '';
+  password.value = '';
+  showPwd.value = false;
+
+  try {
+    (auth as any).error = null;
+  } catch (e) {
   }
+}
+
+onBeforeRouteLeave((to, from, next) => {
+  resetFormAndError();
+  next();
+});
+
+onDeactivated(() => {
+  resetFormAndError();
+});
+
+onUnmounted(() => {
+  resetFormAndError();
+});
+
+// --- SUBMIT ---
+async function submit(): Promise<void> {
+  if (!formOk.value) return;
+  await auth.login({ email: email.value, password: password.value });
+  if (auth.isAuthenticated) emit('logged');
 }
 </script>
 

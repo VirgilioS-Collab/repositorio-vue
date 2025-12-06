@@ -40,18 +40,29 @@ export interface ActivityEnrollmentStatsDTO {
  */
 export interface ActivityDTO {
   activity_id: number;
-  ga_activity_name: string;
-  ga_activity_description: string;
-  ga_activity_type: string; // meeting, workshop, event, etc.
-  ga_activity_status: string; // scheduled, in_progress, completed, cancelled
-  ga_group_id: number;
-  ga_creator_id: number;
-  activity_uuid?: string;
+  // Campos ga_* (nuevo formato)
+  ga_activity_name?: string;
+  ga_activity_description?: string;
+  ga_activity_type?: string;
+  ga_activity_status?: string;
+  ga_group_id?: number;
+  ga_creator_id?: number;
   ga_max_participants?: number;
+  ga_max_capacity?: number;
+  ga_current_participants?: number;
+  // Campos antiguos (formato backend actual)
+  activity_name?: string;
+  activity_description?: string;
+  activity_type_name?: string;
+  activity_status_name?: string;
+  max_participants?: number;
+  participants_count?: number;
+  creator_name?: string;
+  activity_datetime?: string;
+  // Campos comunes
+  activity_uuid?: string;
   group_name?: string;
-  club_name?: string; // Añadido según el error en Dashboard.vue
-  ga_max_capacity?: number; // Añadido según el error en Activities.vue y Dashboard.vue
-  ga_current_participants?: number; // Añadido según el error en Activities.vue y Dashboard.vue
+  club_name?: string;
   created_date?: string;
   current_participants?: number;
   location?: string;
